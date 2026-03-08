@@ -104,7 +104,7 @@ export function TodayResults({ currentDayResults, currentDate, fallbackResults =
         {/* Grid */}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {SESSION_SLOTS.map((slot, i) => {
-            const result = matchResult(currentDayResults, slot.time);
+            const result = matchResult(displayResults, slot.time);
             const has = !!result && !!result.twod && result.twod !== "--";
 
             return (
