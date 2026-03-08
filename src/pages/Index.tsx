@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/dashboard/HeroSection";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { SessionPanel } from "@/components/dashboard/SessionPanel";
 import { Footer } from "@/components/dashboard/Footer";
+import { TradingViewWidget } from "@/components/dashboard/TradingViewWidget";
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
 const Index = () => {
@@ -46,11 +47,14 @@ const Index = () => {
             />
           </div>
 
-          <SessionPanel
-            connectionStatus={dashboard.connectionStatus}
-            lastFetchTime={dashboard.lastFetchTime}
-            nextCheck={dashboard.nextCheck}
-          />
+          <div className="grid gap-5">
+            <SessionPanel
+              connectionStatus={dashboard.connectionStatus}
+              lastFetchTime={dashboard.lastFetchTime}
+              nextCheck={dashboard.nextCheck}
+            />
+            <TradingViewWidget />
+          </div>
         </div>
 
         <motion.section
