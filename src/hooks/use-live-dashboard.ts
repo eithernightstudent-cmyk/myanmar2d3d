@@ -370,9 +370,8 @@ export function useLiveDashboard() {
       if (hName && hName !== "null" && hName !== "NULL" && hName.trim() !== "") return hName;
       // Fallback for weekends
       if (!isLive && liveData) {
-        const day = parts.day;
-        if (day === 0) return "Sunday";
-        if (day === 6) return "Saturday";
+        if (parts.weekday === "Sun") return "Sunday";
+        if (parts.weekday === "Sat") return "Saturday";
       }
       return null;
     })(),
