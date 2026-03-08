@@ -71,7 +71,8 @@ export function Topbar({ ownerName }: TopbarProps) {
             <Link
               key={link.label}
               to={link.to}
-              className="rounded-full border border-transparent px-3 py-1.5 font-body text-sm font-semibold text-muted-foreground no-underline transition-all duration-200 hover:border-border hover:bg-primary/5 hover:text-primary"
+              onClick={() => tap()}
+              className="rounded-full border border-transparent px-3 py-1.5 font-body text-sm font-semibold text-muted-foreground no-underline transition-all duration-200 hover:border-border hover:bg-primary/5 hover:text-primary active:scale-95"
             >
               {link.label}
             </Link>
