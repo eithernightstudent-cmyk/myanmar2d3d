@@ -263,6 +263,17 @@ export function useLiveDashboard() {
     );
   }, [parts, rawStockDatetime, isLive]);
 
+  // Play verified chime when status transitions from finalizing → verified
+  useEffect(() => {
+    if (
+      prevVerificationRef.current === "finalizing" &&
+      resultVerificationStatus === "verified"
+    ) {
+      notifyVerified(twod);
+    }
+    prevVerificationRef.current = resultVerificationStatus;
+  }, [resultVerificationStatus, twod]);
+
   // Whether the 2D number is locked (verified or market fully closed with data)
   const isResultLocked = resultVerificationStatus === "verified" || 
     (!isLive && rawStockDatetime !== "");
