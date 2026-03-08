@@ -50,9 +50,11 @@ const Index = () => {
               flash={dashboard.flash}
               apiNote={dashboard.apiNote}
               isLive={dashboard.isLive}
+              isSyncing={dashboard.isSyncing}
               connectionStatus={dashboard.connectionStatus}
               currentDate={dashboard.currentDate}
               serverTime={dashboard.clock}
+              lastSuccessTime={dashboard.lastSuccessTime}
             />
             <ModernClock />
           </div>
