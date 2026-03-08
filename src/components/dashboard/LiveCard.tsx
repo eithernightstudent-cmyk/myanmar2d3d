@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { StatusPill } from "./StatusPill";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle } from "lucide-react";
 
 interface LiveCardProps {
   clock: string;
