@@ -184,3 +184,39 @@
 .anim-spin-slow { animation: spin-slow 12s linear infinite; }
 .anim-pulse-glow { animation: pulse-glow 2.5s ease-in-out infinite; }
 .anim-cloud-drift { animation: cloud-drift 4s ease-in-out infinite; }
+
+/* Dark mode enhancements */
+.dark article {
+  border-color: hsl(222 15% 18%);
+}
+
+.dark article:hover {
+  border-color: hsl(38 40% 25% / 0.5);
+  box-shadow: var(--glow-primary), var(--shadow-panel);
+}
+
+/* Subtle inner glow for dark mode cards */
+.dark .rounded-3xl {
+  transition: border-color 0.3s ease, box-shadow 0.4s ease;
+}
+
+/* Enhanced dark mode scrollbar */
+.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.dark ::-webkit-scrollbar-track {
+  background: hsl(222 25% 8%);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(222 15% 22%);
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(38 60% 40%);
+}
+
+/* Dark mode text gradient enhancement */
+.dark .text-primary {
+  text-shadow: 0 0 20px hsl(38 95% 58% / 0.2);
+}
