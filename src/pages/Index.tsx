@@ -22,7 +22,7 @@ const Index = () => {
         aria-hidden="true"
         style={{
           background:
-            "radial-gradient(circle at 14% 12%, rgba(45, 212, 191, 0.25), transparent 38%), radial-gradient(circle at 88% 8%, rgba(251, 191, 36, 0.24), transparent 42%), radial-gradient(circle at 52% 100%, rgba(15, 118, 110, 0.18), transparent 45%), linear-gradient(145deg, hsl(var(--background)), hsl(35 100% 95%))",
+            "radial-gradient(ellipse 70% 50% at 15% 10%, hsl(38 92% 50% / 0.12), transparent 50%), radial-gradient(ellipse 60% 40% at 85% 8%, hsl(152 65% 42% / 0.08), transparent 45%), radial-gradient(ellipse 80% 50% at 50% 100%, hsl(38 92% 50% / 0.06), transparent 50%), linear-gradient(160deg, hsl(var(--background)), hsl(36 50% 95%), hsl(32 40% 93%))",
         }}
       />
       {/* Dark mode ambient glow overlays */}
