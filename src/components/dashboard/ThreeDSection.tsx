@@ -26,11 +26,12 @@ export function ThreeDSection({ lastUpdated }: ThreeDSectionProps) {
   useEffect(() => {
     async function fetchThreeD() {
       try {
-        const response = await supabase.functions.invoke("set-live", {
-          body: { endpoint: "threed_result" },
-        });
-        if (!response.error && response.data?.data) {
-          setResults(response.data.data);
+        const { data, error } = await supabase
+          .from("threed_results")
+          .select("date, threed")
+          .order("date", { ascending: false });
+        if (!error && data) {
+          setResults(data);
         }
       } catch {
         // silent
