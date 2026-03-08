@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import logoImg from "@/assets/logo.png";
 
 interface TopbarProps {
   ownerName: string;
