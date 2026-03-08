@@ -171,6 +171,7 @@ export function useLiveDashboard() {
     isLive,
     flash,
     twod,
+    threed,
     setDigit,
     valueDigit,
     setFormatted,

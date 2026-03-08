@@ -50,11 +50,22 @@ export function LiveCard({
           </span>
         </div>
 
-        {/* Big 2D Number */}
+        {/* Big 2D & 3D Numbers */}
         <div className="grid min-h-[132px] place-items-center">
-          <span className="font-display text-[clamp(4.2rem,18vw,5.4rem)] font-bold leading-none text-primary [text-shadow:0_0_22px_hsl(var(--primary)/0.25)]">
-            {twod}
-          </span>
+          <div className="flex items-end gap-4">
+            <div className="text-center">
+              <span className="block font-display text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1">2D</span>
+              <span className="font-display text-[clamp(4.2rem,18vw,5.4rem)] font-bold leading-none text-primary [text-shadow:0_0_22px_hsl(var(--primary)/0.25)]">
+                {twod}
+              </span>
+            </div>
+            <div className="text-center pb-1">
+              <span className="block font-display text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1">3D</span>
+              <span className="font-display text-[clamp(2.4rem,10vw,3.2rem)] font-bold leading-none text-accent-foreground [text-shadow:0_0_16px_hsl(var(--foreground)/0.1)]">
+                {threed}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Calc Strip */}

@@ -44,7 +44,7 @@ export function SessionPanel({
             currentDayResults.map((entry, i) => (
               <li
                 key={i}
-                className="grid grid-cols-[auto_auto_1fr] items-center gap-2 rounded-md border border-border bg-secondary px-3 py-2.5"
+                className="grid grid-cols-[auto_auto_auto_1fr] items-center gap-2 rounded-md border border-border bg-secondary px-3 py-2.5"
               >
                 <span className="font-display text-[0.68rem] font-bold text-muted-foreground">
                   {formatResultTime(entry.open_time)}
