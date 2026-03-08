@@ -20,6 +20,7 @@ interface LiveCardProps {
   currentDate: string;
   serverTime: string;
   lastSuccessTime: string;
+  holidayName?: string | null;
 }
 
 export function LiveCard({
@@ -34,6 +35,7 @@ export function LiveCard({
   currentDate,
   serverTime,
   lastSuccessTime,
+  holidayName,
 }: LiveCardProps) {
   const marketClosed = !isLive;
 
@@ -56,7 +58,6 @@ export function LiveCard({
               Live 2D
             </span>
             <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
-            {/* Syncing indicator */}
             {isSyncing && (
               <div className="flex items-center gap-1 text-muted-foreground">
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
@@ -71,11 +72,18 @@ export function LiveCard({
           </span>
         </div>
 
-        {/* Market Status */}
+        {/* Market Status & Holiday Name */}
         {marketClosed && (
-          <p className="mb-2 text-center font-display text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Market Closed
-          </p>
+          <div className="mb-2 text-center">
+            <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              Market Closed
+            </p>
+            {holidayName && (
+              <p className="mt-1 font-display text-sm font-bold text-primary/80">
+                📅 {holidayName}
+              </p>
+            )}
+          </div>
         )}
 
         {/* Big 2D Number */}

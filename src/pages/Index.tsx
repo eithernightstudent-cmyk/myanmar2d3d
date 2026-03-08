@@ -3,6 +3,7 @@ import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
 import { SessionPanel } from "@/components/dashboard/SessionPanel";
 import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
+import { HistoryTable } from "@/components/dashboard/HistoryTable";
 import { AboutSection } from "@/components/dashboard/AboutSection";
 import { Footer } from "@/components/dashboard/Footer";
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
@@ -55,6 +56,7 @@ const Index = () => {
               currentDate={dashboard.currentDate}
               serverTime={dashboard.clock}
               lastSuccessTime={dashboard.lastSuccessTime}
+              holidayName={dashboard.holidayName}
             />
             <ModernClock />
           </div>
@@ -72,6 +74,11 @@ const Index = () => {
             nextCheck={dashboard.nextCheck}
             currentDayResults={dashboard.currentDayResults}
           />
+        </div>
+
+        {/* History Table from /live result array */}
+        <div className="mt-6">
+          <HistoryTable />
         </div>
 
         {/* About Section */}

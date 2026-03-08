@@ -45,15 +45,13 @@ function getRapidHeaders(): Record<string, string> {
   };
 }
 
-function normalizePayload(payload: any, source: string) {
+/**
+ * Normalize thaistock2d /live response.
+ * Shape: { live: { set, value, twod, date, time }, result: [...], holiday: { status, date, name } | null, server_time }
+ */
+function normalizeThaistock(payload: any) {
   const data = payload?.data || payload;
 
-  // RapidAPI /results has a different structure: afSet, afValue, evSet, evValue, etc.
-  if (source === "rapidapi" && (data?.afSet !== undefined || data?.evSet !== undefined)) {
-    return normalizeRapidAPIResults(data);
-  }
-
-  // Standard thaistock2d format
   const live = data?.live && typeof data.live === "object" ? data.live : {};
   const result = Array.isArray(data?.result) ? data.result : [];
   const holiday = data?.holiday && typeof data.holiday === "object" ? data.holiday : null;
@@ -81,6 +79,18 @@ function normalizePayload(payload: any, source: string) {
   const isHoliday = holiday && String(holiday.status || "") !== "0";
   const connectionStatus = isLiveFeed && !isHoliday ? "Live" : "Closed";
 
+  // Holiday name - use API holiday name, or derive day name if weekend
+  let holidayName: string | null = null;
+  if (isHoliday && holiday?.name) {
+    holidayName = holiday.name;
+  } else if (!isLiveFeed) {
+    // Check if it's a weekend
+    const now = new Date(serverTime || Date.now());
+    const dayOfWeek = now.getDay();
+    if (dayOfWeek === 0) holidayName = "Sunday";
+    else if (dayOfWeek === 6) holidayName = "Saturday";
+  }
+
   return {
     serverTime,
     currentDate,
@@ -91,77 +101,10 @@ function normalizePayload(payload: any, source: string) {
     live,
     result: sortedAllResults,
     currentDayResults,
-    holiday,
-    source,
+    holiday: isHoliday ? holiday : (holidayName ? { status: "1", date: currentDate, name: holidayName } : null),
+    holidayName,
+    source: "thaistock2d",
     fetchedAt: new Date().toISOString(),
-  };
-}
-
-// Parse RapidAPI /results format: afSet, afValue, evSet, evValue, mModern, etc.
-function normalizeRapidAPIResults(data: any) {
-  const now = new Date();
-  const todayStr = now.toISOString().split("T")[0];
-
-  // "af" = afternoon session, "ev" = evening session
-  const afSet = parseNumeric(data.afSet);
-  const afValue = parseNumeric(data.afValue);
-  const evSet = parseNumeric(data.evSet);
-  const evValue = parseNumeric(data.evValue);
-
-  // Use the latest available session data
-  const setIndex = evSet ?? afSet;
-  const value = evValue ?? afValue;
-
-  const calculated2d = calculateTwoD(setIndex, value);
-
-  // Build result entries from afResult and evResult
-  const results: any[] = [];
-  if (Array.isArray(data.afResult)) {
-    data.afResult.forEach((r: any) => results.push(r));
-  }
-  if (Array.isArray(data.evResult)) {
-    data.evResult.forEach((r: any) => results.push(r));
-  }
-  const sortedResults = results.sort(sortByStockTime);
-
-  // Check if market is live
-  const isHolidayFlag = data.isHoliday === true || data.isHoliday === "true" || data.isHoliday === 1;
-  const hasLiveData = setIndex !== null && setIndex !== 0;
-  const connectionStatus = hasLiveData && !isHolidayFlag ? "Live" : "Closed";
-
-  // Build current day results
-  const currentDayResults = sortedResults.filter(
-    (r: any) => String(r?.stock_date || "") === todayStr
-  );
-
-  // Build live object for compatibility
-  const live = {
-    set: setIndex !== null ? String(setIndex) : "--",
-    value: value !== null ? String(value) : "--",
-    twod: calculated2d,
-    date: todayStr,
-    time: "--",
-  };
-
-  return {
-    serverTime: now.toISOString(),
-    currentDate: todayStr,
-    connectionStatus,
-    setIndex,
-    value,
-    calculated2d,
-    live,
-    result: sortedResults,
-    currentDayResults,
-    holiday: isHolidayFlag ? { status: "1", date: todayStr, name: "Holiday" } : null,
-    source: "rapidapi",
-    fetchedAt: now.toISOString(),
-    // Extra RapidAPI fields
-    mModern: data.mModern || null,
-    mInternet: data.mInternet || null,
-    eModern: data.eModern || null,
-    eInternet: data.eInternet || null,
-    round: data.round || null,
   };
 }
 
@@ -218,52 +161,24 @@ Deno.serve(async (req) => {
     const rapidHeaders = getRapidHeaders();
     const hasRapidKey = !!rapidHeaders["x-rapidapi-key"];
 
-    // ===== LIVE endpoint: RapidAPI primary, thaistock2d fallback =====
+    // ===== LIVE endpoint: thaistock2d PRIMARY =====
     if (endpoint === "live") {
-      let normalized: any = null;
-      let source = "";
-
-      // Try RapidAPI first
-      if (hasRapidKey) {
-        try {
-          console.log("Fetching RapidAPI: /results");
-          const rawData = await fetchWithTimeout(`${RAPIDAPI_BASE}/results`, rapidHeaders);
-          console.log("RapidAPI /results raw keys:", JSON.stringify(Object.keys(rawData || {})));
-          const candidate = normalizePayload(rawData, "rapidapi");
-          
-          // Only use if we got meaningful SET/Value data
-          if (candidate.setIndex !== null && candidate.setIndex !== 0) {
-            normalized = candidate;
-            source = "rapidapi";
-            console.log("Using RapidAPI data, setIndex:", candidate.setIndex, "value:", candidate.value);
-          } else {
-            console.log("RapidAPI returned empty/zero data, falling back");
-          }
-        } catch (err) {
-          console.error("RapidAPI /results failed:", err);
-        }
+      try {
+        console.log("Fetching PRIMARY: thaistock2d/live");
+        const data = await fetchWithTimeout(`${THAISTOCK_BASE}/live`, {
+          "accept": "application/json",
+          "user-agent": "KKTech-Live-Dashboard/1.0",
+        });
+        const normalized = normalizeThaistock(data);
+        console.log("thaistock2d OK — status:", normalized.connectionStatus, "2D:", normalized.calculated2d);
+        return new Response(JSON.stringify({ data: normalized }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (err) {
+        console.error("thaistock2d/live failed:", err);
+        // Could add RapidAPI fallback here if needed
+        throw err;
       }
-
-      // Fallback to thaistock2d
-      if (!normalized) {
-        try {
-          console.log("Fetching fallback: thaistock2d/live");
-          const data = await fetchWithTimeout(`${THAISTOCK_BASE}/live`, {
-            "accept": "application/json",
-            "user-agent": "KKTech-Live-Dashboard/1.0",
-          });
-          normalized = normalizePayload(data, "thaistock2d");
-          source = "thaistock2d";
-        } catch (err) {
-          console.error("ThaiStock /live fallback failed:", err);
-          throw err;
-        }
-      }
-
-      normalized.source = source;
-      return new Response(JSON.stringify({ data: normalized }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
     }
 
     // ===== 3D endpoint: RapidAPI primary, DB fallback =====
@@ -274,14 +189,12 @@ Deno.serve(async (req) => {
           const rawData = await fetchWithTimeout(`${RAPIDAPI_BASE}/threed`, rapidHeaders);
           console.log("RapidAPI /threed raw:", JSON.stringify(rawData).slice(0, 500));
           
-          // Extract 3D results - handle various response structures
           let threedResults: any[] = [];
           if (Array.isArray(rawData?.data)) {
             threedResults = rawData.data;
           } else if (Array.isArray(rawData)) {
             threedResults = rawData;
           } else if (rawData?.data && typeof rawData.data === "object" && !Array.isArray(rawData.data)) {
-            // Single object result or nested
             if (rawData.data.threed || rawData.data.three_d || rawData.data["3d"]) {
               threedResults = [rawData.data];
             }
@@ -297,13 +210,12 @@ Deno.serve(async (req) => {
           console.error("RapidAPI /threed failed:", err);
         }
       }
-      // Fallback: empty (DB fallback handled by frontend)
       return new Response(JSON.stringify({ data: [] }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // ===== Calendar/History endpoint: RapidAPI primary, thaistock2d fallback =====
+    // ===== Calendar/History endpoint =====
     if (endpoint === "2d_result" || endpoint === "calendar") {
       if (hasRapidKey) {
         try {
@@ -311,7 +223,7 @@ Deno.serve(async (req) => {
           const rawData = await fetchWithTimeout(
             `${RAPIDAPI_BASE}/calendar?page=${page}&limit=${limit}`,
             rapidHeaders,
-            20000 // longer timeout for calendar
+            20000
           );
           
           const calendarData = rawData?.data || rawData;
