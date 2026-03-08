@@ -164,6 +164,31 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+      default:
+        return new Response(
+          JSON.stringify({ error: `Unknown endpoint: ${endpoint}` }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+    }
+
+    console.log(`Fetching: ${apiUrl}`);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      signal: controller.signal,
+      headers: {
+        "accept": "application/json",
+        "user-agent": "KKTech-Live-Dashboard/1.0",
+      },
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}`);
+    }
 
     const data = await response.json();
 
