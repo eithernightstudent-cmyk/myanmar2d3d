@@ -71,6 +71,9 @@ const Index = () => {
             currentDayResults={dashboard.currentDayResults}
           />
         </div>
+
+        {/* About Section */}
+        <AboutSection />
       </main>
 
       <Footer ownerName={dashboard.ownerName} />
