@@ -125,7 +125,7 @@ Deno.serve(async (req) => {
           : `${BASE_URL}/history`;
         break;
       case "threed_result":
-        apiUrl = "https://www.thaistock2d.com/threedResult";
+        apiUrl = "https://r.jina.ai/https://www.thaistock2d.com/threedResult";
         scrapeMode = true;
         break;
       default:
