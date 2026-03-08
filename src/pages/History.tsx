@@ -24,7 +24,7 @@ const History = () => {
   const [history, setHistory] = useState<HistoryDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const ownerName = localStorage.getItem("kktech-live-owner-name") || "KKTech";
+  const ownerName = localStorage.getItem("kktech-live-owner-name") || "2D3D";
 
   useEffect(() => {
     async function fetchHistory() {
