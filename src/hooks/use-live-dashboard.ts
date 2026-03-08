@@ -15,22 +15,25 @@ const POLL_INTERVAL_MS = 30000;
 const DEFAULT_OWNER_NAME = "KKTech";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
 
+export interface CurrentDayResult {
+  set: string;
+  value: string;
+  open_time: string;
+  twod: string;
+  stock_date?: string;
+  stock_datetime?: string;
+}
+
 export interface LiveData {
   setIndex: number | null;
   value: number | null;
   calculated2d: string;
-  marketStatus: string;
-  marketDateTime: string;
+  connectionStatus: string;
+  currentDate: string;
   serverTime: string;
   fetchedAt: string;
-  results: Array<{
-    set: string;
-    value: string;
-    open_time: string;
-    twod: string;
-    stock_date: string;
-    stock_datetime: string;
-  }>;
+  currentDayResults: CurrentDayResult[];
+  live: { set: string; value: string; time: string; twod: string; date: string };
   holiday: { status: string; date: string; name: string } | null;
 }
 
@@ -46,10 +49,11 @@ export function useLiveDashboard() {
   const [parts, setParts] = useState<ThailandParts>(getThailandParts());
   const [liveData, setLiveData] = useState<LiveData | null>(null);
   const [isLive, setIsLive] = useState(false);
-  const [apiNote, setApiNote] = useState("Connecting to thaistock2d.com...");
+  const [apiNote, setApiNote] = useState("Data source: waiting for api.thaistock2d.com/live response...");
   const [flash, setFlash] = useState(false);
   const lastFetchAtMs = useRef(0);
   const isUpdating = useRef(false);
+  const hasRendered = useRef(false);
 
   const updateOwnerName = useCallback((value: string) => {
     const cleaned = String(value ?? "").replace(/\s+/g, " ").trim().slice(0, 24) || DEFAULT_OWNER_NAME;
@@ -61,7 +65,6 @@ export function useLiveDashboard() {
 
   const fetchLiveData = useCallback(async (force = false) => {
     const currentParts = getThailandParts();
-    // Always fetch on force, otherwise only during market hours
     if (!force && !isWithinMarketHours(currentParts)) return;
     if (isUpdating.current) return;
     isUpdating.current = true;
@@ -72,16 +75,27 @@ export function useLiveDashboard() {
       if (error) throw new Error(error.message || "Edge function error");
 
       const data = payload?.data;
-      if (data) {
-        setLiveData(data);
-        setFlash(true);
-        setTimeout(() => setFlash(false), 180);
+      if (!data) throw new Error("No data in response");
 
-        const statusText = data.marketStatus || "Unknown";
-        setApiNote(`Source: thaistock2d.com | Status: ${statusText} | Auto-refresh: 30s`);
+      // Validate we have numeric SET/Value
+      const setNumeric = data.setIndex;
+      const valueNumeric = data.value;
+      if (setNumeric === null || valueNumeric === null) {
+        throw new Error("SET Index/Value are unavailable in upstream data.");
       }
+
+      setLiveData(data);
+      hasRendered.current = true;
+      setFlash(true);
+      setTimeout(() => setFlash(false), 180);
+
+      const connectionText = String(data.connectionStatus || "Closed");
+      setApiNote(`Source: api.thaistock2d.com/live | Connection: ${connectionText} | Auto-refresh: 30s in 09:30-16:30 (TH)`);
     } catch (err) {
       console.error("Fetch error:", err);
+      if (!hasRendered.current) {
+        // Show placeholder state
+      }
       const msg = err instanceof Error ? err.message : "Unknown error";
       setApiNote(`Fetch error: ${msg}`);
     } finally {
@@ -96,9 +110,10 @@ export function useLiveDashboard() {
       const p = getThailandParts();
       setParts(p);
 
+      // Use connectionStatus from API directly
+      const apiStatus = liveData?.connectionStatus?.toLowerCase();
       const withinMarket = isWithinMarketHours(p);
-      const marketOpen = liveData?.marketStatus?.toLowerCase().includes("open") ?? false;
-      setIsLive(withinMarket && marketOpen);
+      setIsLive(withinMarket && apiStatus === "live");
 
       // Auto-fetch during market hours
       if (withinMarket && (!lastFetchAtMs.current || Date.now() - lastFetchAtMs.current >= POLL_INTERVAL_MS)) {
@@ -117,10 +132,10 @@ export function useLiveDashboard() {
   const clock = formatPartsClock(parts);
   const dateStr = formatPartsDate(parts);
 
-  // Use the API's calculated 2D directly
+  // Use API's calculated 2D and connectionStatus directly
   const twod = liveData?.calculated2d || "--";
-  
-  // Extract last digits for display
+  const connectionStatus = liveData?.connectionStatus || "Closed";
+
   const getLastDigit = (raw: unknown) => {
     const digits = String(raw ?? "").replace(/\D/g, "");
     return digits ? digits[digits.length - 1] : "-";
@@ -130,9 +145,16 @@ export function useLiveDashboard() {
   const valueDigit = liveData?.value != null ? getLastDigit(liveData.value) : "-";
   const setFormatted = liveData?.setIndex != null ? formatNumber(liveData.setIndex) : "--";
   const valueFormatted = liveData?.value != null ? formatNumber(liveData.value) : "--";
-  const lastUpdated = liveData ? formatTimestamp(liveData.fetchedAt || Date.now().toString()) : `${dateStr} ${clock}`;
-  const marketTimestamp = liveData?.marketDateTime ? formatTimestamp(liveData.marketDateTime) : "--";
+  const lastUpdated = liveData ? formatTimestamp(liveData.fetchedAt || liveData.serverTime) : `${dateStr} ${clock}`;
+
+  // Market timestamp: use live.time if available
+  const liveTime = liveData?.live?.time;
+  const marketTimestamp = liveTime && liveTime !== "--"
+    ? `${liveData?.currentDate || "--"} ${liveTime}`
+    : liveData?.currentDate || "--";
+
   const nextCheck = getNextCheckText(parts, lastFetchAtMs.current);
+  const currentDate = liveData?.currentDate || "--";
 
   return {
     ownerName,
@@ -150,11 +172,13 @@ export function useLiveDashboard() {
     marketTimestamp,
     apiNote,
     nextCheck,
-    connectionStatus: isLive ? "Live" : "Closed",
+    connectionStatus,
+    currentDate,
+    currentDayResults: liveData?.currentDayResults || [],
     lastFetchTime: lastFetchAtMs.current
       ? `${formatPartsDate(getThailandParts(new Date(lastFetchAtMs.current)))} ${formatPartsClock(getThailandParts(new Date(lastFetchAtMs.current)))} (TH)`
       : "--",
-    results: liveData?.results || [],
+    results: liveData?.currentDayResults || [],
     holiday: liveData?.holiday,
   };
 }

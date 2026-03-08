@@ -5,7 +5,7 @@ import { LiveCard } from "@/components/dashboard/LiveCard";
 import { SessionPanel } from "@/components/dashboard/SessionPanel";
 import { Footer } from "@/components/dashboard/Footer";
 import { TradingViewWidget } from "@/components/dashboard/TradingViewWidget";
-import { ResultsTable } from "@/components/dashboard/ResultsTable";
+
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
 const Index = () => {
@@ -51,10 +51,11 @@ const Index = () => {
           <div className="grid gap-5">
             <SessionPanel
               connectionStatus={dashboard.connectionStatus}
+              currentDate={dashboard.currentDate}
               lastFetchTime={dashboard.lastFetchTime}
               nextCheck={dashboard.nextCheck}
+              currentDayResults={dashboard.currentDayResults}
             />
-            <ResultsTable results={dashboard.results} />
             <TradingViewWidget />
           </div>
         </div>
