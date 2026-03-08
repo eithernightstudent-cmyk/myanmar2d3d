@@ -56,7 +56,6 @@ const Index = () => {
               nextCheck={dashboard.nextCheck}
               currentDayResults={dashboard.currentDayResults}
             />
-            <TradingViewWidget />
           </div>
         </div>
 
