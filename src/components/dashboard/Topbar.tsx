@@ -70,20 +70,17 @@ export function Topbar({ ownerName }: TopbarProps) {
     <>
       {/* Top floating header — Logo left, Controls right */}
       <div className="fixed top-0 left-0 right-0 z-40 pointer-events-none">
-        <div className="mx-auto flex w-[min(100%-1.25rem,72rem)] items-center justify-between py-4 sm:w-[min(100%-2rem,72rem)]">
+        <div className="mx-auto flex w-[min(100%-2rem,72rem)] items-center justify-between py-4 px-1">
           {/* Logo + Brand */}
-          <Link to="/" className="pointer-events-auto inline-flex items-center gap-2.5 no-underline group">
+          <Link to="/" className="pointer-events-auto inline-flex items-center gap-3 no-underline group">
             <motion.img
               src={logoImg}
               alt="2D3D Live - Myanmar 2D Live Result"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="h-10 w-10 rounded-full object-cover ring-2 ring-primary/20 shadow-[0_4px_20px_hsl(var(--primary)/0.25)] transition-shadow duration-300 group-hover:shadow-[0_4px_28px_hsl(var(--primary)/0.4)]"
+              className="h-9 w-9 rounded-full object-cover ring-2 ring-primary/20 shadow-[0_4px_20px_hsl(var(--primary)/0.25)] transition-shadow duration-300 group-hover:shadow-[0_4px_28px_hsl(var(--primary)/0.4)]"
             />
-            <span
-              className="font-display text-lg font-extrabold tracking-wide text-foreground drop-shadow-sm transition-colors duration-300 dark:text-primary"
-              style={{ letterSpacing: "0.04em" }}
-            >
+            <span className="font-display text-base font-extrabold tracking-wide text-foreground drop-shadow-sm transition-colors duration-300 dark:text-primary">
               2D3D
             </span>
           </Link>
@@ -191,7 +188,7 @@ export function Topbar({ ownerName }: TopbarProps) {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.4, type: "spring" }}
-          className="flex items-center gap-1 rounded-2xl border border-border/40 bg-background/80 px-2 py-1.5 shadow-[0_8px_32px_hsl(0_0%_0%/0.12)] backdrop-blur-xl dark:shadow-[0_8px_32px_hsl(0_0%_0%/0.3)]"
+          className="flex items-center gap-1 rounded-2xl border border-border/30 bg-background/60 px-2 py-1.5 shadow-[0_8px_32px_hsl(0_0%_0%/0.08)] backdrop-blur-xl dark:bg-background/50 dark:shadow-[0_8px_32px_hsl(0_0%_0%/0.2)]"
         >
           {[
             { label: "Home", to: "/", Icon: Home },
