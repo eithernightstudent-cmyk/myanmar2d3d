@@ -3,6 +3,7 @@ import { Moon, Sun, Bell, BellOff, BellRing } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "@/hooks/use-notifications";
+import { hapticMedium, hapticLight } from "@/lib/haptic";
 import logoImg from "@/assets/logo.png";
 
 interface TopbarProps {
