@@ -132,3 +132,30 @@
   70% { box-shadow: 0 0 0 9px hsl(var(--fail) / 0); }
   100% { box-shadow: 0 0 0 0 hsl(var(--fail) / 0); }
 }
+
+/* Animated 3D icon effects */
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.03); }
+}
+
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px hsl(var(--primary) / 0.3)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 10px hsl(var(--primary) / 0.5)); transform: scale(1.06); }
+}
+
+@keyframes cloud-drift {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(2px) translateY(-1px); }
+  75% { transform: translateX(-2px) translateY(1px); }
+}
+
+.anim-float { animation: float-gentle 3s ease-in-out infinite; }
+.anim-spin-slow { animation: spin-slow 12s linear infinite; }
+.anim-pulse-glow { animation: pulse-glow 2.5s ease-in-out infinite; }
+.anim-cloud-drift { animation: cloud-drift 4s ease-in-out infinite; }
