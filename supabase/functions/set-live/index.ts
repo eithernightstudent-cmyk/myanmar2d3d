@@ -11,10 +11,26 @@ Deno.serve(async (req) => {
   }
 
   try {
+    let endpoint = "live";
+    let date = "";
+    let twod = "";
+
+    // Support both GET query params and POST body
     const url = new URL(req.url);
-    const endpoint = url.searchParams.get("endpoint") || "live";
-    const date = url.searchParams.get("date") || "";
-    const twod = url.searchParams.get("twod") || "";
+    endpoint = url.searchParams.get("endpoint") || "live";
+    date = url.searchParams.get("date") || "";
+    twod = url.searchParams.get("twod") || "";
+
+    if (req.method === "POST") {
+      try {
+        const body = await req.json();
+        endpoint = body.endpoint || endpoint;
+        date = body.date || date;
+        twod = body.twod || twod;
+      } catch {
+        // No body or invalid JSON, use query params
+      }
+    }
 
     let apiUrl: string;
 
