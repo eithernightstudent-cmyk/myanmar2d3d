@@ -75,7 +75,7 @@ const Index = () => {
               stockDatetime={dashboard.stockDatetime}
               resultVerificationStatus={dashboard.resultVerificationStatus}
               isResultLocked={dashboard.isResultLocked}
-              onManualRefresh={dashboard.refreshData}
+              dataSource={dashboard.dataSource}
               dataSource={dashboard.dataSource}
               isHotMinute={dashboard.isHotMinute}
             />
