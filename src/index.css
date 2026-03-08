@@ -6,43 +6,44 @@
 
 @layer base {
   :root {
-    --background: 30 40% 96%;
-    --foreground: 0 0% 8%;
+    --background: 36 45% 97%;
+    --foreground: 20 15% 8%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 8%;
+    --card-foreground: 20 15% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 8%;
-    --primary: 40 90% 50%;
-    --primary-foreground: 0 0% 8%;
-    --secondary: 30 30% 93%;
-    --secondary-foreground: 0 0% 12%;
-    --muted: 30 20% 93%;
-    --muted-foreground: 220 8% 38%;
-    --accent: 30 100% 95%;
-    --accent-foreground: 25 91% 40%;
+    --popover-foreground: 20 15% 8%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 20 15% 6%;
+    --secondary: 32 28% 93%;
+    --secondary-foreground: 20 12% 14%;
+    --muted: 34 18% 93%;
+    --muted-foreground: 220 8% 42%;
+    --accent: 35 100% 96%;
+    --accent-foreground: 25 85% 38%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 30 20% 85%;
-    --input: 30 20% 85%;
-    --ring: 40 90% 50%;
+    --border: 32 22% 88%;
+    --input: 32 22% 88%;
+    --ring: 38 92% 50%;
     --radius: 1rem;
 
-    --success: 142 71% 45%;
-    --success-light: 142 50% 94%;
-    --success-border: 142 30% 72%;
+    --success: 152 65% 42%;
+    --success-light: 152 45% 94%;
+    --success-border: 152 28% 74%;
     --fail: 0 72% 44%;
-    --fail-light: 0 86% 94%;
-    --fail-border: 0 50% 80%;
-    --warm: 40 90% 50%;
-    --warm-soft: 40 100% 92%;
+    --fail-light: 0 86% 95%;
+    --fail-border: 0 45% 82%;
+    --warm: 38 92% 50%;
+    --warm-soft: 38 100% 94%;
 
-    --text-strong: 0 0% 0%;
-    --text-secondary: 220 8% 32%;
+    --text-strong: 20 15% 6%;
+    --text-secondary: 220 8% 36%;
 
-    --line-soft: 30 20% 85%;
-    --card-glass: 0 0% 100% / 0.82;
-    --card-strong: 0 0% 100% / 0.93;
-    --shadow-panel: 0 28px 60px -34px rgba(120, 60, 20, 0.15);
+    --line-soft: 32 22% 88%;
+    --card-glass: 0 0% 100% / 0.78;
+    --card-strong: 36 30% 98% / 0.92;
+    --shadow-panel: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px -8px rgba(180, 120, 50, 0.1), 0 20px 48px -20px rgba(180, 120, 50, 0.06);
+    --shadow-hover: 0 2px 4px rgba(0,0,0,0.04), 0 12px 32px -8px rgba(180, 120, 50, 0.15), 0 24px 56px -20px rgba(180, 120, 50, 0.08);
 
     --font-display: "Space Grotesk", "Noto Sans Myanmar", "Segoe UI", sans-serif;
     --font-body: "Noto Sans Myanmar", "Space Grotesk", "Segoe UI", sans-serif;
@@ -54,7 +55,7 @@
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 40 90% 50%;
+    --sidebar-ring: 38 92% 50%;
   }
 
   .dark {
