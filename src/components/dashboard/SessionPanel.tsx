@@ -23,7 +23,7 @@ const SESSION_LABELS: Record<string, string> = {
 
 function getSessionLabel(time: string) {
   const t = String(time ?? "").trim().slice(0, 5);
-  return SESSION_LABELS[t] || t || "--";
+  return SESSION_LABELS[t] || t || "";
 }
 
 function getSubLabel(entry: CurrentDayResult) {
@@ -48,23 +48,32 @@ export const SessionPanel = React.memo(function SessionPanel({
       transition={{ delay: 0.12, duration: 0.5 }}
       className="grid grid-cols-2 gap-3 sm:grid-cols-4"
     >
-      {currentDayResults.map((entry, i) => (
-        <div
-          key={`${String(entry.open_time ?? "").trim().slice(0, 5)}-${entry.twod}-${i}`}
-          onTouchStart={() => tap()}
-          className="flex flex-col items-center gap-1 rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 shadow-[var(--shadow-panel)] backdrop-blur-lg active:scale-95 transition-transform duration-150"
-        >
-          <span className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            {getSessionLabel(entry.open_time)}
-          </span>
-          <span className="font-display text-3xl font-bold text-foreground">
-            {entry.twod || "--"}
-          </span>
-          <span className="font-display text-[0.6rem] text-muted-foreground">
-            {getSubLabel(entry)}
-          </span>
-        </div>
-      ))}
+      {currentDayResults.map((entry, i) => {
+        const has = !!entry.twod && entry.twod !== "--";
+        return (
+          <div
+            key={`${String(entry.open_time ?? "").trim().slice(0, 5)}-${entry.twod}-${i}`}
+            onTouchStart={() => tap()}
+            className="flex flex-col items-center gap-1 rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 shadow-[var(--shadow-panel)] backdrop-blur-lg active:scale-95 transition-transform duration-150"
+          >
+            <span className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              {getSessionLabel(entry.open_time)}
+            </span>
+            {has ? (
+              <span className="font-display text-3xl font-bold text-foreground">
+                {entry.twod}
+              </span>
+            ) : (
+              <span className="block h-9" />
+            )}
+            {has && (
+              <span className="font-display text-[0.6rem] text-muted-foreground">
+                {getSubLabel(entry)}
+              </span>
+            )}
+          </div>
+        );
+      })}
     </motion.div>
   );
 });

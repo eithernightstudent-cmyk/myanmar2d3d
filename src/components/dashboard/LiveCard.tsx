@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { StatusPill } from "./StatusPill";
-import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, Zap } from "lucide-react";
+import { ShieldCheck, Lock, CalendarDays, Zap } from "lucide-react";
 import { tap } from "@/lib/haptic";
 
 interface LiveCardProps {
@@ -43,7 +43,6 @@ export function LiveCard({
 }: LiveCardProps) {
   const marketClosed = !isLive;
 
-  // Clean holiday name — filter out null/undefined/empty
   const cleanHolidayName = (() => {
     if (holidayName && holidayName !== "null" && holidayName !== "NULL" && holidayName.trim() !== "") {
       return holidayName;
@@ -51,9 +50,11 @@ export function LiveCard({
     return null;
   })();
 
-  // Only show verification badges and lock icon when market is live or just verified (not weekends)
-  const showVerificationBadge = isLive;
   const showLockIcon = isLive || (resultVerificationStatus === "verified" && isResultLocked);
+  const hasData = twod && twod !== "--";
+  const hasSet = setFormatted && setFormatted !== "--";
+  const hasValue = valueFormatted && valueFormatted !== "--";
+  const hasStockDatetime = stockDatetime && stockDatetime !== "--";
 
   return (
     <motion.section
@@ -74,15 +75,6 @@ export function LiveCard({
               Live 2D
             </span>
             <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
-            {isSyncing && isLive && (
-              <div className="flex items-center gap-1.5" style={{ color: "hsl(var(--text-secondary))" }}>
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-                <span className="font-display text-[0.6rem] font-semibold uppercase tracking-wider">
-                  Syncing
-                </span>
-              </div>
-            )}
-            {/* Hot Minute Indicator */}
             {isHotMinute && isLive && (
               <motion.div
                 initial={{ scale: 0 }}
@@ -120,22 +112,23 @@ export function LiveCard({
 
         {/* Big 2D Number */}
         <div className="flex flex-col items-center justify-center py-4">
-          <div className="relative">
-            <motion.span
-              key={twod}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="font-display text-[clamp(5rem,20vw,7rem)] font-bold leading-none text-primary"
-              style={{
-                textShadow: "0 4px 20px hsl(var(--primary) / 0.35), 0 0 60px hsl(var(--primary) / 0.15)",
-              }}
-            >
-              {twod}
-            </motion.span>
+          <div className="relative min-h-[5rem]">
+            {hasData && (
+              <motion.span
+                key={twod}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="font-display text-[clamp(5rem,20vw,7rem)] font-bold leading-none text-primary"
+                style={{
+                  textShadow: "0 4px 20px hsl(var(--primary) / 0.35), 0 0 60px hsl(var(--primary) / 0.15)",
+                }}
+              >
+                {twod}
+              </motion.span>
+            )}
 
-            {/* Lock icon when result is verified */}
-            {showLockIcon && isResultLocked && twod !== "--" && (
+            {showLockIcon && isResultLocked && hasData && (
               <motion.div
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -146,37 +139,9 @@ export function LiveCard({
             )}
           </div>
 
-          {/* Verification Status Badges — only during/after live market */}
+          {/* Only show Verified badge */}
           <AnimatePresence mode="wait">
-            {showVerificationBadge && resultVerificationStatus === "verifying" && (
-              <motion.div
-                key="verifying"
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/8 px-3 py-1"
-              >
-                <Loader2 className="h-3 w-3 animate-spin text-amber-500" />
-                <span className="font-display text-[0.65rem] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                  Verifying...
-                </span>
-              </motion.div>
-            )}
-            {showVerificationBadge && resultVerificationStatus === "finalizing" && (
-              <motion.div
-                key="finalizing"
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-warm/30 bg-warm-soft px-3 py-1"
-              >
-                <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                <span className="font-display text-[0.65rem] font-bold uppercase tracking-wider text-primary">
-                  Finalizing...
-                </span>
-              </motion.div>
-            )}
-            {showVerificationBadge && resultVerificationStatus === "verified" && twod !== "--" && (
+            {isLive && resultVerificationStatus === "verified" && hasData && (
               <motion.div
                 key="verified"
                 initial={{ opacity: 0, y: -4 }}
@@ -193,20 +158,20 @@ export function LiveCard({
           </AnimatePresence>
         </div>
 
-        {/* Updated timestamp */}
-        <div className="mb-6 flex items-center justify-center gap-2">
-          <div className={`flex h-5 w-5 items-center justify-center rounded-full ${isResultLocked ? "bg-success/10" : "bg-muted"}`}>
-            <CheckCircle className="h-3.5 w-3.5" style={{ color: isResultLocked ? "hsl(var(--success))" : "hsl(var(--muted-foreground))" }} />
-          </div>
-          <span className="font-display text-[0.8rem] font-semibold" style={{ color: "hsl(var(--text-secondary))" }}>
-            Updated:{" "}
-            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>
-              {stockDatetime || "--"}
+        {/* Updated timestamp — only show when data exists */}
+        {hasStockDatetime && (
+          <div className="mb-6 flex items-center justify-center gap-2">
+            <span className="font-display text-[0.8rem] font-semibold" style={{ color: "hsl(var(--text-secondary))" }}>
+              Updated:{" "}
+              <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>
+                {stockDatetime}
+              </span>
             </span>
-          </span>
-        </div>
+          </div>
+        )}
+        {!hasStockDatetime && <div className="mb-6" />}
 
-        {/* SET Index & Value */}
+        {/* SET Index & Value — only show when data exists */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <motion.div
             key={`set-${setFormatted}`}
@@ -219,7 +184,10 @@ export function LiveCard({
             <span className="block font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: "hsl(var(--text-secondary))" }}>
               SET Index
             </span>
-            <span className="font-display text-xl font-bold" style={{ color: "hsl(var(--text-strong))" }}>{setFormatted}</span>
+            {hasSet && (
+              <span className="font-display text-xl font-bold" style={{ color: "hsl(var(--text-strong))" }}>{setFormatted}</span>
+            )}
+            {!hasSet && <span className="block h-7" />}
           </motion.div>
           <motion.div
             key={`val-${valueFormatted}`}
@@ -232,7 +200,10 @@ export function LiveCard({
             <span className="block font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: "hsl(var(--text-secondary))" }}>
               Value
             </span>
-            <span className="font-display text-xl font-bold" style={{ color: "hsl(var(--text-strong))" }}>{valueFormatted}</span>
+            {hasValue && (
+              <span className="font-display text-xl font-bold" style={{ color: "hsl(var(--text-strong))" }}>{valueFormatted}</span>
+            )}
+            {!hasValue && <span className="block h-7" />}
           </motion.div>
         </div>
 
