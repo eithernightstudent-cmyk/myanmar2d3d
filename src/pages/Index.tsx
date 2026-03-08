@@ -55,6 +55,7 @@ const Index = () => {
             />
             <TradingViewWidget />
           </div>
+        </div>
 
         <motion.section
           initial={{ opacity: 0, y: 16 }}
