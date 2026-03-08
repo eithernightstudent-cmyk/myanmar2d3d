@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   getThailandParts,
   isWithinMarketHours,
@@ -15,7 +16,6 @@ const POLL_INTERVAL_MS = 30000;
 const DEFAULT_OWNER_NAME = "KKTech";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
 
-// Demo data for when API is not available
 const DEMO_DATA = {
   setIndex: 1427.63,
   value: 38241.57,
@@ -44,7 +44,7 @@ export function useLiveDashboard() {
   const [parts, setParts] = useState<ThailandParts>(getThailandParts());
   const [liveData, setLiveData] = useState<LiveData | null>(null);
   const [isLive, setIsLive] = useState(false);
-  const [apiNote, setApiNote] = useState("Data source: waiting for response...");
+  const [apiNote, setApiNote] = useState("Data source: connecting to set.or.th...");
   const [flash, setFlash] = useState(false);
   const lastFetchAtMs = useRef(0);
   const isUpdating = useRef(false);
@@ -65,39 +65,38 @@ export function useLiveDashboard() {
     isUpdating.current = true;
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      // Call the edge function
+      const { data: payload, error } = await supabase.functions.invoke("set-live");
 
-      try {
-        const response = await fetch("/api/live", { signal: controller.signal });
-        clearTimeout(timeoutId);
-
-        if (!response.ok) throw new Error(`API ${response.status}`);
-        const payload = await response.json();
-        const data = payload?.data;
-
-        if (data?.setIndex != null && data?.value != null) {
-          setLiveData(data);
-          hasRendered.current = true;
-          setFlash(true);
-          setTimeout(() => setFlash(false), 180);
-
-          const marketStatusText = String(data.marketStatus || "Unknown");
-          setApiNote(`Source: set.or.th | Market Status: ${marketStatusText} | Auto-refresh: 30s in 09:30-16:30 (TH)`);
-          return;
-        }
-      } catch {
-        // API not available, use demo data
+      if (error) {
+        throw new Error(error.message || "Edge function error");
       }
 
-      // Fallback to demo data
+      const data = payload?.data;
+
+      if (data?.setIndex != null && data?.value != null) {
+        setLiveData(data);
+        hasRendered.current = true;
+        setFlash(true);
+        setTimeout(() => setFlash(false), 180);
+
+        const marketStatusText = String(data.marketStatus || "Unknown");
+        setApiNote(`Source: set.or.th | Market Status: ${marketStatusText} | Auto-refresh: 30s in 09:30-16:30 (TH)`);
+        return;
+      }
+
+      throw new Error("Invalid data from SET");
+    } catch (err) {
+      console.error("Fetch error:", err);
+      // Fallback to demo data on first load
       if (!hasRendered.current) {
         setLiveData(DEMO_DATA);
         hasRendered.current = true;
         setFlash(true);
         setTimeout(() => setFlash(false), 180);
-        setApiNote("Demo mode — connect to /api/live for real data from set.or.th");
       }
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      setApiNote(`Fetch error: ${msg} — showing ${hasRendered.current ? "last known" : "demo"} data`);
     } finally {
       lastFetchAtMs.current = Date.now();
       isUpdating.current = false;
