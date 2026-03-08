@@ -73,6 +73,7 @@ const History = () => {
         {/* Previous Results Table */}
         <div className="mb-6">
           <HistoryTable />
+        </div>
 
         {loading && (
           <div className="flex items-center justify-center py-20">
