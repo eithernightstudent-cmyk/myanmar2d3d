@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://2d3d-live.lovable.app/sitemap.xml
+Sitemap: https://myanmar2d3d.lovable.app/sitemap.xml
