@@ -172,7 +172,7 @@ export function LiveCard({
 
           {/* Verification Status Badges */}
           <AnimatePresence mode="wait">
-            {resultVerificationStatus === "verifying" && (
+            {resultVerificationStatus === "verifying" && isLive && (
               <motion.div
                 key="verifying"
                 initial={{ opacity: 0, y: -4 }}
