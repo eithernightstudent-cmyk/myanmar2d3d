@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
 import { SessionPanel } from "@/components/dashboard/SessionPanel";
 import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
 import { Footer } from "@/components/dashboard/Footer";
-import { supabase } from "@/integrations/supabase/client";
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
 interface DayResult {
