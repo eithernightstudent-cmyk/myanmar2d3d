@@ -3,7 +3,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-const THAISTOCK_API = "https://api.thaistock2d.com/live";
+const BASE_URL = "https://api.thaistock2d.com";
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,10 +11,59 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    let endpoint = "live";
+    let date = "";
+    let twod = "";
 
-    const response = await fetch(THAISTOCK_API, {
+    // Support both GET query params and POST body
+    const url = new URL(req.url);
+    endpoint = url.searchParams.get("endpoint") || "live";
+    date = url.searchParams.get("date") || "";
+    twod = url.searchParams.get("twod") || "";
+
+    if (req.method === "POST") {
+      try {
+        const body = await req.json();
+        endpoint = body.endpoint || endpoint;
+        date = body.date || date;
+        twod = body.twod || twod;
+      } catch {
+        // No body or invalid JSON, use query params
+      }
+    }
+
+    let apiUrl: string;
+
+    switch (endpoint) {
+      case "live":
+        apiUrl = `${BASE_URL}/live`;
+        break;
+      case "2d_result":
+        apiUrl = date
+          ? `${BASE_URL}/2d_result?date=${encodeURIComponent(date)}`
+          : `${BASE_URL}/2d_result`;
+        break;
+      case "2d_history":
+        apiUrl = `${BASE_URL}/2d_history?twod=${encodeURIComponent(twod)}&date=${encodeURIComponent(date)}`;
+        break;
+      case "history":
+        apiUrl = date
+          ? `${BASE_URL}/history?date=${encodeURIComponent(date)}`
+          : `${BASE_URL}/history`;
+        break;
+      default:
+        return new Response(
+          JSON.stringify({ error: `Unknown endpoint: ${endpoint}` }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+    }
+
+    console.log(`Fetching: ${apiUrl}`);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+    const response = await fetch(apiUrl, {
       method: "GET",
       signal: controller.signal,
       headers: {
@@ -28,62 +77,61 @@ Deno.serve(async (req) => {
       throw new Error(`API returned ${response.status}`);
     }
 
-    const apiData = await response.json();
-    console.log("ThaiStock API response:", JSON.stringify(apiData).slice(0, 500));
+    const data = await response.json();
 
-    const live = apiData?.live;
-    const result = apiData?.result;
-    const holiday = apiData?.holiday;
-    const serverTime = apiData?.server_time;
+    // For the live endpoint, enrich the response
+    if (endpoint === "live") {
+      const live = data?.live;
+      const result = data?.result;
+      const holiday = data?.holiday;
 
-    // Determine market status
-    let marketStatus = "Unknown";
-    if (holiday?.status === "3") {
-      marketStatus = `Closed (${holiday.name || "Holiday"})`;
-    } else if (live?.set && live.set !== "--") {
-      marketStatus = "Open";
-    } else if (result && result.length > 0) {
-      marketStatus = "Closed";
+      let marketStatus = "Unknown";
+      if (holiday?.status === "3") {
+        marketStatus = `Closed (${holiday.name || "Holiday"})`;
+      } else if (live?.set && live.set !== "--") {
+        marketStatus = "Open (Live)";
+      } else if (result && result.length > 0) {
+        marketStatus = "Closed";
+      }
+
+      let setIndex: number | null = null;
+      let value: number | null = null;
+      let calculatedTwod = "--";
+      let marketDateTime = data?.server_time || null;
+
+      if (live?.set && live.set !== "--") {
+        setIndex = parseFloat(String(live.set).replace(/,/g, ""));
+        value = parseFloat(String(live.value).replace(/,/g, ""));
+        calculatedTwod = live.twod || "--";
+        marketDateTime = live.time || data?.server_time;
+      } else if (result && result.length > 0) {
+        const latest = result[result.length - 1];
+        setIndex = parseFloat(String(latest.set).replace(/,/g, ""));
+        value = parseFloat(String(latest.value).replace(/,/g, ""));
+        calculatedTwod = latest.twod || "--";
+        marketDateTime = latest.stock_datetime || data?.server_time;
+      }
+
+      return new Response(JSON.stringify({
+        data: {
+          setIndex,
+          value,
+          calculated2d: calculatedTwod,
+          marketStatus,
+          marketDateTime,
+          serverTime: data?.server_time,
+          fetchedAt: new Date().toISOString(),
+          live,
+          results: result || [],
+          holiday: holiday || null,
+        },
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Use live data if available, otherwise use latest result
-    let setIndex: number | null = null;
-    let value: number | null = null;
-    let twod = "--";
-    let marketDateTime = serverTime || null;
-
-    if (live?.set && live.set !== "--") {
-      // Market is open - use live data
-      setIndex = parseFloat(String(live.set).replace(/,/g, ""));
-      value = parseFloat(String(live.value).replace(/,/g, ""));
-      twod = live.twod || "--";
-      marketDateTime = live.time ? `${live.date} ${live.time}` : serverTime;
-      marketStatus = "Open (Live)";
-    } else if (result && result.length > 0) {
-      // Market closed - use latest result
-      const latest = result[result.length - 1];
-      setIndex = parseFloat(String(latest.set).replace(/,/g, ""));
-      value = parseFloat(String(latest.value).replace(/,/g, ""));
-      twod = latest.twod || "--";
-      marketDateTime = latest.stock_datetime || serverTime;
-    }
-
-    const payload = {
-      data: {
-        setIndex,
-        value,
-        calculated2d: twod,
-        marketStatus,
-        marketDateTime,
-        serverTime,
-        fetchedAt: new Date().toISOString(),
-        live: live,
-        results: result || [],
-        holiday: holiday || null,
-      },
-    };
-
-    return new Response(JSON.stringify(payload), {
+    // For all other endpoints, pass through the data
+    return new Response(JSON.stringify({ data }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
@@ -95,8 +143,3 @@ Deno.serve(async (req) => {
     );
   }
 });
-
-function parseNumeric(raw: unknown): number | null {
-  const val = Number(String(raw ?? "").replace(/,/g, "").trim());
-  return Number.isFinite(val) ? val : null;
-}
