@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Bell, BellOff, BellRing } from "lucide-react";
+import { Moon, Sun, Bell, BellOff, BellRing, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "@/hooks/use-notifications";
-import { hapticMedium, hapticLight } from "@/lib/haptic";
+import { tapMedium, tap, isClickSoundEnabled, setClickSoundEnabled } from "@/lib/haptic";
 import logoImg from "@/assets/logo.png";
 
 interface TopbarProps {
