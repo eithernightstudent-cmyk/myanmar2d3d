@@ -94,24 +94,69 @@ export function LiveCard({
         )}
 
         {/* Big 2D Number — Vibrant Gold */}
-        <div className="flex justify-center py-4">
-          <motion.span
-            key={twod}
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="font-display text-[clamp(5rem,20vw,7rem)] font-bold leading-none text-primary"
-            style={{
-              textShadow: "0 4px 20px hsl(var(--primary) / 0.35), 0 0 60px hsl(var(--primary) / 0.15)",
-            }}
-          >
-            {twod}
-          </motion.span>
+        <div className="flex flex-col items-center justify-center py-4">
+          <div className="relative">
+            <motion.span
+              key={twod}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="font-display text-[clamp(5rem,20vw,7rem)] font-bold leading-none text-primary"
+              style={{
+                textShadow: "0 4px 20px hsl(var(--primary) / 0.35), 0 0 60px hsl(var(--primary) / 0.15)",
+              }}
+            >
+              {twod}
+            </motion.span>
+
+            {/* Lock icon when result is verified */}
+            {isResultLocked && twod !== "--" && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="absolute -right-6 -top-1"
+              >
+                <Lock className="h-4 w-4 text-success" />
+              </motion.div>
+            )}
+          </div>
+
+          {/* Verification Status Badge */}
+          <AnimatePresence mode="wait">
+            {resultVerificationStatus === "finalizing" && (
+              <motion.div
+                key="finalizing"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-warm/30 bg-warm-soft px-3 py-1"
+              >
+                <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                <span className="font-display text-[0.65rem] font-bold uppercase tracking-wider text-primary">
+                  Finalizing...
+                </span>
+              </motion.div>
+            )}
+            {resultVerificationStatus === "verified" && twod !== "--" && (
+              <motion.div
+                key="verified"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-success-border bg-success-light px-3 py-1"
+              >
+                <ShieldCheck className="h-3.5 w-3.5 text-success" />
+                <span className="font-display text-[0.65rem] font-bold uppercase tracking-wider text-success">
+                  Verified
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Updated timestamp — premium style with green verified checkmark */}
         <div className="mb-6 flex items-center justify-center gap-2">
-          <CheckCircle className="h-4 w-4" style={{ color: "hsl(var(--success))" }} />
+          <CheckCircle className="h-4 w-4" style={{ color: isResultLocked ? "hsl(var(--success))" : "hsl(var(--muted-foreground))" }} />
           <span className="font-display text-[0.8rem] font-semibold" style={{ color: "hsl(var(--text-secondary))" }}>
             Updated:{" "}
             <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>
