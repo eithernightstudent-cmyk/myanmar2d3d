@@ -125,10 +125,15 @@ Deno.serve(async (req) => {
           : `${BASE_URL}/history`;
         break;
       case "threed_result":
-        // Return empty - data now served directly from database table
         return new Response(JSON.stringify({ data: [] }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
+      default:
+        return new Response(
+          JSON.stringify({ error: `Unknown endpoint: ${endpoint}` }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+    }
 
     console.log(`Fetching: ${apiUrl}`);
 
