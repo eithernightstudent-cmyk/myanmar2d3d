@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
-import { hapticLight } from "@/lib/haptic";
+import { tap } from "@/lib/haptic";
 
 interface ThreeDResult {
   date: string;
@@ -94,8 +94,8 @@ export function ThreeDSection({ lastUpdated }: ThreeDSectionProps) {
           {results.map((result, i) => (
             <div
               key={i}
-              onTouchStart={hapticLight}
-              className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4 transition-all active:scale-[0.97] hover:-translate-y-px hover:border-primary/40 hover:shadow-[0_14px_24px_-26px_hsl(var(--primary)/0.8)]"
+              onTouchStart={() => tap()}
+              className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4 transition-all duration-150 active:scale-95 hover:-translate-y-px hover:border-primary/40 hover:shadow-[0_14px_24px_-26px_hsl(var(--primary)/0.8)]"
             >
               <span className="font-display text-3xl font-bold text-primary">
                 {result.threed}

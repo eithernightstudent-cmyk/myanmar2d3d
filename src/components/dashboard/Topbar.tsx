@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Bell, BellOff, BellRing } from "lucide-react";
+import { Moon, Sun, Bell, BellOff, BellRing, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "@/hooks/use-notifications";
-import { hapticMedium, hapticLight } from "@/lib/haptic";
+import { tapMedium, tap, isClickSoundEnabled, setClickSoundEnabled } from "@/lib/haptic";
 import logoImg from "@/assets/logo.png";
 
 interface TopbarProps {
@@ -19,6 +19,7 @@ export function Topbar({ ownerName }: TopbarProps) {
 
   const { supported, permission, enabled, toggleNotifications } = useNotifications();
   const [justEnabled, setJustEnabled] = useState(false);
+  const [soundOn, setSoundOn] = useState(isClickSoundEnabled);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
@@ -70,7 +71,8 @@ export function Topbar({ ownerName }: TopbarProps) {
             <Link
               key={link.label}
               to={link.to}
-              className="rounded-full border border-transparent px-3 py-1.5 font-body text-sm font-semibold text-muted-foreground no-underline transition-all duration-200 hover:border-border hover:bg-primary/5 hover:text-primary"
+              onClick={() => tap()}
+              className="rounded-full border border-transparent px-3 py-1.5 font-body text-sm font-semibold text-muted-foreground no-underline transition-all duration-200 hover:border-border hover:bg-primary/5 hover:text-primary active:scale-95"
             >
               {link.label}
             </Link>
@@ -81,10 +83,10 @@ export function Topbar({ ownerName }: TopbarProps) {
           {/* Notification Bell */}
           {supported && (
             <button
-              onClick={() => { hapticMedium(); toggleNotifications(); }}
+              onClick={() => { tapMedium(); toggleNotifications(); }}
               aria-label={bellLabel}
               title={bellLabel}
-              className={`relative grid h-9 w-9 place-items-center rounded-full border transition-all duration-300 ${
+              className={`relative grid h-9 w-9 place-items-center rounded-full border transition-all duration-300 active:scale-90 ${
                 enabled
                   ? "border-primary/40 bg-primary/10 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.2)]"
                   : "border-border bg-[hsl(var(--card-strong))] text-muted-foreground hover:text-foreground hover:border-primary/40 hover:shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
@@ -105,11 +107,30 @@ export function Topbar({ ownerName }: TopbarProps) {
             </button>
           )}
 
+          {/* Sound Toggle */}
+          <button
+            onClick={() => {
+              const next = !soundOn;
+              setClickSoundEnabled(next);
+              setSoundOn(next);
+              tap();
+            }}
+            aria-label={soundOn ? "Turn off click sound" : "Turn on click sound"}
+            title={soundOn ? "Click sound: ON" : "Click sound: OFF"}
+            className={`relative grid h-9 w-9 place-items-center rounded-full border transition-all duration-300 active:scale-90 ${
+              soundOn
+                ? "border-primary/40 bg-primary/10 text-primary"
+                : "border-border bg-[hsl(var(--card-strong))] text-muted-foreground hover:text-foreground hover:border-primary/40"
+            }`}
+          >
+            {soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />}
+          </button>
+
           {/* Dark Mode Toggle */}
           <button
-            onClick={() => { hapticLight(); setDark((d) => !d); }}
+            onClick={() => { tap(); setDark((d) => !d); }}
             aria-label="Toggle dark mode"
-            className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-[hsl(var(--card-strong))] text-muted-foreground transition-all duration-300 hover:text-foreground hover:border-primary/40 hover:shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+            className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-[hsl(var(--card-strong))] text-muted-foreground transition-all duration-300 active:scale-90 hover:text-foreground hover:border-primary/40 hover:shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
           >
             <AnimatePresence mode="wait" initial={false}>
               {dark ? (
