@@ -1,0 +1,28 @@
+{
+  "name": "Myanmar 2D Live",
+  "short_name": "2D3D",
+  "description": "Real-time 2D results from Thai Stock Exchange (SET) official index data. Updated 4 times daily.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffbf5",
+  "theme_color": "#0f766e",
+  "orientation": "portrait-primary",
+  "lang": "my",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/og-image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["utilities", "finance"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
