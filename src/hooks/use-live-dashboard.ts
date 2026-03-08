@@ -170,6 +170,22 @@ export function useLiveDashboard() {
     ? `${liveData?.currentDate || "--"} ${liveTime}`
     : liveData?.currentDate || "--";
 
+  // Build stockDatetime from the latest result's stock_datetime field
+  const latestResult = liveData?.currentDayResults?.length
+    ? liveData.currentDayResults[liveData.currentDayResults.length - 1]
+    : liveData?.result?.length
+      ? liveData.result[liveData.result.length - 1]
+      : null;
+  const rawStockDatetime = (latestResult as any)?.stock_datetime || "";
+  // Format as DD/MM/YYYY HH:mm:ss
+  const stockDatetime = (() => {
+    if (!rawStockDatetime) return "--";
+    // Expected format: "2026-03-06 16:30:05"
+    const match = rawStockDatetime.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}:\d{2}:\d{2})/);
+    if (match) return `${match[3]}/${match[2]}/${match[1]} ${match[4]}`;
+    return rawStockDatetime;
+  })();
+
   const nextCheck = getNextCheckText(parts, lastFetchAtMs.current);
   const currentDate = liveData?.currentDate || "--";
 
