@@ -6,28 +6,8 @@ import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
 import { Footer } from "@/components/dashboard/Footer";
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
-interface DayResult {
-  date?: string;
-  child: Array<{ time: string; set: string; value: string; twod: string }>;
-}
-
 const Index = () => {
   const dashboard = useLiveDashboard();
-  const [historyResults, setHistoryResults] = useState<DayResult[]>([]);
-
-  useEffect(() => {
-    async function fetchHistory() {
-      try {
-        const response = await supabase.functions.invoke("set-live", {
-          body: { endpoint: "2d_result" },
-        });
-        if (!response.error && response.data?.data) {
-          setHistoryResults(response.data.data.slice(0, 7));
-        }
-      } catch {}
-    }
-    fetchHistory();
-  }, []);
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden">
@@ -58,14 +38,7 @@ const Index = () => {
           </div>
 
           {/* Right Column */}
-          <ThreeDSection
-            threed={dashboard.threed}
-            valueFormatted={dashboard.valueFormatted}
-            currentDayResults={dashboard.currentDayResults}
-            flash={dashboard.flash}
-            lastUpdated={dashboard.lastUpdated}
-            historyResults={historyResults}
-          />
+          <ThreeDSection lastUpdated={dashboard.lastUpdated} />
         </div>
 
         {/* Session Results Bar */}
