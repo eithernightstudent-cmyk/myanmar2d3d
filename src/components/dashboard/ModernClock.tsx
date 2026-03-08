@@ -21,7 +21,7 @@ function getNextResult(nowH: number, nowM: number, nowS: number) {
       return { label: rt.label, time: `${padTwo(rt.h)}:${padTwo(rt.m)}`, hh, mm, ss };
     }
   }
-  return null; // All results done for today
+  return null;
 }
 
 export function ModernClock() {
@@ -35,7 +35,6 @@ export function ModernClock() {
   const h = padTwo(parts.hour);
   const m = padTwo(parts.minute);
   const s = padTwo(parts.second);
-
   const next = getNextResult(parts.hour, parts.minute, parts.second);
 
   const nowMinutes = parts.hour * 60 + parts.minute;
@@ -51,7 +50,7 @@ export function ModernClock() {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.06, duration: 0.5 }}
-      className="rounded-2xl border border-border bg-card p-5 shadow-lg"
+      className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg"
     >
       <div className="flex items-center justify-between mb-3">
         <span className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -70,7 +69,7 @@ export function ModernClock() {
           ) : (
             <span
               key={i}
-              className="inline-flex h-10 w-8 items-center justify-center rounded-lg border border-border bg-secondary font-display text-lg font-bold text-foreground"
+              className="inline-flex h-10 w-8 items-center justify-center rounded-xl border border-border bg-[hsl(var(--card-strong))] font-display text-lg font-bold text-foreground"
             >
               {char}
             </span>
@@ -78,9 +77,9 @@ export function ModernClock() {
         )}
       </div>
 
-      {/* Countdown to next result */}
+      {/* Countdown */}
       {next ? (
-        <div className="mt-3 rounded-xl border border-primary/30 bg-primary/5 p-3 text-center">
+        <div className="mt-3 rounded-2xl border border-primary/25 bg-primary/5 p-3 text-center">
           <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
             Next: {next.label} ({next.time})
           </p>
@@ -98,30 +97,30 @@ export function ModernClock() {
           </div>
         </div>
       ) : (
-        <div className="mt-3 rounded-xl border border-success/30 bg-success/5 p-3 text-center">
-          <p className="font-display text-xs font-semibold text-success">✓ All results completed for today</p>
+        <div className="mt-3 rounded-2xl border border-primary/25 bg-primary/5 p-3 text-center">
+          <p className="font-display text-xs font-semibold text-primary">✓ All results completed for today</p>
         </div>
       )}
 
-      {/* Result Schedule */}
+      {/* Schedule */}
       <div className="mt-3 grid grid-cols-4 gap-1.5">
         {RESULT_TIMES.map((rt) => {
           const status = getStatus(rt.h, rt.m);
           return (
             <div
               key={rt.label}
-              className={`flex flex-col items-center rounded-lg border p-2 transition-colors ${
+              className={`flex flex-col items-center rounded-xl border p-2 transition-colors ${
                 status === "done"
-                  ? "border-success/30 bg-success/5"
+                  ? "border-primary/30 bg-primary/8"
                   : status === "soon"
-                  ? "border-primary/40 bg-primary/5 animate-pulse"
-                  : "border-border bg-secondary"
+                  ? "border-[hsl(var(--warm))]/40 bg-[hsl(var(--warm-soft))] animate-pulse"
+                  : "border-border bg-[hsl(var(--card-strong))]"
               }`}
             >
               <span className="font-display text-[0.55rem] font-semibold uppercase tracking-wider text-muted-foreground">
                 {rt.label}
               </span>
-              <span className={`font-display text-sm font-bold ${status === "done" ? "text-success" : "text-foreground"}`}>
+              <span className={`font-display text-sm font-bold ${status === "done" ? "text-primary" : "text-foreground"}`}>
                 {padTwo(rt.h)}:{padTwo(rt.m)}
               </span>
             </div>

@@ -61,6 +61,10 @@ export default {
           light: "hsl(var(--fail-light))",
           border: "hsl(var(--fail-border))",
         },
+        warm: {
+          DEFAULT: "hsl(var(--warm))",
+          soft: "hsl(var(--warm-soft))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
