@@ -172,6 +172,8 @@ function getSessionVerificationStatus(
     if (parsed) {
       const stockSeconds = parsed.h * 3600 + parsed.m * 60 + parsed.s;
       if (stockSeconds >= closeSeconds) {
+        // Market already closed — skip preliminary window, finalize immediately.
+        if (!isMarketLive) return "verified";
         if (firstSeenAt && Date.now() - firstSeenAt < VERIFICATION_WINDOW_MS) {
           return "verifying";
         }
