@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
@@ -5,13 +6,16 @@ import { TodayResults } from "@/components/dashboard/TodayResults";
 import { SessionPanel } from "@/components/dashboard/SessionPanel";
 import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
 import { HistoryTable } from "@/components/dashboard/HistoryTable";
-import { AboutSection } from "@/components/dashboard/AboutSection";
+import { DashboardNavButtons } from "@/components/dashboard/DashboardNavButtons";
+import { FullScreenOverlay } from "@/components/dashboard/FullScreenOverlay";
 import { Footer } from "@/components/dashboard/Footer";
 import { PullToRefresh } from "@/components/dashboard/PullToRefresh";
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
 const Index = () => {
   const dashboard = useLiveDashboard();
+  const [showHistory, setShowHistory] = useState(false);
+  const [show3D, setShow3D] = useState(false);
 
   return (
     <PullToRefresh onRefresh={dashboard.refreshData}>
@@ -25,7 +29,6 @@ const Index = () => {
             "radial-gradient(ellipse 70% 50% at 15% 10%, hsl(38 92% 50% / 0.12), transparent 50%), radial-gradient(ellipse 60% 40% at 85% 8%, hsl(152 65% 42% / 0.08), transparent 45%), radial-gradient(ellipse 80% 50% at 50% 100%, hsl(38 92% 50% / 0.06), transparent 50%), linear-gradient(160deg, hsl(var(--background)), hsl(36 50% 95%), hsl(32 40% 93%))",
         }}
       />
-      {/* Dark mode ambient glow overlays */}
       <div
         className="pointer-events-none fixed inset-0 -z-10 opacity-0 transition-opacity duration-700 dark:opacity-100"
         aria-hidden="true"
@@ -47,8 +50,8 @@ const Index = () => {
       <Topbar ownerName={dashboard.ownerName} />
 
       <main className="mx-auto w-[min(100%-1.25rem,72rem)] py-6 sm:w-[min(100%-2rem,72rem)] sm:py-8">
+        {/* Live Card + Clock */}
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
-          {/* Left Column */}
           <div className="grid gap-5">
             <LiveCard
               clock={dashboard.clock}
@@ -73,15 +76,17 @@ const Index = () => {
               resultVerificationStatus={dashboard.resultVerificationStatus}
               isResultLocked={dashboard.isResultLocked}
             />
+
+            {/* Navigation Buttons */}
+            <DashboardNavButtons
+              onOpenHistory={() => setShowHistory(true)}
+              onOpen3D={() => setShow3D(true)}
+            />
+
             <ModernClock />
           </div>
 
-          {/* Right Column */}
-          <ThreeDSection lastUpdated={dashboard.lastUpdated} />
-        </div>
-
-        {/* Today's Results Summary */}
-        <div className="mt-6">
+          {/* Today's Results on right column */}
           <TodayResults
             currentDayResults={dashboard.currentDayResults}
             currentDate={dashboard.currentDate}
@@ -99,16 +104,26 @@ const Index = () => {
             currentDayResults={dashboard.currentDayResults}
           />
         </div>
-
-        {/* History Table from /live result array */}
-        <div className="mt-6">
-          <HistoryTable />
-        </div>
-
-        {/* About info moved to footer */}
       </main>
 
       <Footer ownerName={dashboard.ownerName} />
+
+      {/* Full-screen overlays */}
+      <FullScreenOverlay
+        open={showHistory}
+        onClose={() => setShowHistory(false)}
+        title="📊 Previous Results (Last 7 Days)"
+      >
+        <HistoryTable />
+      </FullScreenOverlay>
+
+      <FullScreenOverlay
+        open={show3D}
+        onClose={() => setShow3D(false)}
+        title="🎲 Latest 3D Results"
+      >
+        <ThreeDSection lastUpdated={dashboard.lastUpdated} />
+      </FullScreenOverlay>
     </div>
     </PullToRefresh>
   );
