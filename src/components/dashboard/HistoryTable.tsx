@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { formatNumber } from "@/lib/market-utils";
-import { Loader2 } from "lucide-react";
+import { Loader2, BarChart3 } from "lucide-react";
 import { tap } from "@/lib/haptic";
 
 interface DayResult {
