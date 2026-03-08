@@ -123,7 +123,7 @@ const Index = () => {
       <FullScreenOverlay
         open={show3D}
         onClose={() => setShow3D(false)}
-        title="🎲 Latest 3D Results"
+        title="Latest 3D Results"
       >
         <ThreeDSection lastUpdated={dashboard.lastUpdated} />
       </FullScreenOverlay>
