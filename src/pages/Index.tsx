@@ -6,12 +6,14 @@ import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
 import { HistoryTable } from "@/components/dashboard/HistoryTable";
 import { AboutSection } from "@/components/dashboard/AboutSection";
 import { Footer } from "@/components/dashboard/Footer";
+import { PullToRefresh } from "@/components/dashboard/PullToRefresh";
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
 const Index = () => {
   const dashboard = useLiveDashboard();
 
   return (
+    <PullToRefresh onRefresh={dashboard.refreshData}>
     <div className="relative flex min-h-screen flex-col overflow-x-hidden">
       {/* Background scene */}
       <div
