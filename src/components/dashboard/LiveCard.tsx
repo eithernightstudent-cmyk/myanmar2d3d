@@ -186,7 +186,7 @@ export function LiveCard({
                 </span>
               </motion.div>
             )}
-            {resultVerificationStatus === "finalizing" && (
+            {resultVerificationStatus === "finalizing" && isLive && (
               <motion.div
                 key="finalizing"
                 initial={{ opacity: 0, y: -4 }}
