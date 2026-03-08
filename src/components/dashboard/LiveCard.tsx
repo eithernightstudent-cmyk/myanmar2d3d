@@ -192,7 +192,7 @@ export function LiveCard({
                 </span>
               </motion.div>
             )}
-            {resultVerificationStatus === "verified" && twod !== "--" && (
+            {showVerificationBadge && resultVerificationStatus === "verified" && twod !== "--" && (
               <motion.div
                 key="verified"
                 initial={{ opacity: 0, y: -4 }}
