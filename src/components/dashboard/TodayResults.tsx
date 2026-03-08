@@ -69,7 +69,11 @@ function matchResult(results: CurrentDayResult[], slotTime: string): CurrentDayR
   }) || null;
 }
 
-export function TodayResults({ currentDayResults, currentDate }: TodayResultsProps) {
+export function TodayResults({ currentDayResults, currentDate, fallbackResults = [] }: TodayResultsProps) {
+  // Use currentDayResults if available, otherwise fall back to last trading day results
+  const displayResults = currentDayResults.length > 0 ? currentDayResults : fallbackResults;
+  const isFallback = currentDayResults.length === 0 && fallbackResults.length > 0;
+  const fallbackDate = isFallback && fallbackResults[0]?.stock_date ? fallbackResults[0].stock_date : null;
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
