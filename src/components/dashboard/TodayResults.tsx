@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Sunrise, Sun, CloudSun, Sunset, Clock, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { formatNumber } from "@/lib/market-utils";
 import { tap } from "@/lib/haptic";
 
@@ -18,48 +18,16 @@ interface TodayResultsProps {
   fallbackResults?: CurrentDayResult[];
 }
 
-interface SessionSlot {
-  time: string;
-  label: string;
-  icon: React.ReactNode;
-  animClass: string;
-  gradientFrom: string;
-  gradientTo: string;
-}
+/** Primary sessions show full SET/Value detail */
+const PRIMARY_SLOTS = [
+  { time: "12:01", display: "12:01 PM", label: "Midday" },
+  { time: "16:30", display: "4:30 PM", label: "Closing" },
+];
 
-const SESSION_SLOTS: SessionSlot[] = [
-  {
-    time: "11:00",
-    label: "Morning",
-    icon: <Sunrise className="h-6 w-6" />,
-    animClass: "anim-float",
-    gradientFrom: "from-orange-400",
-    gradientTo: "to-amber-300",
-  },
-  {
-    time: "12:01",
-    label: "Midday",
-    icon: <Sun className="h-6 w-6" />,
-    animClass: "anim-pulse-glow",
-    gradientFrom: "from-yellow-400",
-    gradientTo: "to-orange-300",
-  },
-  {
-    time: "15:00",
-    label: "Afternoon",
-    icon: <CloudSun className="h-6 w-6" />,
-    animClass: "anim-cloud-drift",
-    gradientFrom: "from-sky-400",
-    gradientTo: "to-cyan-300",
-  },
-  {
-    time: "16:30",
-    label: "Closing",
-    icon: <Sunset className="h-6 w-6" />,
-    animClass: "anim-float",
-    gradientFrom: "from-rose-400",
-    gradientTo: "to-pink-300",
-  },
+/** Secondary sessions show a compact row */
+const SECONDARY_SLOTS = [
+  { time: "11:00", display: "11:00 AM", label: "Morning" },
+  { time: "15:00", display: "3:00 PM", label: "Afternoon" },
 ];
 
 function matchResult(results: CurrentDayResult[], slotTime: string): CurrentDayResult | null {
@@ -70,10 +38,10 @@ function matchResult(results: CurrentDayResult[], slotTime: string): CurrentDayR
 }
 
 export function TodayResults({ currentDayResults, currentDate, fallbackResults = [] }: TodayResultsProps) {
-  // Use currentDayResults if available, otherwise fall back to last trading day results
   const displayResults = currentDayResults.length > 0 ? currentDayResults : fallbackResults;
   const isFallback = currentDayResults.length === 0 && fallbackResults.length > 0;
   const fallbackDate = isFallback && fallbackResults[0]?.stock_date ? fallbackResults[0].stock_date : null;
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -81,67 +49,128 @@ export function TodayResults({ currentDayResults, currentDate, fallbackResults =
       transition={{ delay: 0.15, duration: 0.5 }}
     >
       <article className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg">
-        {/* Header */}
+        {/* Header — no icon */}
         <div className="mb-5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
-              <Clock className="h-4 w-4 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-display text-sm font-bold tracking-wide" style={{ color: "hsl(var(--text-strong))" }}>
-                {isFallback ? "Latest Results" : "Today's Results"}
-              </h2>
-              <p className="font-display text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                {isFallback && fallbackDate ? fallbackDate : (currentDate || "--")}
-              </p>
-            </div>
+          <div>
+            <h2 className="font-display text-base font-bold tracking-wide text-foreground">
+              {isFallback ? "Latest Results" : "Today's Results"}
+            </h2>
+            <p className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground mt-0.5">
+              {isFallback && fallbackDate ? fallbackDate : (currentDate || "--")}
+            </p>
           </div>
           <span className="rounded-full border border-primary/20 bg-primary/8 px-2.5 py-1 font-display text-[0.6rem] font-bold uppercase tracking-wider text-primary">
             Daily 2D
           </span>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {SESSION_SLOTS.map((slot, i) => {
+        {/* Primary Cards — 12:01 PM & 4:30 PM */}
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          {PRIMARY_SLOTS.map((slot, i) => {
             const result = matchResult(displayResults, slot.time);
             const has = !!result && !!result.twod && result.twod !== "--";
 
             return (
               <motion.div
                 key={slot.time}
-                initial={{ opacity: 0, scale: 0.92 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.08 * i, duration: 0.4 }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.06 * i, duration: 0.4 }}
                 onTouchStart={() => tap()}
-                className="group relative flex flex-col items-center gap-2.5 rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4 transition-all duration-200 active:scale-95 hover:border-primary/30 hover:shadow-lg"
+                className="rounded-2xl border border-border/60 bg-card p-4 transition-all duration-200 active:scale-[0.97]"
               >
-                {/* Animated Icon */}
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${slot.gradientFrom} ${slot.gradientTo} text-white shadow-md ${slot.animClass}`}
-                >
-                  {slot.icon}
-                </div>
+                {/* Time */}
+                <p className="font-display text-xs font-bold text-foreground">
+                  {slot.display}
+                </p>
+                <p className="font-display text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-3">
+                  {slot.label}
+                </p>
 
-                {/* Time & Label */}
-                <div className="text-center">
-                  <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                {/* 2D Number */}
+                {has ? (
+                  <motion.p
+                    key={result!.twod}
+                    initial={{ scale: 0.85, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="font-display text-4xl font-extrabold leading-none mb-3"
+                    style={{
+                      background: "linear-gradient(135deg, hsl(330 85% 50%), hsl(275 75% 48%))",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    {result!.twod}
+                  </motion.p>
+                ) : (
+                  <div className="mb-3">
+                    <span className="font-display text-3xl font-bold text-muted-foreground/30">--</span>
+                    <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 ml-2">
+                      <Loader2 className="h-2.5 w-2.5 animate-spin text-muted-foreground" />
+                      <span className="font-display text-[0.55rem] font-semibold uppercase tracking-wider text-muted-foreground">
+                        Pending
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* SET & Value */}
+                {has && (
+                  <div className="space-y-1 border-t border-border/50 pt-2">
+                    <div className="flex justify-between font-display text-[0.65rem]">
+                      <span className="font-bold text-foreground">SET</span>
+                      <span className="font-bold text-foreground">
+                        {formatNumber(result!.set)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between font-display text-[0.65rem]">
+                      <span className="font-bold text-foreground">VALUE</span>
+                      <span className="font-bold text-foreground">
+                        {formatNumber(result!.value)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Secondary Cards — 11:00 AM & 3:00 PM — compact rows */}
+        <div className="grid grid-cols-2 gap-3">
+          {SECONDARY_SLOTS.map((slot, i) => {
+            const result = matchResult(displayResults, slot.time);
+            const has = !!result && !!result.twod && result.twod !== "--";
+
+            return (
+              <motion.div
+                key={slot.time}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.12 + 0.06 * i, duration: 0.4 }}
+                onTouchStart={() => tap()}
+                className="flex items-center justify-between rounded-xl border border-border/60 bg-card px-4 py-3 transition-all duration-200 active:scale-[0.97]"
+              >
+                {/* Left: time */}
+                <div>
+                  <p className="font-display text-xs font-bold text-foreground">
+                    {slot.display}
+                  </p>
+                  <p className="font-display text-[0.55rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                     {slot.label}
                   </p>
-                  <p className="font-display text-xs font-semibold" style={{ color: "hsl(var(--text-secondary))" }}>
-                    {slot.time === "11:00" ? "11:00 AM" : slot.time === "12:01" ? "12:01 PM" : slot.time === "15:00" ? "3:00 PM" : "4:30 PM"}
-                  </p>
                 </div>
 
-                {/* 2D Result Number */}
+                {/* Right: 2D number */}
                 {has ? (
                   <motion.span
                     key={result!.twod}
-                    initial={{ scale: 0.8, opacity: 0 }}
+                    initial={{ scale: 0.85, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="font-display text-3xl font-extrabold"
+                    className="font-display text-2xl font-extrabold"
                     style={{
-                      background: "linear-gradient(135deg, hsl(330, 80%, 55%), hsl(280, 70%, 55%))",
+                      background: "linear-gradient(135deg, hsl(330 85% 50%), hsl(275 75% 48%))",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
                       backgroundClip: "text",
@@ -150,35 +179,7 @@ export function TodayResults({ currentDayResults, currentDate, fallbackResults =
                     {result!.twod}
                   </motion.span>
                 ) : (
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="font-display text-2xl font-bold text-muted-foreground/40">
-                      --
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
-                      <Loader2 className="h-2.5 w-2.5 animate-spin text-muted-foreground" />
-                      <span className="font-display text-[0.55rem] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Pending
-                      </span>
-                    </span>
-                  </div>
-                )}
-
-                {/* SET & Value sub-info */}
-                {has && (
-                  <div className="w-full space-y-0.5 border-t border-border pt-2 mt-1">
-                    <div className="flex justify-between font-display text-[0.6rem]">
-                      <span className="font-semibold text-muted-foreground">SET</span>
-                      <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>
-                        {formatNumber(result!.set)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between font-display text-[0.6rem]">
-                      <span className="font-semibold text-muted-foreground">Value</span>
-                      <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>
-                        {formatNumber(result!.value)}
-                      </span>
-                    </div>
-                  </div>
+                  <span className="font-display text-xl font-bold text-muted-foreground/30">--</span>
                 )}
               </motion.div>
             );
