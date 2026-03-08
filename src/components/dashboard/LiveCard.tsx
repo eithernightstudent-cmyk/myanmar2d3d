@@ -37,6 +37,7 @@ export function LiveCard({
   serverTime,
   lastSuccessTime,
   holidayName,
+  stockDatetime,
 }: LiveCardProps) {
   const marketClosed = !isLive;
 
