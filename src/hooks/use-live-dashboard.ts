@@ -224,5 +224,6 @@ export function useLiveDashboard() {
     holiday: liveData?.holiday,
     holidayName: liveData?.holidayName || null,
     stockDatetime,
+    refreshData: () => fetchLiveData(true),
   };
 }
