@@ -140,13 +140,17 @@ Deno.serve(async (req) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 12000);
 
+    const fetchHeaders: Record<string, string> = {
+      "accept": scrapeMode ? "text/plain" : "application/json",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    };
+    if (scrapeMode) {
+      fetchHeaders["X-Return-Format"] = "text";
+    }
     const response = await fetch(apiUrl, {
       method: "GET",
       signal: controller.signal,
-      headers: {
-        "accept": scrapeMode ? "text/plain" : "application/json",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
+      headers: fetchHeaders,
     });
     clearTimeout(timeoutId);
 
