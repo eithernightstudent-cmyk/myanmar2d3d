@@ -58,42 +58,45 @@
   }
 
   .dark {
-    --background: 215 35% 9%;
-    --foreground: 30 15% 90%;
-    --card: 215 30% 13%;
-    --card-foreground: 30 15% 90%;
-    --popover: 215 30% 13%;
-    --popover-foreground: 30 15% 90%;
-    --primary: 40 90% 55%;
-    --primary-foreground: 0 0% 5%;
-    --secondary: 215 25% 17%;
-    --secondary-foreground: 30 15% 88%;
-    --muted: 215 20% 19%;
-    --muted-foreground: 215 12% 55%;
-    --accent: 215 25% 17%;
-    --accent-foreground: 30 15% 80%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 220 28% 7%;
+    --foreground: 35 20% 92%;
+    --card: 222 25% 11%;
+    --card-foreground: 35 20% 92%;
+    --popover: 222 25% 11%;
+    --popover-foreground: 35 20% 92%;
+    --primary: 38 95% 58%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 222 20% 15%;
+    --secondary-foreground: 35 18% 88%;
+    --muted: 222 16% 16%;
+    --muted-foreground: 220 10% 50%;
+    --accent: 222 20% 15%;
+    --accent-foreground: 35 20% 82%;
+    --destructive: 0 65% 42%;
     --destructive-foreground: 0 0% 98%;
-    --border: 215 20% 20%;
-    --input: 215 20% 20%;
-    --ring: 40 90% 55%;
+    --border: 222 15% 16%;
+    --input: 222 15% 16%;
+    --ring: 38 95% 58%;
 
-    --success: 142 71% 45%;
-    --success-light: 142 25% 14%;
-    --success-border: 142 25% 28%;
-    --fail: 0 72% 44%;
-    --fail-light: 0 30% 14%;
-    --fail-border: 0 30% 28%;
-    --warm: 40 90% 55%;
-    --warm-soft: 40 35% 16%;
+    --success: 152 65% 48%;
+    --success-light: 152 30% 12%;
+    --success-border: 152 25% 24%;
+    --fail: 0 68% 48%;
+    --fail-light: 0 28% 12%;
+    --fail-border: 0 28% 24%;
+    --warm: 38 95% 58%;
+    --warm-soft: 38 40% 14%;
 
-    --text-strong: 0 0% 95%;
-    --text-secondary: 215 12% 65%;
+    --text-strong: 35 15% 96%;
+    --text-secondary: 220 10% 58%;
 
-    --line-soft: 215 20% 20%;
-    --card-glass: 215 30% 13% / 0.85;
-    --card-strong: 215 30% 13% / 0.93;
-    --shadow-panel: 0 28px 60px -34px rgba(0, 0, 0, 0.6);
+    --line-soft: 222 15% 16%;
+    --card-glass: 222 25% 10% / 0.88;
+    --card-strong: 222 25% 12% / 0.95;
+    --shadow-panel: 0 28px 60px -20px rgba(0, 0, 0, 0.7), 0 0 80px -20px hsl(38 95% 58% / 0.04);
+
+    --glow-primary: 0 0 40px -10px hsl(38 95% 58% / 0.15);
+    --glow-ambient: 0 0 120px -40px hsl(38 95% 58% / 0.06);
   }
 }
 
@@ -181,3 +184,39 @@
 .anim-spin-slow { animation: spin-slow 12s linear infinite; }
 .anim-pulse-glow { animation: pulse-glow 2.5s ease-in-out infinite; }
 .anim-cloud-drift { animation: cloud-drift 4s ease-in-out infinite; }
+
+/* Dark mode enhancements */
+.dark article {
+  border-color: hsl(222 15% 18%);
+}
+
+.dark article:hover {
+  border-color: hsl(38 40% 25% / 0.5);
+  box-shadow: var(--glow-primary), var(--shadow-panel);
+}
+
+/* Subtle inner glow for dark mode cards */
+.dark .rounded-3xl {
+  transition: border-color 0.3s ease, box-shadow 0.4s ease;
+}
+
+/* Enhanced dark mode scrollbar */
+.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.dark ::-webkit-scrollbar-track {
+  background: hsl(222 25% 8%);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(222 15% 22%);
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(38 60% 40%);
+}
+
+/* Dark mode text gradient enhancement */
+.dark .text-primary {
+  text-shadow: 0 0 20px hsl(38 95% 58% / 0.2);
+}
