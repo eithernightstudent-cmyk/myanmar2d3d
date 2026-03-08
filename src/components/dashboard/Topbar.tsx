@@ -70,7 +70,7 @@ export function Topbar({ ownerName }: TopbarProps) {
     <>
       {/* Top floating header — Logo left, Controls right */}
       <div className="fixed top-0 left-0 right-0 z-40 pointer-events-none">
-        <div className="mx-auto flex w-[min(100%-1.25rem,72rem)] items-center justify-between py-4 sm:w-[min(100%-2rem,72rem)]">
+        <div className="mx-auto flex w-[min(100%-2rem,72rem)] items-center justify-between py-4 px-1">
           {/* Logo + Brand */}
           <Link to="/" className="pointer-events-auto inline-flex items-center gap-2.5 no-underline group">
             <motion.img
