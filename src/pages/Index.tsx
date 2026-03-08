@@ -47,12 +47,14 @@ const Index = () => {
             />
           </div>
 
-          <SessionPanel
-            connectionStatus={dashboard.connectionStatus}
-            lastFetchTime={dashboard.lastFetchTime}
-            nextCheck={dashboard.nextCheck}
-          />
-        </div>
+          <div className="grid gap-5">
+            <SessionPanel
+              connectionStatus={dashboard.connectionStatus}
+              lastFetchTime={dashboard.lastFetchTime}
+              nextCheck={dashboard.nextCheck}
+            />
+            <TradingViewWidget />
+          </div>
 
         <motion.section
           initial={{ opacity: 0, y: 16 }}
