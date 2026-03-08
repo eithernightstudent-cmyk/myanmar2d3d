@@ -1,7 +1,8 @@
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StatusPill } from "./StatusPill";
-import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, RefreshCw, Zap } from "lucide-react";
-import { tap, tapMedium } from "@/lib/haptic";
+import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, Zap } from "lucide-react";
+import { tap } from "@/lib/haptic";
 
 interface LiveCardProps {
   clock: string;
@@ -46,11 +47,28 @@ export function LiveCard({
   stockDatetime,
   resultVerificationStatus = "closed",
   isResultLocked = false,
-  onManualRefresh,
   dataSource,
   isHotMinute = false,
 }: LiveCardProps) {
   const marketClosed = !isLive;
+
+  // Log technical info to console for debugging (hidden from UI)
+  useEffect(() => {
+    console.log(
+      `[Dashboard Debug] Source: ${dataSource || "unknown"} | Server: ${serverTime} | Last Sync: ${lastSuccessTime}`
+    );
+  }, [dataSource, serverTime, lastSuccessTime]);
+
+  // Clean holiday name — filter out null/undefined/empty
+  const cleanHolidayName = (() => {
+    if (holidayName && holidayName !== "null" && holidayName !== "NULL" && holidayName.trim() !== "") {
+      return holidayName;
+    }
+    return null;
+  })();
+
+  // Only show verification badges when market is live (not on weekends/holidays)
+  const showVerificationBadge = isLive || resultVerificationStatus === "verified";
 
   return (
     <motion.section
@@ -71,7 +89,7 @@ export function LiveCard({
               Live 2D
             </span>
             <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
-            {isSyncing && (
+            {isSyncing && isLive && (
               <div className="flex items-center gap-1.5" style={{ color: "hsl(var(--text-secondary))" }}>
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
                 <span className="font-display text-[0.6rem] font-semibold uppercase tracking-wider">
@@ -93,31 +111,9 @@ export function LiveCard({
               </motion.div>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            {/* Manual Refresh Button */}
-            {onManualRefresh && (
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.85, rotate: 180 }}
-                onClick={() => {
-                  tapMedium();
-                  onManualRefresh();
-                }}
-                disabled={isSyncing}
-                className={`grid h-8 w-8 place-items-center rounded-xl border transition-all duration-300 ${
-                  isSyncing
-                    ? "border-primary/30 bg-primary/5 text-primary"
-                    : "border-border bg-[hsl(var(--card-strong))] text-muted-foreground hover:text-primary hover:border-primary/30 hover:bg-primary/5"
-                }`}
-                title="Refresh data"
-              >
-                <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? "animate-spin" : ""}`} strokeWidth={2.5} />
-              </motion.button>
-            )}
-            <span className="rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1.5 font-display text-xs font-bold text-primary">
-              {clock}
-            </span>
-          </div>
+          <span className="rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1.5 font-display text-xs font-bold text-primary">
+            {clock}
+          </span>
         </div>
 
         {/* Market Status & Holiday Name */}
@@ -126,19 +122,14 @@ export function LiveCard({
             <p className="font-display text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: "hsl(var(--text-secondary))" }}>
               Market Closed
             </p>
-            {(() => {
-              const displayName = holidayName && holidayName !== "null" && holidayName !== "NULL" && holidayName.trim() !== ""
-                ? holidayName
-                : null;
-              return displayName ? (
-                <div className="mt-1.5 inline-flex items-center gap-1.5">
-                  <CalendarDays className="h-3.5 w-3.5 text-primary" />
-                  <p className="font-display text-sm font-bold text-primary/80">
-                    {displayName}
-                  </p>
-                </div>
-              ) : null;
-            })()}
+            {cleanHolidayName && (
+              <div className="mt-1.5 inline-flex items-center gap-1.5">
+                <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                <p className="font-display text-sm font-bold text-primary/80">
+                  {cleanHolidayName}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -170,9 +161,9 @@ export function LiveCard({
             )}
           </div>
 
-          {/* Verification Status Badges */}
+          {/* Verification Status Badges — only during/after live market */}
           <AnimatePresence mode="wait">
-            {resultVerificationStatus === "verifying" && isLive && (
+            {showVerificationBadge && resultVerificationStatus === "verifying" && (
               <motion.div
                 key="verifying"
                 initial={{ opacity: 0, y: -4 }}
@@ -186,7 +177,7 @@ export function LiveCard({
                 </span>
               </motion.div>
             )}
-            {resultVerificationStatus === "finalizing" && isLive && (
+            {showVerificationBadge && resultVerificationStatus === "finalizing" && (
               <motion.div
                 key="finalizing"
                 initial={{ opacity: 0, y: -4 }}
@@ -260,28 +251,12 @@ export function LiveCard({
           </motion.div>
         </div>
 
-        {/* Date, Server Time, Last Sync & Source */}
-        <div className="space-y-1.5 border-t border-border pt-4">
+        {/* Minimal footer — Date only */}
+        <div className="border-t border-border pt-4">
           <div className="flex justify-between font-display text-xs">
             <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Date</span>
             <span style={{ color: "hsl(var(--text-secondary))" }}>{currentDate}</span>
           </div>
-          <div className="flex justify-between font-display text-xs">
-            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Server Time</span>
-            <span style={{ color: "hsl(var(--text-secondary))" }}>{serverTime}</span>
-          </div>
-          <div className="flex justify-between font-display text-xs">
-            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Last Sync</span>
-            <span className="text-primary font-semibold">{lastSuccessTime}</span>
-          </div>
-          {dataSource && (
-            <div className="flex justify-between font-display text-xs">
-              <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Source</span>
-              <span className={`font-semibold ${dataSource === "rapidapi-fallback" ? "text-amber-500" : "text-primary"}`}>
-                {dataSource === "rapidapi-fallback" ? "Fallback API" : "Primary API"}
-              </span>
-            </div>
-          )}
         </div>
       </article>
     </motion.section>
