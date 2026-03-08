@@ -119,8 +119,38 @@ export function sendResultNotification(twod: string, sessionTime?: string) {
   }
 }
 
+export function playVerifiedChime() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  if (ctx.state === "suspended") ctx.resume();
+
+  // Two-tone ascending chime for "verified"
+  const notes = [660, 880];
+  notes.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.15);
+    gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.15);
+    gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + i * 0.15 + 0.02);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + i * 0.15 + 0.25);
+    osc.start(ctx.currentTime + i * 0.15);
+    osc.stop(ctx.currentTime + i * 0.15 + 0.25);
+  });
+}
+
 export function notifyResultChange(twod?: string, sessionTime?: string) {
   playNotificationBeep();
+  vibrateDevice();
+  if (twod && twod !== "--") {
+    sendResultNotification(twod, sessionTime);
+  }
+}
+
+export function notifyVerified(twod?: string, sessionTime?: string) {
+  playVerifiedChime();
   vibrateDevice();
   if (twod && twod !== "--") {
     sendResultNotification(twod, sessionTime);

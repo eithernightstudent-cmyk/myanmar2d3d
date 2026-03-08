@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { notifyResultChange } from "@/lib/notify";
+import { notifyResultChange, notifyVerified } from "@/lib/notify";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getThailandParts,
@@ -108,6 +108,7 @@ export function useLiveDashboard() {
   const isUpdating = useRef(false);
   const hasRendered = useRef(false);
   const prev2dRef = useRef<string | null>(null);
+  const prevVerificationRef = useRef<string | null>(null);
 
   const updateOwnerName = useCallback((value: string) => {
     const cleaned = String(value ?? "").replace(/\s+/g, " ").trim().slice(0, 24) || DEFAULT_OWNER_NAME;
@@ -261,6 +262,17 @@ export function useLiveDashboard() {
       isLive,
     );
   }, [parts, rawStockDatetime, isLive]);
+
+  // Play verified chime when status transitions from finalizing → verified
+  useEffect(() => {
+    if (
+      prevVerificationRef.current === "finalizing" &&
+      resultVerificationStatus === "verified"
+    ) {
+      notifyVerified(twod);
+    }
+    prevVerificationRef.current = resultVerificationStatus;
+  }, [resultVerificationStatus, twod]);
 
   // Whether the 2D number is locked (verified or market fully closed with data)
   const isResultLocked = resultVerificationStatus === "verified" || 
