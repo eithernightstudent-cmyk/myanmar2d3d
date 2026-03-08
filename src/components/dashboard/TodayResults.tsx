@@ -15,6 +15,7 @@ interface CurrentDayResult {
 interface TodayResultsProps {
   currentDayResults: CurrentDayResult[];
   currentDate: string;
+  fallbackResults?: CurrentDayResult[];
 }
 
 interface SessionSlot {
