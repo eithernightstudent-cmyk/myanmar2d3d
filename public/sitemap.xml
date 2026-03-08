@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://2d3d-live.lovable.app/</loc>
+    <loc>https://myanmar2d3d.lovable.app/</loc>
     <changefreq>always</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://2d3d-live.lovable.app/results</loc>
+    <loc>https://myanmar2d3d.lovable.app/results</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://2d3d-live.lovable.app/history</loc>
+    <loc>https://myanmar2d3d.lovable.app/history</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
