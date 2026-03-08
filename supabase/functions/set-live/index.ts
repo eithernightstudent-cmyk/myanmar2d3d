@@ -124,52 +124,11 @@ Deno.serve(async (req) => {
           ? `${BASE_URL}/history?date=${encodeURIComponent(date)}`
           : `${BASE_URL}/history`;
         break;
-      case "threed_result": {
-        // 3D results - source site requires JS rendering, so we fetch and parse the HTML
-        // trying multiple approaches
-        const threedResults: Array<{ date: string; threed: string }> = [];
-        try {
-          const ctrl = new AbortController();
-          const tid = setTimeout(() => ctrl.abort(), 10000);
-          const res = await fetch("https://www.thaistock2d.com/threedResult", {
-            signal: ctrl.signal,
-            headers: {
-              "accept": "text/html,application/xhtml+xml",
-              "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            },
-          });
-          clearTimeout(tid);
-          const html = await res.text();
-          // Try parsing threed_result_item divs
-          const regex = /(\d{4}-\d{2}-\d{2})<\/h4>[\s\S]*?<h4[^>]*>(\d{1,3})<\/h4>/g;
-          let m;
-          while ((m = regex.exec(html)) !== null) {
-            threedResults.push({ date: m[1], threed: m[2] });
-          }
-          // Also try __NUXT__ data
-          if (threedResults.length === 0) {
-            const nuxtMatch = html.match(/window\.__NUXT__\s*=\s*(.+?);<\/script>/s);
-            if (nuxtMatch) {
-              console.log("Found __NUXT__ data");
-              // Try to extract date/threed pairs
-              const dateMatches = [...html.matchAll(/(\d{4}-\d{2}-\d{2})/g)].map(m => m[1]);
-              const threedMatches = [...html.matchAll(/(\d{3})/g)].map(m => m[1]);
-              console.log(`Dates: ${dateMatches.length}, 3Ds: ${threedMatches.length}`);
-            }
-          }
-        } catch (e) {
-          console.error("3D fetch error:", e);
-        }
-        return new Response(JSON.stringify({ data: threedResults }), {
+      case "threed_result":
+        // Return empty - data now served directly from database table
+        return new Response(JSON.stringify({ data: [] }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
-      }
-      default:
-        return new Response(
-          JSON.stringify({ error: `Unknown endpoint: ${endpoint}` }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-    }
 
     console.log(`Fetching: ${apiUrl}`);
 
