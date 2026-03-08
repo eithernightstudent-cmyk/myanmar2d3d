@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
@@ -7,17 +6,11 @@ import { SessionPanel } from "@/components/dashboard/SessionPanel";
 import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
 import { Footer } from "@/components/dashboard/Footer";
 import { supabase } from "@/integrations/supabase/client";
-
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
 interface DayResult {
   date?: string;
-  child: Array<{
-    time: string;
-    set: string;
-    value: string;
-    twod: string;
-  }>;
+  child: Array<{ time: string; set: string; value: string; twod: string }>;
 }
 
 const Index = () => {
@@ -43,30 +36,30 @@ const Index = () => {
       <Topbar ownerName={dashboard.ownerName} />
 
       <main className="mx-auto w-[min(100%-2rem,72rem)] py-8">
-        {/* Main 2-column layout */}
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_1fr]">
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
           {/* Left Column */}
           <div className="grid gap-5">
-            {/* Live 2D Card */}
-          <LiveCard
-            clock={dashboard.clock}
-            twod={dashboard.twod}
-            threed={dashboard.threed}
-            setDigit={dashboard.setDigit}
-            valueDigit={dashboard.valueDigit}
-            setFormatted={dashboard.setFormatted}
-            valueFormatted={dashboard.valueFormatted}
-            lastUpdated={dashboard.lastUpdated}
-            marketTimestamp={dashboard.marketTimestamp}
-            flash={dashboard.flash}
-            apiNote={dashboard.apiNote}
-            isLive={dashboard.isLive}
-            connectionStatus={dashboard.connectionStatus}
-            currentDate={dashboard.currentDate}
-            serverTime={dashboard.clock}
-          />
+            <LiveCard
+              clock={dashboard.clock}
+              twod={dashboard.twod}
+              threed={dashboard.threed}
+              setDigit={dashboard.setDigit}
+              valueDigit={dashboard.valueDigit}
+              setFormatted={dashboard.setFormatted}
+              valueFormatted={dashboard.valueFormatted}
+              lastUpdated={dashboard.lastUpdated}
+              marketTimestamp={dashboard.marketTimestamp}
+              flash={dashboard.flash}
+              apiNote={dashboard.apiNote}
+              isLive={dashboard.isLive}
+              connectionStatus={dashboard.connectionStatus}
+              currentDate={dashboard.currentDate}
+              serverTime={dashboard.clock}
+            />
+            <ModernClock />
+          </div>
 
-          {/* Right: Latest 3D Results */}
+          {/* Right Column */}
           <ThreeDSection
             threed={dashboard.threed}
             valueFormatted={dashboard.valueFormatted}
