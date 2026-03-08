@@ -21,6 +21,7 @@ interface LiveCardProps {
   serverTime: string;
   lastSuccessTime: string;
   holidayName?: string | null;
+  stockDatetime?: string;
 }
 
 export function LiveCard({
