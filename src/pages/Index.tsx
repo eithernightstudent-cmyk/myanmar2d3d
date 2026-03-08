@@ -51,10 +51,11 @@ const Index = () => {
           <div className="grid gap-5">
             <SessionPanel
               connectionStatus={dashboard.connectionStatus}
+              currentDate={dashboard.currentDate}
               lastFetchTime={dashboard.lastFetchTime}
               nextCheck={dashboard.nextCheck}
+              currentDayResults={dashboard.currentDayResults}
             />
-            <ResultsTable results={dashboard.results} />
             <TradingViewWidget />
           </div>
         </div>
