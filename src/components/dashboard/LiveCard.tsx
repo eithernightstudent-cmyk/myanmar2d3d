@@ -17,6 +17,7 @@ interface LiveCardProps {
 export function LiveCard({
   clock,
   twod,
+  threed,
   setDigit,
   valueDigit,
   setFormatted,
