@@ -5,6 +5,79 @@ const corsHeaders = {
 
 const BASE_URL = "https://api.thaistock2d.com";
 
+function parseNumeric(raw: unknown): number | null {
+  const value = Number(String(raw ?? "").replace(/,/g, "").trim());
+  return Number.isFinite(value) ? value : null;
+}
+
+function getLastDigit(raw: unknown): string | null {
+  const digits = String(raw ?? "").replace(/\D/g, "");
+  return digits ? digits[digits.length - 1] : null;
+}
+
+function calculateTwoD(setIndex: unknown, value: unknown): string {
+  const setDigit = getLastDigit(setIndex);
+  const valueDigit = getLastDigit(value);
+  if (!setDigit || !valueDigit) return "--";
+  return `${setDigit}${valueDigit}`;
+}
+
+function extractDateString(raw: unknown): string {
+  const text = String(raw ?? "").trim();
+  const match = text.match(/\d{4}-\d{2}-\d{2}/);
+  return match ? match[0] : "";
+}
+
+function sortByStockTime(a: any, b: any): number {
+  const left = String(a?.stock_datetime || `${a?.stock_date || ""} ${a?.open_time || ""}`);
+  const right = String(b?.stock_datetime || `${b?.stock_date || ""} ${b?.open_time || ""}`);
+  return left.localeCompare(right);
+}
+
+function normalizeSourcePayload(payload: any) {
+  const live = payload?.live && typeof payload.live === "object" ? payload.live : {};
+  const result = Array.isArray(payload?.result) ? payload.result : [];
+  const holiday = payload?.holiday && typeof payload.holiday === "object" ? payload.holiday : null;
+
+  const serverTime = String(payload?.server_time || "").trim() || new Date().toISOString();
+  const currentDate = extractDateString(live?.date) || extractDateString(serverTime);
+
+  const currentDayResults = result
+    .filter((entry: any) => String(entry?.stock_date || "") === currentDate)
+    .sort(sortByStockTime);
+
+  const sortedAllResults = [...result].sort(sortByStockTime);
+  const latestResult = currentDayResults[currentDayResults.length - 1] || sortedAllResults[sortedAllResults.length - 1] || null;
+
+  const liveSetNumeric = parseNumeric(live?.set);
+  const liveValueNumeric = parseNumeric(live?.value);
+
+  const setIndex = liveSetNumeric ?? parseNumeric(latestResult?.set);
+  const value = liveValueNumeric ?? parseNumeric(latestResult?.value);
+
+  const liveTwoD = String(live?.twod || "").trim();
+  const calculated2d = /^\d{2}$/.test(liveTwoD) ? liveTwoD : calculateTwoD(setIndex, value);
+
+  const isLiveFeed = liveSetNumeric !== null && liveValueNumeric !== null && live?.set !== "--" && live?.value !== "--";
+  const isHoliday = holiday && String(holiday.status || "") !== "0";
+  const connectionStatus = isLiveFeed && !isHoliday ? "Live" : "Closed";
+
+  return {
+    serverTime,
+    currentDate,
+    connectionStatus,
+    setIndex,
+    value,
+    calculated2d,
+    live,
+    result: sortedAllResults,
+    currentDayResults,
+    holiday,
+    sourceUrl: `${BASE_URL}/live`,
+    fetchedAt: new Date().toISOString(),
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -15,7 +88,6 @@ Deno.serve(async (req) => {
     let date = "";
     let twod = "";
 
-    // Support both GET query params and POST body
     const url = new URL(req.url);
     endpoint = url.searchParams.get("endpoint") || "live";
     date = url.searchParams.get("date") || "";
@@ -79,58 +151,13 @@ Deno.serve(async (req) => {
 
     const data = await response.json();
 
-    // For the live endpoint, enrich the response
     if (endpoint === "live") {
-      const live = data?.live;
-      const result = data?.result;
-      const holiday = data?.holiday;
-
-      let marketStatus = "Unknown";
-      if (holiday?.status === "3") {
-        marketStatus = `Closed (${holiday.name || "Holiday"})`;
-      } else if (live?.set && live.set !== "--") {
-        marketStatus = "Open (Live)";
-      } else if (result && result.length > 0) {
-        marketStatus = "Closed";
-      }
-
-      let setIndex: number | null = null;
-      let value: number | null = null;
-      let calculatedTwod = "--";
-      let marketDateTime = data?.server_time || null;
-
-      if (live?.set && live.set !== "--") {
-        setIndex = parseFloat(String(live.set).replace(/,/g, ""));
-        value = parseFloat(String(live.value).replace(/,/g, ""));
-        calculatedTwod = live.twod || "--";
-        marketDateTime = live.time || data?.server_time;
-      } else if (result && result.length > 0) {
-        const latest = result[result.length - 1];
-        setIndex = parseFloat(String(latest.set).replace(/,/g, ""));
-        value = parseFloat(String(latest.value).replace(/,/g, ""));
-        calculatedTwod = latest.twod || "--";
-        marketDateTime = latest.stock_datetime || data?.server_time;
-      }
-
-      return new Response(JSON.stringify({
-        data: {
-          setIndex,
-          value,
-          calculated2d: calculatedTwod,
-          marketStatus,
-          marketDateTime,
-          serverTime: data?.server_time,
-          fetchedAt: new Date().toISOString(),
-          live,
-          results: result || [],
-          holiday: holiday || null,
-        },
-      }), {
+      const normalized = normalizeSourcePayload(data);
+      return new Response(JSON.stringify({ data: normalized }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // For all other endpoints, pass through the data
     return new Response(JSON.stringify({ data }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
