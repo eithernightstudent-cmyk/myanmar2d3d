@@ -107,11 +107,30 @@ export function Topbar({ ownerName }: TopbarProps) {
             </button>
           )}
 
+          {/* Sound Toggle */}
+          <button
+            onClick={() => {
+              const next = !soundOn;
+              setClickSoundEnabled(next);
+              setSoundOn(next);
+              tap();
+            }}
+            aria-label={soundOn ? "Turn off click sound" : "Turn on click sound"}
+            title={soundOn ? "Click sound: ON" : "Click sound: OFF"}
+            className={`relative grid h-9 w-9 place-items-center rounded-full border transition-all duration-300 active:scale-90 ${
+              soundOn
+                ? "border-primary/40 bg-primary/10 text-primary"
+                : "border-border bg-[hsl(var(--card-strong))] text-muted-foreground hover:text-foreground hover:border-primary/40"
+            }`}
+          >
+            {soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />}
+          </button>
+
           {/* Dark Mode Toggle */}
           <button
-            onClick={() => { hapticLight(); setDark((d) => !d); }}
+            onClick={() => { tap(); setDark((d) => !d); }}
             aria-label="Toggle dark mode"
-            className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-[hsl(var(--card-strong))] text-muted-foreground transition-all duration-300 hover:text-foreground hover:border-primary/40 hover:shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+            className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-[hsl(var(--card-strong))] text-muted-foreground transition-all duration-300 active:scale-90 hover:text-foreground hover:border-primary/40 hover:shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
           >
             <AnimatePresence mode="wait" initial={false}>
               {dark ? (
