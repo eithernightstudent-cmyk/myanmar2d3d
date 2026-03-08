@@ -143,6 +143,13 @@ export function useLiveDashboard() {
 
   const setDigit = liveData?.setIndex != null ? getLastDigit(liveData.setIndex) : "-";
   const valueDigit = liveData?.value != null ? getLastDigit(liveData.value) : "-";
+
+  // 3D = last 3 digits of Value (before decimal)
+  const getLastNDigits = (raw: unknown, n: number) => {
+    const digits = String(Math.floor(Math.abs(Number(raw ?? 0)))).replace(/\D/g, "");
+    return digits.length >= n ? digits.slice(-n) : digits.padStart(n, "0");
+  };
+  const threed = liveData?.value != null ? getLastNDigits(liveData.value, 3) : "---";
   const setFormatted = liveData?.setIndex != null ? formatNumber(liveData.setIndex) : "--";
   const valueFormatted = liveData?.value != null ? formatNumber(liveData.value) : "--";
   const lastUpdated = liveData ? formatTimestamp(liveData.fetchedAt || liveData.serverTime) : `${dateStr} ${clock}`;
