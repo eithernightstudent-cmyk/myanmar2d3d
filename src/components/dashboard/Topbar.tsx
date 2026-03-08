@@ -19,6 +19,7 @@ export function Topbar({ ownerName }: TopbarProps) {
 
   const { supported, permission, enabled, toggleNotifications } = useNotifications();
   const [justEnabled, setJustEnabled] = useState(false);
+  const [soundOn, setSoundOn] = useState(isClickSoundEnabled);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
