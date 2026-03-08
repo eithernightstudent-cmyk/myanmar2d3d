@@ -40,7 +40,7 @@ export function LiveCard({
       aria-live="polite"
     >
       <article
-        className={`relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-lg transition-all ${
+        className={`relative overflow-hidden rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-6 shadow-[var(--shadow-panel)] backdrop-blur-lg transition-all ${
           flash ? "before:opacity-100" : "before:opacity-0"
         } before:pointer-events-none before:absolute before:inset-[-30%] before:bg-[radial-gradient(circle,hsl(var(--primary)/0.12),transparent_60%)] before:transition-opacity before:duration-200`}
       >
@@ -52,7 +52,7 @@ export function LiveCard({
             </span>
             <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
           </div>
-          <span className="rounded-lg bg-secondary px-3 py-1.5 font-display text-xs font-bold text-success">
+          <span className="rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1.5 font-display text-xs font-bold text-primary">
             {clock}
           </span>
         </div>
@@ -66,25 +66,25 @@ export function LiveCard({
 
         {/* Big 2D Number */}
         <div className="flex justify-center py-4">
-          <span className="font-display text-[clamp(5rem,20vw,7rem)] font-bold leading-none text-primary [text-shadow:0_0_40px_hsl(var(--primary)/0.3)]">
+          <span className="font-display text-[clamp(5rem,20vw,7rem)] font-bold leading-none text-primary [text-shadow:0_0_40px_hsl(var(--primary)/0.25)]">
             {twod}
           </span>
         </div>
 
         {/* Calculated 2D */}
         <p className="mb-6 text-center font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Calculated 2D: <span className="text-success font-bold text-sm">{twod}</span>
+          Calculated 2D: <span className="text-primary font-bold text-sm">{twod}</span>
         </p>
 
         {/* SET Index & Value */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="rounded-xl border border-border bg-secondary/60 p-4">
+          <div className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4">
             <span className="block font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1">
               SET Index
             </span>
             <span className="font-display text-xl font-bold text-foreground">{setFormatted}</span>
           </div>
-          <div className="rounded-xl border border-border bg-secondary/60 p-4">
+          <div className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4">
             <span className="block font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1">
               Value
             </span>

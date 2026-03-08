@@ -31,7 +31,6 @@ function getSessionLabel(time: string) {
 function getSubLabel(entry: CurrentDayResult) {
   const time = String(entry.open_time ?? "").trim().slice(0, 5);
   if (time === "16:31" || time === "16:35") {
-    // Internet sessions show "Modern XX"
     const digits = String(Math.floor(Math.abs(Number(String(entry.value ?? "").replace(/,/g, ""))))).replace(/\D/g, "");
     const last2 = digits.length >= 2 ? digits.slice(-2) : digits.padStart(2, "0");
     return `Modern ${last2}`;
@@ -54,7 +53,7 @@ export function SessionPanel({
       {currentDayResults.map((entry, i) => (
         <div
           key={i}
-          className="flex flex-col items-center gap-1 rounded-2xl border border-border bg-card p-4 shadow-lg"
+          className="flex flex-col items-center gap-1 rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 shadow-[var(--shadow-panel)] backdrop-blur-lg"
         >
           <span className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             {getSessionLabel(entry.open_time)}

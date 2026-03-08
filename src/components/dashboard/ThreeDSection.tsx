@@ -46,7 +46,7 @@ export function ThreeDSection({ lastUpdated }: ThreeDSectionProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.08, duration: 0.5 }}
-      className="rounded-2xl border border-border bg-card p-6 shadow-lg"
+      className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-6 shadow-[var(--shadow-panel)] backdrop-blur-lg"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
@@ -71,7 +71,7 @@ export function ThreeDSection({ lastUpdated }: ThreeDSectionProps) {
           {results.map((result, i) => (
             <div
               key={i}
-              className="rounded-xl border border-border bg-secondary/50 p-4 transition-colors hover:bg-secondary/80"
+              className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4 transition-all hover:-translate-y-px hover:border-primary/40 hover:shadow-[0_14px_24px_-26px_hsl(var(--primary)/0.8)]"
             >
               <span className="font-display text-3xl font-bold text-primary">
                 {result.threed}

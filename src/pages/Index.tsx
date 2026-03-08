@@ -11,6 +11,25 @@ const Index = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden">
+      {/* Background scene */}
+      <div
+        className="pointer-events-none fixed inset-0 -z-10"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(circle at 14% 12%, rgba(45, 212, 191, 0.25), transparent 38%), radial-gradient(circle at 88% 8%, rgba(251, 191, 36, 0.24), transparent 42%), radial-gradient(circle at 52% 100%, rgba(15, 118, 110, 0.18), transparent 45%), linear-gradient(145deg, hsl(var(--background)), hsl(35 100% 95%))",
+        }}
+      />
+      <div
+        className="pointer-events-none fixed inset-0 -z-10 opacity-30 dark:opacity-10"
+        aria-hidden="true"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(15, 118, 110, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 118, 110, 0.04) 1px, transparent 1px)",
+          backgroundSize: "34px 34px",
+        }}
+      />
+
       <Topbar ownerName={dashboard.ownerName} />
 
       <main className="mx-auto w-[min(100%-2rem,72rem)] py-8">
