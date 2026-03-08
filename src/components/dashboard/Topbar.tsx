@@ -86,7 +86,7 @@ export function Topbar({ ownerName }: TopbarProps) {
               onClick={() => { tapMedium(); toggleNotifications(); }}
               aria-label={bellLabel}
               title={bellLabel}
-              className={`relative grid h-9 w-9 place-items-center rounded-full border transition-all duration-300 ${
+              className={`relative grid h-9 w-9 place-items-center rounded-full border transition-all duration-300 active:scale-90 ${
                 enabled
                   ? "border-primary/40 bg-primary/10 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.2)]"
                   : "border-border bg-[hsl(var(--card-strong))] text-muted-foreground hover:text-foreground hover:border-primary/40 hover:shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
