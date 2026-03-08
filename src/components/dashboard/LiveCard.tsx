@@ -67,8 +67,9 @@ export function LiveCard({
     return null;
   })();
 
-  // Only show verification badges when market is live (not on weekends/holidays)
-  const showVerificationBadge = isLive || resultVerificationStatus === "verified";
+  // Only show verification badges and lock icon when market is live or just verified (not weekends)
+  const showVerificationBadge = isLive;
+  const showLockIcon = isLive || (resultVerificationStatus === "verified" && isResultLocked);
 
   return (
     <motion.section
@@ -150,7 +151,7 @@ export function LiveCard({
             </motion.span>
 
             {/* Lock icon when result is verified */}
-            {isResultLocked && twod !== "--" && (
+            {showLockIcon && isResultLocked && twod !== "--" && (
               <motion.div
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -191,7 +192,7 @@ export function LiveCard({
                 </span>
               </motion.div>
             )}
-            {resultVerificationStatus === "verified" && twod !== "--" && (
+            {showVerificationBadge && resultVerificationStatus === "verified" && twod !== "--" && (
               <motion.div
                 key="verified"
                 initial={{ opacity: 0, y: -4 }}
