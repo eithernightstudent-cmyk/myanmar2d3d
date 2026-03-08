@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { notifyResultChange } from "@/lib/notify";
+import { notifyResultChange, notifyVerified } from "@/lib/notify";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getThailandParts,
