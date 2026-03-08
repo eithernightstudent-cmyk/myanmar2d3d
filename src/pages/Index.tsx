@@ -90,6 +90,7 @@ const Index = () => {
 
       <Footer ownerName={dashboard.ownerName} />
     </div>
+    </PullToRefresh>
   );
 };
 
