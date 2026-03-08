@@ -1,18 +1,33 @@
 import { motion } from "framer-motion";
-import { formatNumber } from "@/lib/market-utils";
 
-interface CurrentDayResult {
-  set: string;
+interface ThreeDResult {
   value: string;
-  open_time: string;
-  twod: string;
+  date: string;
+  time: string;
 }
 
 interface ThreeDSectionProps {
   threed: string;
   valueFormatted: string;
-  currentDayResults: CurrentDayResult[];
+  currentDayResults: Array<{
+    set: string;
+    value: string;
+    open_time: string;
+    twod: string;
+    stock_date?: string;
+    stock_datetime?: string;
+  }>;
   flash: boolean;
+  lastUpdated: string;
+  historyResults: Array<{
+    date?: string;
+    child: Array<{
+      time: string;
+      set: string;
+      value: string;
+      twod: string;
+    }>;
+  }>;
 }
 
 function get3D(value: string) {
@@ -20,69 +35,79 @@ function get3D(value: string) {
   return digits.length >= 3 ? digits.slice(-3) : digits.padStart(3, "0");
 }
 
-function formatResultTime(raw: string) {
-  const text = String(raw ?? "").trim();
-  if (!text || text === "--") return "--";
-  return text.slice(0, 5);
+function formatDate(dateStr: string) {
+  if (!dateStr) return "--";
+  // Convert from YYYY-MM-DD to DD/MM/YYYY
+  const parts = dateStr.split("-");
+  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return dateStr;
 }
 
-export function ThreeDSection({ threed, valueFormatted, currentDayResults, flash }: ThreeDSectionProps) {
+function formatTime12h(timeStr: string) {
+  if (!timeStr || timeStr === "--") return "--";
+  const t = timeStr.slice(0, 5);
+  const [h, m] = t.split(":").map(Number);
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 || 12;
+  return `${String(h12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
+}
+
+export function ThreeDSection({ lastUpdated, historyResults }: ThreeDSectionProps) {
+  // Collect latest 3D results from history (flatten all sessions, take last 6)
+  const allResults: ThreeDResult[] = [];
+  for (const day of historyResults) {
+    for (const session of day.child || []) {
+      allResults.push({
+        value: get3D(session.value),
+        date: formatDate(day.date || ""),
+        time: formatTime12h(session.time),
+      });
+    }
+  }
+  const latestResults = allResults.slice(0, 6);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1, duration: 0.5 }}
-      className={`relative overflow-hidden rounded-3xl border border-border bg-card/90 p-5 shadow-[0_20px_24px_-18px_hsl(var(--foreground)/0.15)] backdrop-blur-md transition-all ${
-        flash ? "before:opacity-100" : "before:opacity-0"
-      } before:pointer-events-none before:absolute before:inset-[-30%] before:bg-[radial-gradient(circle,hsl(var(--primary)/0.12),transparent_60%)] before:transition-opacity before:duration-200`}
+      transition={{ delay: 0.08, duration: 0.5 }}
+      className="rounded-2xl border border-border bg-card p-6 shadow-lg"
     >
-      <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
-        <span className="font-display text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          🎰 Live 3D Results
-        </span>
-        <span className="rounded-lg border border-input bg-accent px-2 py-1 font-display text-[0.62rem] font-semibold text-accent-foreground">
-          Value Last 3 Digits
-        </span>
-      </div>
-
-      {/* Big 3D Number */}
-      <div className="grid min-h-[100px] place-items-center">
-        <span className="font-display text-[clamp(3rem,14vw,4.5rem)] font-bold leading-none text-primary [text-shadow:0_0_22px_hsl(var(--primary)/0.25)]">
-          {threed}
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="font-display text-lg font-bold text-foreground">
+          Latest 3D Results
+        </h3>
+        <span className="font-display text-[0.65rem] text-muted-foreground">
+          Last sync: {lastUpdated}
         </span>
       </div>
 
-      {/* Source */}
-      <div className="mt-2 rounded-md border border-border bg-accent px-3 py-2">
-        <p className="m-0 font-display text-[0.78rem] font-bold uppercase tracking-wider text-accent-foreground">
-          Value = <span className="text-primary">{valueFormatted}</span> → 3D = <span className="text-primary">{threed}</span>
+      {/* 3D Results Grid */}
+      {latestResults.length === 0 ? (
+        <p className="py-8 text-center font-display text-sm text-muted-foreground">
+          No results available
         </p>
-      </div>
-
-      {/* Today's 3D Results */}
-      {currentDayResults.length > 0 && (
-        <div className="mt-4">
-          <h4 className="mb-2 font-display text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            Today's 3D
-          </h4>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {currentDayResults.map((entry, i) => (
-              <div
-                key={i}
-                className="flex flex-col items-center gap-0.5 rounded-lg border border-border bg-secondary p-2.5"
-              >
-                <span className="font-display text-[0.6rem] font-semibold uppercase tracking-widest text-muted-foreground">
-                  {formatResultTime(entry.open_time)}
-                </span>
-                <span className="font-display text-xl font-bold text-primary">
-                  {get3D(entry.value)}
-                </span>
-                <span className="font-display text-[0.55rem] text-muted-foreground">
-                  VAL {formatNumber(entry.value)}
-                </span>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          {latestResults.map((result, i) => (
+            <div
+              key={i}
+              className="rounded-xl border border-border bg-secondary/50 p-4 transition-colors hover:bg-secondary/80"
+            >
+              <span className="font-display text-3xl font-bold text-foreground">
+                {result.value}
+              </span>
+              <div className="mt-1.5 space-y-0.5">
+                <p className="font-display text-[0.65rem] text-muted-foreground">
+                  {result.date}
+                </p>
+                <p className="font-display text-[0.65rem] text-muted-foreground">
+                  {result.time}
+                </p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
     </motion.article>

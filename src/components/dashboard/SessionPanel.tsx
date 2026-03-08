@@ -16,56 +16,57 @@ interface SessionPanelProps {
   currentDayResults: CurrentDayResult[];
 }
 
-function formatResultTime(raw: string) {
-  const text = String(raw ?? "").trim();
-  if (!text || text === "--") return "--";
-  return text.slice(0, 5);
+const SESSION_LABELS: Record<string, string> = {
+  "12:01": "Morning",
+  "14:31": "Evening",
+  "16:31": "Internet (M)",
+  "16:35": "Internet (E)",
+};
+
+function getSessionLabel(time: string) {
+  const t = String(time ?? "").trim().slice(0, 5);
+  return SESSION_LABELS[t] || t || "--";
+}
+
+function getSubLabel(entry: CurrentDayResult) {
+  const time = String(entry.open_time ?? "").trim().slice(0, 5);
+  if (time === "16:31" || time === "16:35") {
+    // Internet sessions show "Modern XX"
+    const digits = String(Math.floor(Math.abs(Number(String(entry.value ?? "").replace(/,/g, ""))))).replace(/\D/g, "");
+    const last2 = digits.length >= 2 ? digits.slice(-2) : digits.padStart(2, "0");
+    return `Modern ${last2}`;
+  }
+  return `SET ${formatNumber(entry.set)}`;
 }
 
 export function SessionPanel({
   currentDayResults,
 }: SessionPanelProps) {
+  if (!currentDayResults || currentDayResults.length === 0) return null;
+
   return (
-    <motion.aside
+    <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.12, duration: 0.5 }}
+      className="grid grid-cols-2 gap-3 sm:grid-cols-4"
     >
-      <article className="rounded-3xl border border-border bg-card/90 p-5 shadow-[0_20px_24px_-18px_hsl(var(--foreground)/0.15)] backdrop-blur-md">
-        <h4 className="mb-2.5 font-display text-[0.8rem] font-bold uppercase tracking-wider text-foreground">
-          Current Day Results
-        </h4>
-        <ul className="grid list-none gap-2 p-0">
-          {(!currentDayResults || currentDayResults.length === 0) ? (
-            <li className="rounded-md border border-dashed border-border p-3 font-display text-[0.72rem] font-medium text-muted-foreground">
-              No result for current day.
-            </li>
-          ) : (
-            currentDayResults.map((entry, i) => (
-              <li
-                key={i}
-                className="grid grid-cols-[auto_auto_auto_1fr] items-center gap-2 rounded-md border border-border bg-secondary px-3 py-2.5"
-              >
-                <span className="font-display text-[0.68rem] font-bold text-muted-foreground">
-                  {formatResultTime(entry.open_time)}
-                </span>
-                <span className="font-display text-base font-bold text-primary">
-                  {entry.twod || "--"}
-                </span>
-                <span className="rounded bg-accent px-1.5 py-0.5 font-display text-sm font-bold text-accent-foreground">
-                  {(() => {
-                    const digits = String(Math.floor(Math.abs(Number(String(entry.value ?? "").replace(/,/g, ""))))).replace(/\D/g, "");
-                    return digits.length >= 3 ? digits.slice(-3) : digits.padStart(3, "0");
-                  })()}
-                </span>
-                <span className="font-display text-[0.62rem] font-semibold uppercase tracking-wide text-muted-foreground">
-                  SET {formatNumber(entry.set)} | VALUE {formatNumber(entry.value)}
-                </span>
-              </li>
-            ))
-          )}
-        </ul>
-      </article>
-    </motion.aside>
+      {currentDayResults.map((entry, i) => (
+        <div
+          key={i}
+          className="flex flex-col items-center gap-1 rounded-2xl border border-border bg-card p-4 shadow-lg"
+        >
+          <span className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            {getSessionLabel(entry.open_time)}
+          </span>
+          <span className="font-display text-3xl font-bold text-foreground">
+            {entry.twod || "--"}
+          </span>
+          <span className="font-display text-[0.6rem] text-muted-foreground">
+            {getSubLabel(entry)}
+          </span>
+        </div>
+      ))}
+    </motion.div>
   );
 }
