@@ -241,6 +241,31 @@ export function useLiveDashboard() {
   const nextCheck = getNextCheckText(parts, lastFetchAtMs.current);
   const currentDate = liveData?.currentDate || "--";
 
+  // Determine the overall 2D verification status based on the latest session
+  const resultVerificationStatus = useMemo(() => {
+    // Find the latest session that has closed
+    const latestSessionTime = (() => {
+      const nowMins = parts.hour * 60 + parts.minute;
+      // Find the most recent session close time
+      for (let i = SESSION_CLOSE_TIMES.length - 1; i >= 0; i--) {
+        const [h, m] = SESSION_CLOSE_TIMES[i].split(":").map(Number);
+        if (nowMins >= h * 60 + m) return SESSION_CLOSE_TIMES[i];
+      }
+      return SESSION_CLOSE_TIMES[SESSION_CLOSE_TIMES.length - 1]; // default to last
+    })();
+
+    return getSessionVerificationStatus(
+      parts,
+      rawStockDatetime,
+      latestSessionTime,
+      isLive,
+    );
+  }, [parts, rawStockDatetime, isLive]);
+
+  // Whether the 2D number is locked (verified or market fully closed with data)
+  const isResultLocked = resultVerificationStatus === "verified" || 
+    (!isLive && rawStockDatetime !== "");
+
   return {
     ownerName,
     updateOwnerName,
@@ -271,6 +296,8 @@ export function useLiveDashboard() {
     holiday: liveData?.holiday,
     holidayName: liveData?.holidayName || null,
     stockDatetime,
+    resultVerificationStatus,
+    isResultLocked,
     refreshData: () => fetchLiveData(true),
   };
 }
