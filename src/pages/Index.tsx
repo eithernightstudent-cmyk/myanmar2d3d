@@ -54,6 +54,7 @@ const Index = () => {
               lastFetchTime={dashboard.lastFetchTime}
               nextCheck={dashboard.nextCheck}
             />
+            <ResultsTable results={dashboard.results} />
             <TradingViewWidget />
           </div>
         </div>
