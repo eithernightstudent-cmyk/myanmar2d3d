@@ -89,10 +89,10 @@ export function TodayResults({ currentDayResults, currentDate, fallbackResults =
             </div>
             <div>
               <h2 className="font-display text-sm font-bold tracking-wide" style={{ color: "hsl(var(--text-strong))" }}>
-                Today's Results
+                {isFallback ? "Latest Results" : "Today's Results"}
               </h2>
               <p className="font-display text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                {currentDate || "--"}
+                {isFallback && fallbackDate ? fallbackDate : (currentDate || "--")}
               </p>
             </div>
           </div>
