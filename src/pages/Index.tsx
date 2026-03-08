@@ -3,6 +3,7 @@ import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
 import { SessionPanel } from "@/components/dashboard/SessionPanel";
 import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
+import { AboutSection } from "@/components/dashboard/AboutSection";
 import { Footer } from "@/components/dashboard/Footer";
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
