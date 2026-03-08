@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { notifyResultChange } from "@/lib/notify";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -12,6 +12,53 @@ import {
   type ThailandParts,
 } from "@/lib/market-utils";
 
+/** Session closing times in HH:MM format */
+const SESSION_CLOSE_TIMES = ["11:00", "12:01", "15:00", "16:30"];
+
+/** Parse "YYYY-MM-DD HH:MM:SS" into { h, m, s } */
+function parseStockTime(raw: string): { h: number; m: number; s: number } | null {
+  const match = raw?.match(/(\d{2}):(\d{2}):(\d{2})\s*$/);
+  if (!match) return null;
+  return { h: Number(match[1]), m: Number(match[2]), s: Number(match[3]) };
+}
+
+/**
+ * Determine verification status for a session:
+ * - "verified": stock_datetime confirms result at or after session close
+ * - "finalizing": within 10s after session close time, not yet confirmed
+ * - "live": market open, session not yet closed
+ * - "closed": market closed / no data
+ */
+function getSessionVerificationStatus(
+  parts: ThailandParts,
+  stockDatetime: string | undefined,
+  sessionCloseTime: string,
+  isMarketLive: boolean,
+): "verified" | "finalizing" | "live" | "closed" {
+  // Parse the session close time
+  const [closeH, closeM] = sessionCloseTime.split(":").map(Number);
+  const closeSeconds = closeH * 3600 + closeM * 60;
+
+  // If we have a stock_datetime at or after the session close, it's verified
+  if (stockDatetime) {
+    const parsed = parseStockTime(stockDatetime);
+    if (parsed) {
+      const stockSeconds = parsed.h * 3600 + parsed.m * 60 + parsed.s;
+      if (stockSeconds >= closeSeconds) return "verified";
+    }
+  }
+
+  // Check if we're in the finalizing window (0-10s after close)
+  if (isMarketLive || true) {
+    const nowSeconds = parts.hour * 3600 + parts.minute * 60 + parts.second;
+    const diff = nowSeconds - closeSeconds;
+    if (diff >= 0 && diff <= 10) return "finalizing";
+    if (diff > 10 && !stockDatetime) return "closed";
+  }
+
+  if (isMarketLive) return "live";
+  return "closed";
+}
 const POLL_INTERVAL_MS = 20000;
 const DEFAULT_OWNER_NAME = "2D3D";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
