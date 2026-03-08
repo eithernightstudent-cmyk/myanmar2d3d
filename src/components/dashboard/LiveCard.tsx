@@ -252,13 +252,6 @@ export function LiveCard({
           </motion.div>
         </div>
 
-        {/* Minimal footer — Date only */}
-        <div className="border-t border-border pt-4">
-          <div className="flex justify-between font-display text-xs">
-            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Date</span>
-            <span style={{ color: "hsl(var(--text-secondary))" }}>{currentDate}</span>
-          </div>
-        </div>
       </article>
     </motion.section>
   );

@@ -46,7 +46,7 @@ const Index = () => {
         }}
       />
 
-      <Topbar ownerName={dashboard.ownerName} />
+      <Topbar ownerName="" />
 
       <main className="mx-auto w-[min(100%-1.25rem,72rem)] py-6 sm:w-[min(100%-2rem,72rem)] sm:py-8">
         <h1 className="sr-only">2D3D Live - Real-time Myanmar 2D &amp; 3D Results</h1>
