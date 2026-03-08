@@ -144,7 +144,7 @@ Deno.serve(async (req) => {
       method: "GET",
       signal: controller.signal,
       headers: {
-        "accept": scrapeMode ? "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" : "application/json",
+        "accept": scrapeMode ? "text/plain" : "application/json",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       },
     });
@@ -154,16 +154,20 @@ Deno.serve(async (req) => {
       throw new Error(`API returned ${response.status}`);
     }
 
-    // Handle 3D scraping
+    // Handle 3D results from Jina reader
     if (scrapeMode) {
-      const html = await response.text();
-      console.log(`HTML full: ${html}`);
+      const text = await response.text();
+      console.log(`Jina response length: ${text.length}`);
       const results: Array<{ date: string; threed: string }> = [];
-      // Parse threed_result_item rows from HTML
-      const itemRegex = /threed_result_item[^>]*>.*?<h4>(\d{4}-\d{2}-\d{2})<\/h4>.*?<h4[^>]*>(\d{1,3})<\/h4>/gs;
-      let match;
-      while ((match = itemRegex.exec(html)) !== null) {
-        results.push({ date: match[1], threed: match[2] });
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      for (let i = 0; i < lines.length - 1; i++) {
+        const dateMatch = lines[i].match(/^#{1,4}\s*(\d{4}-\d{2}-\d{2})$/);
+        if (dateMatch) {
+          const threedMatch = lines[i + 1].match(/^#{1,4}\s*(\d{1,3})$/);
+          if (threedMatch) {
+            results.push({ date: dateMatch[1], threed: threedMatch[1] });
+          }
+        }
       }
       console.log(`Found ${results.length} 3D results`);
       return new Response(JSON.stringify({ data: results }), {
