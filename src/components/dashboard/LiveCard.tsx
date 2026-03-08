@@ -78,18 +78,30 @@ export function LiveCard({
 
         {/* SET Index & Value */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4">
+          <motion.div
+            key={`set-${setFormatted}`}
+            initial={{ opacity: 0.6 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4"
+          >
             <span className="block font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1">
               SET Index
             </span>
             <span className="font-display text-xl font-bold text-foreground">{setFormatted}</span>
-          </div>
-          <div className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4">
+          </motion.div>
+          <motion.div
+            key={`val-${valueFormatted}`}
+            initial={{ opacity: 0.6 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4"
+          >
             <span className="block font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1">
               Value
             </span>
             <span className="font-display text-xl font-bold text-foreground">{valueFormatted}</span>
-          </div>
+          </motion.div>
         </div>
 
         {/* Date & Server Time */}
