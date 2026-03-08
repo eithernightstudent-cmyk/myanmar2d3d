@@ -72,18 +72,15 @@ export function Topbar({ ownerName }: TopbarProps) {
       <div className="fixed top-0 left-0 right-0 z-40 pointer-events-none">
         <div className="mx-auto flex w-[min(100%-2rem,72rem)] items-center justify-between py-4 px-1">
           {/* Logo + Brand */}
-          <Link to="/" className="pointer-events-auto inline-flex items-center gap-2.5 no-underline group">
+          <Link to="/" className="pointer-events-auto inline-flex items-center gap-3 no-underline group">
             <motion.img
               src={logoImg}
               alt="2D3D Live - Myanmar 2D Live Result"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="h-10 w-10 rounded-full object-cover ring-2 ring-primary/20 shadow-[0_4px_20px_hsl(var(--primary)/0.25)] transition-shadow duration-300 group-hover:shadow-[0_4px_28px_hsl(var(--primary)/0.4)]"
+              className="h-9 w-9 rounded-full object-cover ring-2 ring-primary/20 shadow-[0_4px_20px_hsl(var(--primary)/0.25)] transition-shadow duration-300 group-hover:shadow-[0_4px_28px_hsl(var(--primary)/0.4)]"
             />
-            <span
-              className="font-display text-lg font-extrabold tracking-wide text-foreground drop-shadow-sm transition-colors duration-300 dark:text-primary"
-              style={{ letterSpacing: "0.04em" }}
-            >
+            <span className="font-display text-base font-extrabold tracking-wide text-foreground drop-shadow-sm transition-colors duration-300 dark:text-primary">
               2D3D
             </span>
           </Link>
