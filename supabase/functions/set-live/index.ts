@@ -45,54 +45,8 @@ function getRapidHeaders(): Record<string, string> {
   };
 }
 
-// Normalize thaistock2d /live payload
-function normalizeThaiStockPayload(payload: any) {
-  const live = payload?.live && typeof payload.live === "object" ? payload.live : {};
-  const result = Array.isArray(payload?.result) ? payload.result : [];
-  const holiday = payload?.holiday && typeof payload.holiday === "object" ? payload.holiday : null;
-
-  const serverTime = String(payload?.server_time || "").trim() || new Date().toISOString();
-  const currentDate = extractDateString(live?.date) || extractDateString(serverTime);
-
-  const currentDayResults = result
-    .filter((entry: any) => String(entry?.stock_date || "") === currentDate)
-    .sort(sortByStockTime);
-
-  const sortedAllResults = [...result].sort(sortByStockTime);
-  const latestResult = currentDayResults[currentDayResults.length - 1] || sortedAllResults[sortedAllResults.length - 1] || null;
-
-  const liveSetNumeric = parseNumeric(live?.set);
-  const liveValueNumeric = parseNumeric(live?.value);
-
-  const setIndex = liveSetNumeric ?? parseNumeric(latestResult?.set);
-  const value = liveValueNumeric ?? parseNumeric(latestResult?.value);
-
-  const liveTwoD = String(live?.twod || "").trim();
-  const calculated2d = /^\d{2}$/.test(liveTwoD) ? liveTwoD : calculateTwoD(setIndex, value);
-
-  const isLiveFeed = liveSetNumeric !== null && liveValueNumeric !== null && live?.set !== "--" && live?.value !== "--";
-  const isHoliday = holiday && String(holiday.status || "") !== "0";
-  const connectionStatus = isLiveFeed && !isHoliday ? "Live" : "Closed";
-
-  return {
-    serverTime,
-    currentDate,
-    connectionStatus,
-    setIndex,
-    value,
-    calculated2d,
-    live,
-    result: sortedAllResults,
-    currentDayResults,
-    holiday,
-    source: "thaistock2d",
-    fetchedAt: new Date().toISOString(),
-  };
-}
-
-// Normalize RapidAPI /results payload
-function normalizeRapidAPIPayload(payload: any) {
-  // RapidAPI returns { data: { live: {...}, result: [...], ... } } or similar
+function normalizePayload(payload: any, source: string) {
+  // Handle both thaistock2d and RapidAPI response formats
   const data = payload?.data || payload;
   const live = data?.live && typeof data.live === "object" ? data.live : {};
   const result = Array.isArray(data?.result) ? data.result : [];
@@ -132,12 +86,22 @@ function normalizeRapidAPIPayload(payload: any) {
     result: sortedAllResults,
     currentDayResults,
     holiday,
-    source: "rapidapi",
+    source,
     fetchedAt: new Date().toISOString(),
   };
 }
 
-async function fetchWithTimeout(url: string, headers: Record<string, string>, timeoutMs = 10000) {
+function isValidLiveData(normalized: any): boolean {
+  // Check if we got meaningful data (not just zeros/empty)
+  return (
+    normalized &&
+    (normalized.setIndex !== null && normalized.setIndex !== 0) ||
+    (normalized.value !== null && normalized.value !== 0) ||
+    (normalized.result && normalized.result.length > 0)
+  );
+}
+
+async function fetchWithTimeout(url: string, headers: Record<string, string>, timeoutMs = 15000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -199,9 +163,18 @@ Deno.serve(async (req) => {
       if (hasRapidKey) {
         try {
           console.log("Fetching RapidAPI: /results");
-          const data = await fetchWithTimeout(`${RAPIDAPI_BASE}/results`, rapidHeaders);
-          normalized = normalizeRapidAPIPayload(data);
-          source = "rapidapi";
+          const rawData = await fetchWithTimeout(`${RAPIDAPI_BASE}/results`, rapidHeaders);
+          console.log("RapidAPI /results raw keys:", JSON.stringify(Object.keys(rawData || {})));
+          const candidate = normalizePayload(rawData, "rapidapi");
+          
+          // Only use RapidAPI data if it has meaningful content
+          if (isValidLiveData(candidate)) {
+            normalized = candidate;
+            source = "rapidapi";
+            console.log("Using RapidAPI data, setIndex:", candidate.setIndex, "value:", candidate.value);
+          } else {
+            console.log("RapidAPI returned empty/zero data, falling back");
+          }
         } catch (err) {
           console.error("RapidAPI /results failed:", err);
         }
@@ -215,7 +188,7 @@ Deno.serve(async (req) => {
             "accept": "application/json",
             "user-agent": "KKTech-Live-Dashboard/1.0",
           });
-          normalized = normalizeThaiStockPayload(data);
+          normalized = normalizePayload(data, "thaistock2d");
           source = "thaistock2d";
         } catch (err) {
           console.error("ThaiStock /live fallback failed:", err);
@@ -229,20 +202,38 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ===== 3D endpoint: RapidAPI primary =====
+    // ===== 3D endpoint: RapidAPI primary, DB fallback =====
     if (endpoint === "threed_result") {
       if (hasRapidKey) {
         try {
           console.log("Fetching RapidAPI: /threed");
-          const data = await fetchWithTimeout(`${RAPIDAPI_BASE}/threed`, rapidHeaders);
-          return new Response(JSON.stringify({ data: data?.data || data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
+          const rawData = await fetchWithTimeout(`${RAPIDAPI_BASE}/threed`, rapidHeaders);
+          console.log("RapidAPI /threed raw:", JSON.stringify(rawData).slice(0, 500));
+          
+          // Extract 3D results - handle various response structures
+          let threedResults: any[] = [];
+          if (Array.isArray(rawData?.data)) {
+            threedResults = rawData.data;
+          } else if (Array.isArray(rawData)) {
+            threedResults = rawData;
+          } else if (rawData?.data && typeof rawData.data === "object" && !Array.isArray(rawData.data)) {
+            // Single object result or nested
+            if (rawData.data.threed || rawData.data.three_d || rawData.data["3d"]) {
+              threedResults = [rawData.data];
+            }
+          }
+
+          if (threedResults.length > 0) {
+            return new Response(JSON.stringify({ data: threedResults }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          console.log("RapidAPI /threed returned no usable data");
         } catch (err) {
           console.error("RapidAPI /threed failed:", err);
         }
       }
-      // Fallback: empty
+      // Fallback: empty (DB fallback handled by frontend)
       return new Response(JSON.stringify({ data: [] }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -253,13 +244,19 @@ Deno.serve(async (req) => {
       if (hasRapidKey) {
         try {
           console.log(`Fetching RapidAPI: /calendar?page=${page}&limit=${limit}`);
-          const data = await fetchWithTimeout(
+          const rawData = await fetchWithTimeout(
             `${RAPIDAPI_BASE}/calendar?page=${page}&limit=${limit}`,
-            rapidHeaders
+            rapidHeaders,
+            20000 // longer timeout for calendar
           );
-          return new Response(JSON.stringify({ data: data?.data || data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
+          
+          const calendarData = rawData?.data || rawData;
+          if (Array.isArray(calendarData) && calendarData.length > 0) {
+            return new Response(JSON.stringify({ data: calendarData }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          console.log("RapidAPI /calendar returned empty data");
         } catch (err) {
           console.error("RapidAPI /calendar failed:", err);
         }
@@ -279,7 +276,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ===== Other endpoints (history, 2d_history) =====
+    // ===== Other endpoints =====
     let apiUrl: string;
     switch (endpoint) {
       case "2d_history":
