@@ -105,6 +105,7 @@ Deno.serve(async (req) => {
     }
 
     let apiUrl: string;
+    let scrapeMode = false;
 
     switch (endpoint) {
       case "live":
@@ -122,6 +123,10 @@ Deno.serve(async (req) => {
         apiUrl = date
           ? `${BASE_URL}/history?date=${encodeURIComponent(date)}`
           : `${BASE_URL}/history`;
+        break;
+      case "threed_result":
+        apiUrl = "https://www.thaistock2d.com/threedResult";
+        scrapeMode = true;
         break;
       default:
         return new Response(
