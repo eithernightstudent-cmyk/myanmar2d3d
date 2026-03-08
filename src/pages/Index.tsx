@@ -2,9 +2,11 @@ import { motion } from "framer-motion";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { HeroSection } from "@/components/dashboard/HeroSection";
 import { LiveCard } from "@/components/dashboard/LiveCard";
+import { ModernClock } from "@/components/dashboard/ModernClock";
 import { SessionPanel } from "@/components/dashboard/SessionPanel";
+import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
+import { HistoryTable } from "@/components/dashboard/HistoryTable";
 import { Footer } from "@/components/dashboard/Footer";
-
 
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
@@ -27,6 +29,7 @@ const Index = () => {
 
       <main className="mx-auto w-[min(100%-2rem,72rem)] py-8">
         <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[1.1fr_0.9fr]">
+          {/* Left Column */}
           <div className="grid gap-5">
             <HeroSection
               ownerName={dashboard.ownerName}
@@ -49,7 +52,9 @@ const Index = () => {
             />
           </div>
 
+          {/* Right Column */}
           <div className="grid gap-5">
+            <ModernClock />
             <SessionPanel
               connectionStatus={dashboard.connectionStatus}
               currentDate={dashboard.currentDate}
@@ -57,7 +62,18 @@ const Index = () => {
               nextCheck={dashboard.nextCheck}
               currentDayResults={dashboard.currentDayResults}
             />
+            <ThreeDSection
+              threed={dashboard.threed}
+              valueFormatted={dashboard.valueFormatted}
+              currentDayResults={dashboard.currentDayResults}
+              flash={dashboard.flash}
+            />
           </div>
+        </div>
+
+        {/* History Table - Full Width */}
+        <div className="mt-6">
+          <HistoryTable />
         </div>
 
         <motion.section
