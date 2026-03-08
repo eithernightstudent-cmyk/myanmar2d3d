@@ -172,6 +172,8 @@ function getSessionVerificationStatus(
     if (parsed) {
       const stockSeconds = parsed.h * 3600 + parsed.m * 60 + parsed.s;
       if (stockSeconds >= closeSeconds) {
+        // Market already closed — skip preliminary window, finalize immediately.
+        if (!isMarketLive) return "verified";
         if (firstSeenAt && Date.now() - firstSeenAt < VERIFICATION_WINDOW_MS) {
           return "verifying";
         }
@@ -501,12 +503,14 @@ export function useLiveDashboard() {
     );
   }, [parts, rawStockDatetime, isLive]);
 
+  // Only run countdown while market is live
   const resultConfirmSecondsLeft =
-    resultVerificationStatus === "verifying" && firstSeenAtRef.current
+    isLive && resultVerificationStatus === "verifying" && firstSeenAtRef.current
       ? Math.max(0, Math.ceil((VERIFICATION_WINDOW_MS - (Date.now() - firstSeenAtRef.current)) / 1000))
       : 0;
 
-  const isResultPreliminary = resultVerificationStatus === "verifying" || resultVerificationStatus === "finalizing";
+  // Only show preliminary badge when market is live
+  const isResultPreliminary = isLive && (resultVerificationStatus === "verifying" || resultVerificationStatus === "finalizing");
 
   useEffect(() => {
     if (
@@ -518,7 +522,8 @@ export function useLiveDashboard() {
     prevVerificationRef.current = resultVerificationStatus;
   }, [resultVerificationStatus, twod]);
 
-  const isResultLocked = resultVerificationStatus === "verified";
+  // Lock result when verified OR when market is closed and we have a stock_datetime
+  const isResultLocked = resultVerificationStatus === "verified" || (!isLive && rawStockDatetime !== "");
   const dataSource = liveData?.source || "thaistock2d";
   const refreshData = useCallback(() => {
     void fetchLiveDataRef.current(true);
