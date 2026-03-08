@@ -92,8 +92,8 @@ export function HistoryTable() {
                 {day.child?.map((session, j) => (
                   <div
                     key={j}
-                    onTouchStart={hapticLight}
-                    className="flex flex-col items-center gap-0.5 rounded-lg border border-border bg-card p-2 active:scale-[0.97] transition-transform"
+                    onTouchStart={() => tap()}
+                    className="flex flex-col items-center gap-0.5 rounded-lg border border-border bg-card p-2 active:scale-95 transition-transform duration-150"
                   >
                     <span className="font-display text-[0.6rem] font-semibold uppercase tracking-widest text-muted-foreground">
                       {session.time?.slice(0, 5) || "--"}
