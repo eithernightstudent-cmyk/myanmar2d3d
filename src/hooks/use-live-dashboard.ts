@@ -362,7 +362,20 @@ export function useLiveDashboard() {
     results: liveData?.currentDayResults || [],
     allResults: liveData?.result || [],
     holiday: liveData?.holiday,
-    holidayName: liveData?.holidayName || null,
+    holidayName: (() => {
+      const raw = liveData?.holidayName;
+      if (raw && raw !== "null" && raw !== "NULL" && raw.trim() !== "") return raw;
+      // Fallback: if holiday object has a name
+      const hName = liveData?.holiday?.name;
+      if (hName && hName !== "null" && hName !== "NULL" && hName.trim() !== "") return hName;
+      // Fallback for weekends
+      if (!isLive && liveData) {
+        const day = parts.day;
+        if (day === 0) return "Sunday";
+        if (day === 6) return "Saturday";
+      }
+      return null;
+    })(),
     stockDatetime,
     resultVerificationStatus,
     isResultLocked,
