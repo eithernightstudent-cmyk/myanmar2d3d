@@ -69,6 +69,14 @@ const Index = () => {
           <ThreeDSection lastUpdated={dashboard.lastUpdated} />
         </div>
 
+        {/* Today's Results Summary */}
+        <div className="mt-6">
+          <TodayResults
+            currentDayResults={dashboard.currentDayResults}
+            currentDate={dashboard.currentDate}
+          />
+        </div>
+
         {/* Session Results Bar */}
         <div className="mt-6">
           <SessionPanel
