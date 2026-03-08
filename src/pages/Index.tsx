@@ -46,9 +46,9 @@ const Index = () => {
         }}
       />
 
-      <Topbar ownerName="" />
+      <Topbar ownerName="2D3D" />
 
-      <main className="mx-auto w-[min(100%-1.25rem,72rem)] py-6 sm:w-[min(100%-2rem,72rem)] sm:py-8">
+      <main className="mx-auto w-[min(100%-1.25rem,72rem)] pt-20 pb-24 sm:w-[min(100%-2rem,72rem)] sm:pt-22">
         <h1 className="sr-only">2D3D Live - Real-time Myanmar 2D &amp; 3D Results</h1>
         {/* Live Card + Today's Results */}
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
