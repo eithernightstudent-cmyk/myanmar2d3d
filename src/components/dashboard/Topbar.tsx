@@ -31,7 +31,6 @@ export function Topbar({ ownerName }: TopbarProps) {
             animate={{ scale: 1, opacity: 1 }}
             className="h-8 w-8 rounded-full object-cover"
           />
-          </motion.span>
           <span className="font-display text-sm font-bold tracking-wide transition-colors duration-300">{ownerName}</span>
         </Link>
 
