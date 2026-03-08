@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { Clock, BarChart3, Database, Globe } from "lucide-react";
+import { Clock, BarChart3, Database, Globe, Sunrise, Sun, CloudSun, Sunset } from "lucide-react";
+import { tap } from "@/lib/haptic";
 
 const SESSIONS = [
-  { time: "11:00 AM", label: "Morning", icon: "🌅" },
-  { time: "12:00 PM", label: "Noon", icon: "☀️" },
-  { time: "3:00 PM", label: "Afternoon", icon: "🌤️" },
-  { time: "4:30 PM", label: "Closing", icon: "🌇" },
+  { time: "11:00 AM", label: "Morning", Icon: Sunrise, anim: "anim-float", gradient: "from-amber-400 to-orange-500" },
+  { time: "12:00 PM", label: "Noon", Icon: Sun, anim: "anim-pulse-glow", gradient: "from-yellow-400 to-amber-500" },
+  { time: "3:00 PM", label: "Afternoon", Icon: CloudSun, anim: "anim-cloud-drift", gradient: "from-sky-400 to-blue-500" },
+  { time: "4:30 PM", label: "Closing", Icon: Sunset, anim: "anim-float", gradient: "from-orange-400 to-rose-500" },
 ];
 
 const FEATURES = [
@@ -41,15 +42,15 @@ export function AboutSection() {
     >
       {/* Section Header */}
       <div className="mb-6 text-center">
-        <h2 className="font-display text-2xl font-bold text-foreground">
+        <h2 className="font-display text-2xl font-bold" style={{ color: "hsl(var(--text-strong))" }}>
           About Myanmar 2D Live
         </h2>
-        <p className="mt-2 font-body text-sm text-muted-foreground max-w-xl mx-auto">
+        <p className="mt-2 font-body text-sm max-w-xl mx-auto" style={{ color: "hsl(var(--text-secondary))" }}>
           Thai Stock Exchange (SET) official index data ကို အခြေခံ၍ နေ့စဉ် 2D ရလဒ်များကို real-time ပေးပို့သော app ဖြစ်ပါသည်။
         </p>
       </div>
 
-      {/* 4 Sessions */}
+      {/* 4 Sessions with animated icons */}
       <div className="mb-8">
         <h3 className="font-display text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground text-center mb-4">
           Daily 2D Sessions (Myanmar Time)
@@ -58,10 +59,16 @@ export function AboutSection() {
           {SESSIONS.map((s) => (
             <div
               key={s.time}
-              className="flex flex-col items-center gap-1.5 rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg"
+              onTouchStart={() => tap()}
+              className="flex flex-col items-center gap-2 rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg active:scale-95 transition-transform duration-150"
             >
-              <span className="text-2xl">{s.icon}</span>
-              <span className="font-display text-lg font-bold text-foreground">
+              {/* Animated 3D-style icon */}
+              <div className={`${s.anim} relative`}>
+                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${s.gradient} shadow-lg`}>
+                  <s.Icon className="h-6 w-6 text-white drop-shadow-sm" strokeWidth={2.2} />
+                </div>
+              </div>
+              <span className="font-display text-lg font-bold" style={{ color: "hsl(var(--text-strong))" }}>
                 {s.time}
               </span>
               <span className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
@@ -77,16 +84,17 @@ export function AboutSection() {
         {FEATURES.map((f) => (
           <div
             key={f.title}
-            className="flex items-start gap-4 rounded-2xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg"
+            onTouchStart={() => tap()}
+            className="flex items-start gap-4 rounded-2xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg active:scale-[0.98] transition-transform duration-150"
           >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
               <f.icon className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h4 className="font-display text-sm font-bold text-foreground">
+              <h4 className="font-display text-sm font-bold" style={{ color: "hsl(var(--text-strong))" }}>
                 {f.title}
               </h4>
-              <p className="mt-1 font-body text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-1 font-body text-xs leading-relaxed" style={{ color: "hsl(var(--text-secondary))" }}>
                 {f.desc}
               </p>
             </div>

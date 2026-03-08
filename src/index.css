@@ -7,34 +7,37 @@
 @layer base {
   :root {
     --background: 30 40% 96%;
-    --foreground: 220 20% 14%;
+    --foreground: 0 0% 8%;
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 14%;
+    --card-foreground: 0 0% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 14%;
-    --primary: 25 95% 53%;
-    --primary-foreground: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
+    --primary: 40 90% 50%;
+    --primary-foreground: 0 0% 8%;
     --secondary: 30 30% 93%;
-    --secondary-foreground: 220 20% 14%;
+    --secondary-foreground: 0 0% 12%;
     --muted: 30 20% 93%;
-    --muted-foreground: 220 10% 42%;
+    --muted-foreground: 220 8% 38%;
     --accent: 30 100% 95%;
     --accent-foreground: 25 91% 40%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     --border: 30 20% 85%;
     --input: 30 20% 85%;
-    --ring: 25 95% 53%;
+    --ring: 40 90% 50%;
     --radius: 1rem;
 
-    --success: 160 60% 40%;
-    --success-light: 160 50% 94%;
-    --success-border: 160 30% 72%;
+    --success: 142 71% 45%;
+    --success-light: 142 50% 94%;
+    --success-border: 142 30% 72%;
     --fail: 0 72% 44%;
     --fail-light: 0 86% 94%;
     --fail-border: 0 50% 80%;
-    --warm: 25 95% 53%;
-    --warm-soft: 30 100% 92%;
+    --warm: 40 90% 50%;
+    --warm-soft: 40 100% 92%;
+
+    --text-strong: 0 0% 0%;
+    --text-secondary: 220 8% 32%;
 
     --line-soft: 30 20% 85%;
     --card-glass: 0 0% 100% / 0.82;
@@ -51,38 +54,41 @@
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 25 95% 53%;
+    --sidebar-ring: 40 90% 50%;
   }
 
   .dark {
     --background: 215 35% 9%;
-    --foreground: 30 15% 82%;
+    --foreground: 30 15% 90%;
     --card: 215 30% 13%;
-    --card-foreground: 30 15% 82%;
+    --card-foreground: 30 15% 90%;
     --popover: 215 30% 13%;
-    --popover-foreground: 30 15% 82%;
-    --primary: 25 95% 53%;
-    --primary-foreground: 0 0% 100%;
+    --popover-foreground: 30 15% 90%;
+    --primary: 40 90% 55%;
+    --primary-foreground: 0 0% 5%;
     --secondary: 215 25% 17%;
-    --secondary-foreground: 30 15% 82%;
+    --secondary-foreground: 30 15% 88%;
     --muted: 215 20% 19%;
-    --muted-foreground: 215 12% 50%;
+    --muted-foreground: 215 12% 55%;
     --accent: 215 25% 17%;
     --accent-foreground: 30 15% 80%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 215 20% 20%;
     --input: 215 20% 20%;
-    --ring: 25 95% 53%;
+    --ring: 40 90% 55%;
 
-    --success: 160 60% 40%;
-    --success-light: 160 25% 14%;
-    --success-border: 160 25% 28%;
+    --success: 142 71% 45%;
+    --success-light: 142 25% 14%;
+    --success-border: 142 25% 28%;
     --fail: 0 72% 44%;
     --fail-light: 0 30% 14%;
     --fail-border: 0 30% 28%;
-    --warm: 25 90% 55%;
-    --warm-soft: 25 35% 16%;
+    --warm: 40 90% 55%;
+    --warm-soft: 40 35% 16%;
+
+    --text-strong: 0 0% 95%;
+    --text-secondary: 215 12% 65%;
 
     --line-soft: 215 20% 20%;
     --card-glass: 215 30% 13% / 0.85;
@@ -126,3 +132,30 @@
   70% { box-shadow: 0 0 0 9px hsl(var(--fail) / 0); }
   100% { box-shadow: 0 0 0 0 hsl(var(--fail) / 0); }
 }
+
+/* Animated 3D icon effects */
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.03); }
+}
+
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px hsl(var(--primary) / 0.3)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 10px hsl(var(--primary) / 0.5)); transform: scale(1.06); }
+}
+
+@keyframes cloud-drift {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(2px) translateY(-1px); }
+  75% { transform: translateX(-2px) translateY(1px); }
+}
+
+.anim-float { animation: float-gentle 3s ease-in-out infinite; }
+.anim-spin-slow { animation: spin-slow 12s linear infinite; }
+.anim-pulse-glow { animation: pulse-glow 2.5s ease-in-out infinite; }
+.anim-cloud-drift { animation: cloud-drift 4s ease-in-out infinite; }
