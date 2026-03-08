@@ -157,6 +157,7 @@ Deno.serve(async (req) => {
     // Handle 3D scraping
     if (scrapeMode) {
       const html = await response.text();
+      console.log(`HTML length: ${html.length}, first 500: ${html.substring(0, 500)}`);
       const results: Array<{ date: string; threed: string }> = [];
       // Parse threed_result_item rows from HTML
       const itemRegex = /threed_result_item[^>]*>.*?<h4>(\d{4}-\d{2}-\d{2})<\/h4>.*?<h4[^>]*>(\d{1,3})<\/h4>/gs;
@@ -164,6 +165,7 @@ Deno.serve(async (req) => {
       while ((match = itemRegex.exec(html)) !== null) {
         results.push({ date: match[1], threed: match[2] });
       }
+      console.log(`Found ${results.length} 3D results`);
       return new Response(JSON.stringify({ data: results }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
