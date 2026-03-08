@@ -1,4 +1,4 @@
-const TH_TIMEZONE = "Asia/Bangkok";
+const TH_TIMEZONE = "Asia/Yangon";
 
 const MARKET_WINDOW = {
   start: 9 * 60 + 30,
