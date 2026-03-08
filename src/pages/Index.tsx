@@ -57,6 +57,7 @@ const Index = () => {
               serverTime={dashboard.clock}
               lastSuccessTime={dashboard.lastSuccessTime}
               holidayName={dashboard.holidayName}
+              stockDatetime={dashboard.stockDatetime}
             />
             <ModernClock />
           </div>

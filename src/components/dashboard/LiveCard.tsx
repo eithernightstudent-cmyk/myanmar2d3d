@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { StatusPill } from "./StatusPill";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle } from "lucide-react";
 
 interface LiveCardProps {
   clock: string;
@@ -21,6 +21,7 @@ interface LiveCardProps {
   serverTime: string;
   lastSuccessTime: string;
   holidayName?: string | null;
+  stockDatetime?: string;
 }
 
 export function LiveCard({
@@ -36,6 +37,7 @@ export function LiveCard({
   serverTime,
   lastSuccessTime,
   holidayName,
+  stockDatetime,
 }: LiveCardProps) {
   const marketClosed = !isLive;
 
@@ -93,10 +95,13 @@ export function LiveCard({
           </span>
         </div>
 
-        {/* Calculated 2D */}
-        <p className="mb-6 text-center font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Calculated 2D: <span className="text-primary font-bold text-sm">{twod}</span>
-        </p>
+        {/* Updated timestamp with verified checkmark */}
+        <div className="mb-6 flex items-center justify-center gap-1.5">
+          <CheckCircle className="h-4 w-4" style={{ color: "hsl(142, 71%, 45%)" }} />
+          <span className="font-display text-xs font-semibold text-muted-foreground">
+            Updated: <span className="text-foreground">{stockDatetime || "--"}</span>
+          </span>
+        </div>
 
         {/* SET Index & Value */}
         <div className="grid grid-cols-2 gap-3 mb-6">
