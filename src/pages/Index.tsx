@@ -44,8 +44,10 @@ const Index = () => {
 
       <main className="mx-auto w-[min(100%-2rem,72rem)] py-8">
         {/* Main 2-column layout */}
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
-          {/* Left: Live 2D Card */}
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_1fr]">
+          {/* Left Column */}
+          <div className="grid gap-5">
+            {/* Live 2D Card */}
           <LiveCard
             clock={dashboard.clock}
             twod={dashboard.twod}
