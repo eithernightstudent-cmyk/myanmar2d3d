@@ -37,7 +37,6 @@ export function Topbar({ ownerName }: TopbarProps) {
           {[
             { label: "Home", to: "/" },
             { label: "Results", to: "/results" },
-            { label: "History", to: "/history" },
           ].map((link) => (
             <Link
               key={link.label}
