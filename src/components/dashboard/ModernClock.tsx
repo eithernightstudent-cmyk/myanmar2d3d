@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Globe } from "lucide-react";
+import { Globe, CheckCircle2 } from "lucide-react";
 import { getThailandParts, padTwo } from "@/lib/market-utils";
 
 const RESULT_TIMES = [
@@ -54,8 +54,11 @@ export function ModernClock() {
       className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg"
     >
       <div className="flex items-center justify-between mb-3">
-        <span className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          <Globe className="inline h-3 w-3 mr-1 text-primary" /> Myanmar Time
+        <span className="inline-flex items-center gap-1.5 font-display text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          <div className="flex h-5 w-5 items-center justify-center rounded-md bg-gradient-to-br from-teal-400 to-emerald-500 shadow-sm">
+            <Globe className="h-3 w-3 text-white" strokeWidth={2.5} />
+          </div>
+          Myanmar Time
         </span>
         <span className="font-display text-[0.6rem] text-muted-foreground">
           {parts.weekday} {padTwo(parts.day)}/{padTwo(parts.month)}/{parts.year}
@@ -99,7 +102,10 @@ export function ModernClock() {
         </div>
       ) : (
         <div className="mt-3 rounded-2xl border border-primary/25 bg-primary/5 p-3 text-center">
-          <p className="font-display text-xs font-semibold text-primary">✓ All results completed for today</p>
+          <p className="inline-flex items-center gap-1.5 font-display text-xs font-semibold text-primary">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            All results completed for today
+          </p>
         </div>
       )}
 

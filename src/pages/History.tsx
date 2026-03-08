@@ -45,7 +45,6 @@ const History = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden">
-
       <Topbar ownerName={ownerName} />
 
       <main className="mx-auto w-[min(100%-2rem,72rem)] py-8">
@@ -56,9 +55,9 @@ const History = () => {
         >
           <Link
             to="/"
-            className="mb-4 inline-flex items-center gap-1.5 font-display text-sm text-muted-foreground no-underline transition-colors hover:text-foreground"
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-[hsl(var(--card-glass))] px-3 py-1.5 font-display text-sm text-muted-foreground no-underline transition-all hover:text-foreground hover:border-primary/30 active:scale-95"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={14} strokeWidth={2.5} />
             Back to Dashboard
           </Link>
 
@@ -97,8 +96,10 @@ const History = () => {
                 transition={{ delay: i * 0.05, duration: 0.4 }}
                 className="rounded-2xl border border-border bg-card/90 p-5 shadow-[0_12px_20px_-14px_hsl(var(--foreground)/0.12)] backdrop-blur-md"
               >
-                <div className="mb-3 flex items-center gap-2">
-                  <Clock size={14} className="text-primary" />
+                <div className="mb-3 flex items-center gap-2.5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-indigo-500 shadow-sm">
+                    <Clock size={13} className="text-white" strokeWidth={2.5} />
+                  </div>
                   <h2 className="font-display text-sm font-bold text-foreground">
                     {day.date}
                   </h2>

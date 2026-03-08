@@ -25,12 +25,14 @@ export function FullScreenOverlay({ open, onClose, title, children }: FullScreen
             <h2 className="font-display text-base font-bold" style={{ color: "hsl(var(--text-strong))" }}>
               {title}
             </h2>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.88 }}
               onClick={() => { tap(); onClose(); }}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted/50 text-foreground transition-all active:scale-90 hover:bg-muted"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-[hsl(var(--card-strong))] text-muted-foreground transition-all hover:text-foreground hover:border-primary/30 hover:bg-primary/5"
             >
-              <X className="h-5 w-5" />
-            </button>
+              <X className="h-4.5 w-4.5" strokeWidth={2.5} />
+            </motion.button>
           </div>
 
           {/* Content */}

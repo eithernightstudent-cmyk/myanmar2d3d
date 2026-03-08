@@ -15,10 +15,10 @@ const SESSIONS = [
 ];
 
 const FEATURES = [
-  { icon: BarChart3, title: "SET Official Data", desc: "Thai Stock Exchange (SET) official index data မှ တိုက်ရိုက် ရယူထားပါသည်။" },
-  { icon: Clock, title: "Real-time Updates", desc: "Market ဖွင့်ချိန်တွင် 20 စက္ကန့်တိုင်း auto-refresh ဖြစ်ပါသည်။" },
-  { icon: Database, title: "100+ Records", desc: "SET index historical data များကို ပြန်လည်ကြည့်ရှုနိုင်ပါသည်။" },
-  { icon: Globe, title: "Myanmar Time", desc: "အချိန်များကို Myanmar Standard Time (UTC+6:30) ဖြင့် ပြသပါသည်။" },
+  { icon: BarChart3, title: "SET Official Data", desc: "Thai Stock Exchange (SET) official index data မှ တိုက်ရိုက် ရယူထားပါသည်။", gradient: "from-emerald-400 to-teal-500" },
+  { icon: Clock, title: "Real-time Updates", desc: "Market ဖွင့်ချိန်တွင် 20 စက္ကန့်တိုင်း auto-refresh ဖြစ်ပါသည်။", gradient: "from-blue-400 to-indigo-500" },
+  { icon: Database, title: "100+ Records", desc: "SET index historical data များကို ပြန်လည်ကြည့်ရှုနိုင်ပါသည်။", gradient: "from-violet-400 to-purple-500" },
+  { icon: Globe, title: "Myanmar Time", desc: "အချိန်များကို Myanmar Standard Time (UTC+6:30) ဖြင့် ပြသပါသည်။", gradient: "from-teal-400 to-emerald-500" },
 ];
 
 export const Footer = React.forwardRef<HTMLElement, FooterProps>(
@@ -30,14 +30,18 @@ export const Footer = React.forwardRef<HTMLElement, FooterProps>(
         <div className="mx-auto w-[min(100%-1.5rem,72rem)]">
           {/* Info Toggle Button */}
           <div className="flex justify-center mb-4">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => { tap(); setShowInfo(!showInfo); }}
               className="inline-flex items-center gap-2 rounded-full border border-border bg-[hsl(var(--card-glass))] px-4 py-2 text-xs font-medium text-muted-foreground backdrop-blur-lg transition-all hover:text-foreground hover:border-primary/30 active:scale-95"
             >
-              <Info className="h-3.5 w-3.5" />
+              <div className="flex h-5 w-5 items-center justify-center rounded-md bg-gradient-to-br from-sky-400 to-blue-500 shadow-sm">
+                <Info className="h-3 w-3 text-white" strokeWidth={2.5} />
+              </div>
               <span>About & Data Source</span>
               {showInfo ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-            </button>
+            </motion.button>
           </div>
 
           <AnimatePresence>
@@ -65,7 +69,7 @@ export const Footer = React.forwardRef<HTMLElement, FooterProps>(
                   <div className="grid grid-cols-4 gap-2 mb-5">
                     {SESSIONS.map((s) => (
                       <div key={s.time} className="flex flex-col items-center gap-1.5 rounded-xl border border-border/50 bg-background/50 p-3">
-                        <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${s.gradient} shadow`}>
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${s.gradient} shadow-md`}>
                           <s.Icon className="h-4 w-4 text-white" strokeWidth={2.2} />
                         </div>
                         <span className="font-display text-[0.65rem] font-bold" style={{ color: "hsl(var(--text-strong))" }}>{s.time}</span>
@@ -78,8 +82,8 @@ export const Footer = React.forwardRef<HTMLElement, FooterProps>(
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
                     {FEATURES.map((f) => (
                       <div key={f.title} className="flex items-start gap-3 rounded-xl border border-border/50 bg-background/50 p-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                          <f.icon className="h-4 w-4 text-primary" />
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${f.gradient} shadow-md`}>
+                          <f.icon className="h-4 w-4 text-white" strokeWidth={2.2} />
                         </div>
                         <div>
                           <h4 className="font-display text-xs font-bold" style={{ color: "hsl(var(--text-strong))" }}>{f.title}</h4>
