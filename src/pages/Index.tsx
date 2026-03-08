@@ -4,7 +4,7 @@ import { HeroSection } from "@/components/dashboard/HeroSection";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { SessionPanel } from "@/components/dashboard/SessionPanel";
 import { Footer } from "@/components/dashboard/Footer";
-import { TradingViewWidget } from "@/components/dashboard/TradingViewWidget";
+
 
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
