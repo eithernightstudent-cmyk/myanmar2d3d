@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { formatNumber } from "@/lib/market-utils";
-import { hapticLight } from "@/lib/haptic";
+import { tap } from "@/lib/haptic";
 
 interface CurrentDayResult {
   set: string;
