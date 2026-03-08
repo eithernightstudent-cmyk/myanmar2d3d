@@ -70,7 +70,7 @@ export function ThreeDSection({ lastUpdated }: ThreeDSectionProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.08, duration: 0.5 }}
-      className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-6 shadow-[var(--shadow-panel)] backdrop-blur-lg"
+      className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 sm:p-6 shadow-[var(--shadow-panel)] backdrop-blur-lg"
     >
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-display text-lg font-bold text-foreground">
