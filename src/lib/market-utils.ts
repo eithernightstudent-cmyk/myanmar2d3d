@@ -86,7 +86,7 @@ export function isWithinMarketHours(parts: ThailandParts) {
 export function getNextCheckText(parts: ThailandParts, lastFetchAtMs: number) {
   if (isWithinMarketHours(parts)) {
     if (!lastFetchAtMs) return "Now";
-    const msLeft = Math.max(0, 15000 - (Date.now() - lastFetchAtMs));
+    const msLeft = Math.max(0, 20000 - (Date.now() - lastFetchAtMs));
     return `in ${Math.ceil(msLeft / 1000)}s`;
   }
   if (!isWeekday(parts)) return "Next weekday 09:30 (TH)";
