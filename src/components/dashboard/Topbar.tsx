@@ -67,7 +67,7 @@ export function Topbar({ ownerName }: TopbarProps) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-[hsl(var(--card-glass))] backdrop-blur-lg transition-colors duration-300">
-      <div className="mx-auto flex min-h-[56px] w-[min(100%-2rem,72rem)] items-center justify-between gap-4">
+      <div className="mx-auto flex min-h-[52px] w-[min(100%-1.25rem,72rem)] items-center justify-between gap-3 sm:min-h-[56px] sm:w-[min(100%-2rem,72rem)] sm:gap-4">
         <Link to="/" className="inline-flex items-center gap-2.5 text-inherit no-underline">
           <motion.img
             src={logoImg}

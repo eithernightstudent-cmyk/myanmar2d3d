@@ -50,7 +50,7 @@ export function LiveCard({
       aria-live="polite"
     >
       <article
-        className={`relative overflow-hidden rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-6 shadow-[var(--shadow-panel)] backdrop-blur-lg transition-all ${
+        className={`relative overflow-hidden rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 sm:p-6 shadow-[var(--shadow-panel)] backdrop-blur-lg transition-all ${
           flash ? "before:opacity-100" : "before:opacity-0"
         } before:pointer-events-none before:absolute before:inset-[-30%] before:bg-[radial-gradient(circle,hsl(var(--primary)/0.12),transparent_60%)] before:transition-opacity before:duration-200`}
       >

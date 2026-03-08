@@ -46,7 +46,7 @@ const Index = () => {
 
       <Topbar ownerName={dashboard.ownerName} />
 
-      <main className="mx-auto w-[min(100%-2rem,72rem)] py-8">
+      <main className="mx-auto w-[min(100%-1.25rem,72rem)] py-6 sm:w-[min(100%-2rem,72rem)] sm:py-8">
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
           {/* Left Column */}
           <div className="grid gap-5">
