@@ -144,7 +144,7 @@ export function Topbar({ ownerName }: TopbarProps) {
 
           {/* Dark Mode Toggle */}
           <button
-            onClick={() => { tap(); setDark((d) => !d); }}
+            onClick={() => { tap(); toggleTheme(); }}
             aria-label="Toggle dark mode"
             className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-[hsl(var(--card-strong))] text-muted-foreground transition-all duration-300 active:scale-90 hover:text-foreground hover:border-primary/40 hover:shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
           >
