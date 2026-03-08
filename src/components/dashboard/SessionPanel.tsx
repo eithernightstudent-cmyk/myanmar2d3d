@@ -17,10 +17,10 @@ interface SessionPanelProps {
 }
 
 const SESSION_LABELS: Record<string, string> = {
-  "12:01": "Morning",
-  "14:31": "Evening",
-  "16:31": "Internet (M)",
-  "16:35": "Internet (E)",
+  "11:00": "11:00 AM",
+  "12:01": "12:00 PM",
+  "15:00": "3:00 PM",
+  "16:30": "4:30 PM",
 };
 
 function getSessionLabel(time: string) {
