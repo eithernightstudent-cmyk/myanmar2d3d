@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { Globe } from "lucide-react";
 import { getThailandParts, padTwo } from "@/lib/market-utils";
 
 const RESULT_TIMES = [
