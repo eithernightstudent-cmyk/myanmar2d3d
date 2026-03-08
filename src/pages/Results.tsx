@@ -58,20 +58,9 @@ const Results = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Link
-            to="/"
-            className="mb-4 inline-flex items-center gap-1.5 font-display text-sm text-muted-foreground no-underline transition-colors hover:text-foreground"
-          >
-            <ArrowLeft size={14} />
-            Back to Dashboard
-          </Link>
-
           <h1 className="font-display text-[clamp(1.8rem,4vw,2.4rem)] font-bold tracking-tight text-foreground">
             2D Results — Last 10 Days
           </h1>
-          <p className="mt-1 mb-6 text-muted-foreground">
-            Final 2D results from thaistock2d.com
-          </p>
         </motion.div>
 
         {loading && (
