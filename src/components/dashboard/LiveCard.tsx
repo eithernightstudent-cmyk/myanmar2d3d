@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { StatusPill } from "./StatusPill";
+import { Loader2 } from "lucide-react";
 
 interface LiveCardProps {
   clock: string;
@@ -14,9 +15,11 @@ interface LiveCardProps {
   flash: boolean;
   apiNote: string;
   isLive: boolean;
+  isSyncing: boolean;
   connectionStatus: string;
   currentDate: string;
   serverTime: string;
+  lastSuccessTime: string;
 }
 
 export function LiveCard({
@@ -26,9 +29,11 @@ export function LiveCard({
   valueFormatted,
   flash,
   isLive,
+  isSyncing,
   connectionStatus,
   currentDate,
   serverTime,
+  lastSuccessTime,
 }: LiveCardProps) {
   const marketClosed = !isLive;
 
@@ -51,6 +56,15 @@ export function LiveCard({
               Live 2D
             </span>
             <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
+            {/* Syncing indicator */}
+            {isSyncing && (
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                <span className="font-display text-[0.6rem] font-semibold uppercase tracking-wider">
+                  Syncing
+                </span>
+              </div>
+            )}
           </div>
           <span className="rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1.5 font-display text-xs font-bold text-primary">
             {clock}
@@ -104,7 +118,7 @@ export function LiveCard({
           </motion.div>
         </div>
 
-        {/* Date & Server Time */}
+        {/* Date, Server Time & Last Sync */}
         <div className="space-y-1.5 border-t border-border pt-4">
           <div className="flex justify-between font-display text-xs">
             <span className="font-bold text-foreground">Date</span>
@@ -113,6 +127,10 @@ export function LiveCard({
           <div className="flex justify-between font-display text-xs">
             <span className="font-bold text-foreground">Server Time</span>
             <span className="text-muted-foreground">{serverTime}</span>
+          </div>
+          <div className="flex justify-between font-display text-xs">
+            <span className="font-bold text-foreground">Last Successful Sync</span>
+            <span className="text-primary font-semibold">{lastSuccessTime}</span>
           </div>
         </div>
       </article>

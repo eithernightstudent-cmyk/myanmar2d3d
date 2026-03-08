@@ -24,7 +24,27 @@ export function HistoryTable() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetch2DResults() {
+    async function fetchResults() {
+      try {
+        // Use calendar endpoint (RapidAPI primary via edge function)
+        const response = await supabase.functions.invoke("set-live", {
+          body: { endpoint: "calendar", page: "1", limit: "7" },
+        });
+        if (!response.error && response.data?.data) {
+          const raw = response.data.data;
+          // Handle both array format and calendar format
+          if (Array.isArray(raw)) {
+            setResults(raw.slice(0, 7));
+          } else if (raw?.data && Array.isArray(raw.data)) {
+            setResults(raw.data.slice(0, 7));
+          }
+          return;
+        }
+      } catch {
+        // silent
+      }
+
+      // Fallback: try old 2d_result endpoint
       try {
         const response = await supabase.functions.invoke("set-live", {
           body: { endpoint: "2d_result" },
@@ -38,7 +58,7 @@ export function HistoryTable() {
         setLoading(false);
       }
     }
-    fetch2DResults();
+    fetchResults().finally(() => setLoading(false));
   }, []);
 
   return (
