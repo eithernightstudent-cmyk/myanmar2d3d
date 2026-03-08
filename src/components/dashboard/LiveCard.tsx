@@ -95,10 +95,13 @@ export function LiveCard({
           </span>
         </div>
 
-        {/* Calculated 2D */}
-        <p className="mb-6 text-center font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Calculated 2D: <span className="text-primary font-bold text-sm">{twod}</span>
-        </p>
+        {/* Updated timestamp with verified checkmark */}
+        <div className="mb-6 flex items-center justify-center gap-1.5">
+          <CheckCircle className="h-4 w-4 text-green-500" />
+          <span className="font-display text-xs font-semibold text-muted-foreground">
+            Updated: <span className="text-foreground">{stockDatetime || "--"}</span>
+          </span>
+        </div>
 
         {/* SET Index & Value */}
         <div className="grid grid-cols-2 gap-3 mb-6">

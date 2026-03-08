@@ -218,5 +218,6 @@ export function useLiveDashboard() {
     allResults: liveData?.result || [],
     holiday: liveData?.holiday,
     holidayName: liveData?.holidayName || null,
+    stockDatetime,
   };
 }
