@@ -83,7 +83,7 @@ export function Topbar({ ownerName }: TopbarProps) {
           {/* Notification Bell */}
           {supported && (
             <button
-              onClick={() => { hapticMedium(); toggleNotifications(); }}
+              onClick={() => { tapMedium(); toggleNotifications(); }}
               aria-label={bellLabel}
               title={bellLabel}
               className={`relative grid h-9 w-9 place-items-center rounded-full border transition-all duration-300 ${
