@@ -6,7 +6,6 @@ import {
   formatPartsClock,
   formatPartsDate,
   formatNumber,
-  calculateTwoD,
   formatTimestamp,
   getNextCheckText,
   type ThailandParts,
@@ -16,20 +15,23 @@ const POLL_INTERVAL_MS = 30000;
 const DEFAULT_OWNER_NAME = "KKTech";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
 
-const DEMO_DATA = {
-  setIndex: 1427.63,
-  value: 38241.57,
-  marketStatus: "Demo Mode",
-  marketDateTime: new Date().toISOString(),
-  fetchedAt: new Date().toISOString(),
-};
-
 export interface LiveData {
-  setIndex: number;
-  value: number;
+  setIndex: number | null;
+  value: number | null;
+  calculated2d: string;
   marketStatus: string;
   marketDateTime: string;
+  serverTime: string;
   fetchedAt: string;
+  results: Array<{
+    set: string;
+    value: string;
+    open_time: string;
+    twod: string;
+    stock_date: string;
+    stock_datetime: string;
+  }>;
+  holiday: { status: string; date: string; name: string } | null;
 }
 
 export function useLiveDashboard() {
@@ -44,11 +46,10 @@ export function useLiveDashboard() {
   const [parts, setParts] = useState<ThailandParts>(getThailandParts());
   const [liveData, setLiveData] = useState<LiveData | null>(null);
   const [isLive, setIsLive] = useState(false);
-  const [apiNote, setApiNote] = useState("Data source: connecting to set.or.th...");
+  const [apiNote, setApiNote] = useState("Connecting to thaistock2d.com...");
   const [flash, setFlash] = useState(false);
   const lastFetchAtMs = useRef(0);
   const isUpdating = useRef(false);
-  const hasRendered = useRef(false);
 
   const updateOwnerName = useCallback((value: string) => {
     const cleaned = String(value ?? "").replace(/\s+/g, " ").trim().slice(0, 24) || DEFAULT_OWNER_NAME;
@@ -60,43 +61,29 @@ export function useLiveDashboard() {
 
   const fetchLiveData = useCallback(async (force = false) => {
     const currentParts = getThailandParts();
+    // Always fetch on force, otherwise only during market hours
     if (!force && !isWithinMarketHours(currentParts)) return;
     if (isUpdating.current) return;
     isUpdating.current = true;
 
     try {
-      // Call the edge function
       const { data: payload, error } = await supabase.functions.invoke("set-live");
 
-      if (error) {
-        throw new Error(error.message || "Edge function error");
-      }
+      if (error) throw new Error(error.message || "Edge function error");
 
       const data = payload?.data;
-
-      if (data?.setIndex != null && data?.value != null) {
+      if (data) {
         setLiveData(data);
-        hasRendered.current = true;
         setFlash(true);
         setTimeout(() => setFlash(false), 180);
 
-        const marketStatusText = String(data.marketStatus || "Unknown");
-        setApiNote(`Source: set.or.th | Market Status: ${marketStatusText} | Auto-refresh: 30s in 09:30-16:30 (TH)`);
-        return;
+        const statusText = data.marketStatus || "Unknown";
+        setApiNote(`Source: thaistock2d.com | Status: ${statusText} | Auto-refresh: 30s`);
       }
-
-      throw new Error("Invalid data from SET");
     } catch (err) {
       console.error("Fetch error:", err);
-      // Fallback to demo data on first load
-      if (!hasRendered.current) {
-        setLiveData(DEMO_DATA);
-        hasRendered.current = true;
-        setFlash(true);
-        setTimeout(() => setFlash(false), 180);
-      }
       const msg = err instanceof Error ? err.message : "Unknown error";
-      setApiNote(`Fetch error: ${msg} — showing ${hasRendered.current ? "last known" : "demo"} data`);
+      setApiNote(`Fetch error: ${msg}`);
     } finally {
       lastFetchAtMs.current = Date.now();
       isUpdating.current = false;
@@ -110,9 +97,7 @@ export function useLiveDashboard() {
       setParts(p);
 
       const withinMarket = isWithinMarketHours(p);
-      const marketOpen = liveData
-        ? !String(liveData.marketStatus || "").toLowerCase().includes("close")
-        : false;
+      const marketOpen = liveData?.marketStatus?.toLowerCase().includes("open") ?? false;
       setIsLive(withinMarket && marketOpen);
 
       // Auto-fetch during market hours
@@ -124,18 +109,29 @@ export function useLiveDashboard() {
     return () => clearInterval(interval);
   }, [fetchLiveData, liveData]);
 
-  // Initial fetch
+  // Initial fetch (always)
   useEffect(() => {
     fetchLiveData(true);
   }, [fetchLiveData]);
 
   const clock = formatPartsClock(parts);
   const dateStr = formatPartsDate(parts);
-  const calc = liveData ? calculateTwoD(liveData.setIndex, liveData.value) : { setDigit: "-", valueDigit: "-", result: "--" };
-  const setFormatted = liveData ? formatNumber(liveData.setIndex) : "--";
-  const valueFormatted = liveData ? formatNumber(liveData.value) : "--";
+
+  // Use the API's calculated 2D directly
+  const twod = liveData?.calculated2d || "--";
+  
+  // Extract last digits for display
+  const getLastDigit = (raw: unknown) => {
+    const digits = String(raw ?? "").replace(/\D/g, "");
+    return digits ? digits[digits.length - 1] : "-";
+  };
+
+  const setDigit = liveData?.setIndex != null ? getLastDigit(liveData.setIndex) : "-";
+  const valueDigit = liveData?.value != null ? getLastDigit(liveData.value) : "-";
+  const setFormatted = liveData?.setIndex != null ? formatNumber(liveData.setIndex) : "--";
+  const valueFormatted = liveData?.value != null ? formatNumber(liveData.value) : "--";
   const lastUpdated = liveData ? formatTimestamp(liveData.fetchedAt || Date.now().toString()) : `${dateStr} ${clock}`;
-  const marketTimestamp = liveData ? formatTimestamp(liveData.marketDateTime) : "--";
+  const marketTimestamp = liveData?.marketDateTime ? formatTimestamp(liveData.marketDateTime) : "--";
   const nextCheck = getNextCheckText(parts, lastFetchAtMs.current);
 
   return {
@@ -145,9 +141,9 @@ export function useLiveDashboard() {
     dateStr,
     isLive,
     flash,
-    twod: calc.result,
-    setDigit: calc.setDigit,
-    valueDigit: calc.valueDigit,
+    twod,
+    setDigit,
+    valueDigit,
     setFormatted,
     valueFormatted,
     lastUpdated,
@@ -158,5 +154,7 @@ export function useLiveDashboard() {
     lastFetchTime: lastFetchAtMs.current
       ? `${formatPartsDate(getThailandParts(new Date(lastFetchAtMs.current)))} ${formatPartsClock(getThailandParts(new Date(lastFetchAtMs.current)))} (TH)`
       : "--",
+    results: liveData?.results || [],
+    holiday: liveData?.holiday,
   };
 }
