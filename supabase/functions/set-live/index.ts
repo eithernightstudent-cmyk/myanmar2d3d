@@ -2,6 +2,11 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
+const noCacheHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
 
 const THAISTOCK_BASE = "https://api.thaistock2d.com";
 const RAPIDAPI_BASE = "https://thai-lotto-new-api.p.rapidapi.com/api/v1";
@@ -176,7 +181,7 @@ Deno.serve(async (req) => {
         const normalized = normalizeThaistock(data);
         console.log("PRIMARY OK — status:", normalized.connectionStatus, "2D:", normalized.calculated2d);
         return new Response(JSON.stringify({ data: normalized }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
         });
       } catch (primaryErr) {
         console.error("PRIMARY (thaistock2d) failed:", primaryErr);
@@ -190,7 +195,7 @@ Deno.serve(async (req) => {
           const normalized = normalizeRapidApiLive(data);
           console.log("FALLBACK OK — status:", normalized.connectionStatus, "2D:", normalized.calculated2d);
           return new Response(JSON.stringify({ data: normalized }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
           });
         } catch (fallbackErr) {
           console.error("FALLBACK (RapidAPI) also failed:", fallbackErr);
@@ -222,7 +227,7 @@ Deno.serve(async (req) => {
 
           if (threedResults.length > 0) {
             return new Response(JSON.stringify({ data: threedResults }), {
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
             });
           }
           console.log("RapidAPI /threed returned no usable data");
@@ -231,7 +236,7 @@ Deno.serve(async (req) => {
         }
       }
       return new Response(JSON.stringify({ data: [] }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -249,7 +254,7 @@ Deno.serve(async (req) => {
           const calendarData = rawData?.data || rawData;
           if (Array.isArray(calendarData) && calendarData.length > 0) {
             return new Response(JSON.stringify({ data: calendarData }), {
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
             });
           }
           console.log("RapidAPI /calendar returned empty data");
@@ -267,7 +272,7 @@ Deno.serve(async (req) => {
         "user-agent": "KKTech-Live-Dashboard/1.0",
       });
       return new Response(JSON.stringify({ data }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -285,7 +290,7 @@ Deno.serve(async (req) => {
       default:
         return new Response(
           JSON.stringify({ error: `Unknown endpoint: ${endpoint}` }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 400, headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' } }
         );
     }
 
@@ -296,14 +301,14 @@ Deno.serve(async (req) => {
     });
 
     return new Response(JSON.stringify({ data }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error("API error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     return new Response(
       JSON.stringify({ error: "API request failed", message }),
-      { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 502, headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
