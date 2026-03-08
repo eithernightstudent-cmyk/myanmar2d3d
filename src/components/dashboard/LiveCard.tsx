@@ -126,14 +126,19 @@ export function LiveCard({
             <p className="font-display text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: "hsl(var(--text-secondary))" }}>
               Market Closed
             </p>
-            {holidayName && (
-              <div className="mt-1.5 inline-flex items-center gap-1.5">
-                <CalendarDays className="h-3.5 w-3.5 text-primary" />
-                <p className="font-display text-sm font-bold text-primary/80">
-                  {holidayName}
-                </p>
-              </div>
-            )}
+            {(() => {
+              const displayName = holidayName && holidayName !== "null" && holidayName !== "NULL" && holidayName.trim() !== ""
+                ? holidayName
+                : null;
+              return displayName ? (
+                <div className="mt-1.5 inline-flex items-center gap-1.5">
+                  <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                  <p className="font-display text-sm font-bold text-primary/80">
+                    {displayName}
+                  </p>
+                </div>
+              ) : null;
+            })()}
           </div>
         )}
 
@@ -167,7 +172,7 @@ export function LiveCard({
 
           {/* Verification Status Badges */}
           <AnimatePresence mode="wait">
-            {resultVerificationStatus === "verifying" && (
+            {resultVerificationStatus === "verifying" && isLive && (
               <motion.div
                 key="verifying"
                 initial={{ opacity: 0, y: -4 }}
@@ -181,7 +186,7 @@ export function LiveCard({
                 </span>
               </motion.div>
             )}
-            {resultVerificationStatus === "finalizing" && (
+            {resultVerificationStatus === "finalizing" && isLive && (
               <motion.div
                 key="finalizing"
                 initial={{ opacity: 0, y: -4 }}
