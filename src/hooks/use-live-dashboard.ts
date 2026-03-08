@@ -12,134 +12,35 @@ import {
   type ThailandParts,
 } from "@/lib/market-utils";
 
-/** Session closing times in HH:MM format */
 const SESSION_CLOSE_TIMES = ["11:00", "12:01", "15:00", "16:30"];
-
-/** Burst windows: ±2 min around each session close */
-const BURST_WINDOWS = SESSION_CLOSE_TIMES.map((t) => {
-  const [h, m] = t.split(":").map(Number);
-  const totalMin = h * 60 + m;
-  return { start: totalMin - 2, end: totalMin + 2 };
+const SESSION_CLOSE_SECONDS = SESSION_CLOSE_TIMES.map((time) => {
+  const [h, m] = time.split(":").map(Number);
+  return h * 3600 + m * 60;
 });
 
-/** Hot windows: ±5 min around each session close */
-const HOT_WINDOWS = SESSION_CLOSE_TIMES.map((t) => {
-  const [h, m] = t.split(":").map(Number);
-  const totalMin = h * 60 + m;
-  return { start: totalMin - 5, end: totalMin + 5 };
-});
-
-// Adaptive polling intervals
-const POLL_NORMAL_MS = 15000;      // 15s during normal market hours
-const POLL_HOT_MS = 2500;          // 2.5s near session close
-const POLL_BURST_MS = 1200;        // 1.2s right at session close
-const POLL_BACKGROUND_MS = 45000;  // 45s when tab not visible
-const POLL_OFFMARKET_MS = 180000;  // 3min off-market periodic check
-
+const POLL_NORMAL_MS = 15000;
+const POLL_HOT_MS = 2500;
+const POLL_BURST_MS = 1000;
+const POLL_BACKGROUND_MS = 45000;
+const POLL_OFF_MARKET_MS = 180000;
+const HOT_WINDOW_BEFORE_SECONDS = 5 * 60;
+const HOT_WINDOW_AFTER_SECONDS = 5 * 60;
+const BURST_WINDOW_BEFORE_SECONDS = 2 * 60;
+const BURST_WINDOW_AFTER_SECONDS = 2 * 60;
 const VERIFICATION_WINDOW_MS = 60000;
-
-const CACHE_KEY = "kktech-live-cache-v1";
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
-
-/** Check if current time falls within a burst window (±2 min of close) */
-function isBurstMinute(parts: ThailandParts): boolean {
-  const nowMins = parts.hour * 60 + parts.minute;
-  return BURST_WINDOWS.some((w) => nowMins >= w.start && nowMins <= w.end);
-}
-
-/** Check if current time falls within a hot window (±5 min of close) */
-function isHotMinute(parts: ThailandParts): boolean {
-  const nowMins = parts.hour * 60 + parts.minute;
-  return HOT_WINDOWS.some((w) => nowMins >= w.start && nowMins <= w.end);
-}
-
-/** Determine the current adaptive poll interval */
-function getAdaptivePollInterval(parts: ThailandParts, isTabVisible: boolean): number {
-  if (!isTabVisible) return POLL_BACKGROUND_MS;
-  if (!isWithinMarketHours(parts)) return POLL_OFFMARKET_MS;
-  if (isBurstMinute(parts)) return POLL_BURST_MS;
-  if (isHotMinute(parts)) return POLL_HOT_MS;
-  return POLL_NORMAL_MS;
-}
-
-/** Generate a payload signature from critical fields to detect real changes */
-function payloadSignature(data: any): string {
-  if (!data) return "";
-  const sig = [
-    data.calculated2d,
-    data.connectionStatus,
-    data.setIndex,
-    data.value,
-    data.currentDayResults?.length,
-    data.currentDayResults?.map((r: any) => `${r.open_time}:${r.twod}`).join(","),
-  ].join("|");
-  return sig;
-}
-
-/** Read cached data from localStorage */
-function readCache(): { data: any; ts: number } | null {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (Date.now() - parsed.ts > CACHE_TTL_MS) {
-      localStorage.removeItem(CACHE_KEY);
-      return null;
-    }
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-/** Write data to localStorage cache */
-function writeCache(data: any) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
-  } catch {}
-}
-
-/** Parse "YYYY-MM-DD HH:MM:SS" into { h, m, s } */
-function parseStockTime(raw: string): { h: number; m: number; s: number } | null {
-  const match = raw?.match(/(\d{2}):(\d{2}):(\d{2})\s*$/);
-  if (!match) return null;
-  return { h: Number(match[1]), m: Number(match[2]), s: Number(match[3]) };
-}
-
-function getSessionVerificationStatus(
-  parts: ThailandParts,
-  stockDatetime: string | undefined,
-  sessionCloseTime: string,
-  isMarketLive: boolean,
-  firstSeenAt: number | null,
-): "verified" | "verifying" | "finalizing" | "live" | "closed" {
-  const [closeH, closeM] = sessionCloseTime.split(":").map(Number);
-  const closeSeconds = closeH * 3600 + closeM * 60;
-
-  if (stockDatetime) {
-    const parsed = parseStockTime(stockDatetime);
-    if (parsed) {
-      const stockSeconds = parsed.h * 3600 + parsed.m * 60 + parsed.s;
-      if (stockSeconds >= closeSeconds) {
-        if (firstSeenAt && Date.now() - firstSeenAt < VERIFICATION_WINDOW_MS) {
-          return "verifying";
-        }
-        return "verified";
-      }
-    }
-  }
-
-  const nowSeconds = parts.hour * 3600 + parts.minute * 60 + parts.second;
-  const diff = nowSeconds - closeSeconds;
-  if (diff >= 0 && diff <= 10) return "finalizing";
-  if (diff > 10 && !stockDatetime) return "closed";
-
-  if (isMarketLive) return "live";
-  return "closed";
-}
 
 const DEFAULT_OWNER_NAME = "2D3D";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
+const LIVE_CACHE_KEY = "kktech-live-cache-v1";
+const LIVE_CACHE_TTL_MS = 10 * 60 * 1000;
+
+type VerificationState = "verified" | "verifying" | "finalizing" | "live" | "closed";
+
+interface CachedLiveState {
+  data: LiveData;
+  signature: string;
+  savedAt: number;
+}
 
 export interface CurrentDayResult {
   set: string;
@@ -167,6 +68,127 @@ export interface LiveData {
   source?: string;
 }
 
+function getSecondsOfDay(parts: ThailandParts) {
+  return parts.hour * 3600 + parts.minute * 60 + parts.second;
+}
+
+function isWithinSessionWindow(nowSeconds: number, beforeSeconds: number, afterSeconds: number): boolean {
+  return SESSION_CLOSE_SECONDS.some(
+    (closeSeconds) =>
+      nowSeconds >= closeSeconds - beforeSeconds &&
+      nowSeconds <= closeSeconds + afterSeconds,
+  );
+}
+
+function isHotMinute(parts: ThailandParts): boolean {
+  const nowSeconds = getSecondsOfDay(parts);
+  return isWithinSessionWindow(nowSeconds, HOT_WINDOW_BEFORE_SECONDS, HOT_WINDOW_AFTER_SECONDS);
+}
+
+function isBurstWindow(parts: ThailandParts): boolean {
+  const nowSeconds = getSecondsOfDay(parts);
+  return isWithinSessionWindow(nowSeconds, BURST_WINDOW_BEFORE_SECONDS, BURST_WINDOW_AFTER_SECONDS);
+}
+
+function getPollIntervalMs(parts: ThailandParts, hidden: boolean): number {
+  if (hidden) return POLL_BACKGROUND_MS;
+  if (isBurstWindow(parts)) return POLL_BURST_MS;
+  if (isHotMinute(parts)) return POLL_HOT_MS;
+  if (isWithinMarketHours(parts)) return POLL_NORMAL_MS;
+  return POLL_OFF_MARKET_MS;
+}
+
+function parseStockTime(raw: string): { h: number; m: number; s: number } | null {
+  const match = raw?.match(/(\d{2}):(\d{2}):(\d{2})\s*$/);
+  if (!match) return null;
+  return { h: Number(match[1]), m: Number(match[2]), s: Number(match[3]) };
+}
+
+function getLatestResult(data: LiveData | null): CurrentDayResult | null {
+  if (!data) return null;
+  if (data.currentDayResults?.length) return data.currentDayResults[data.currentDayResults.length - 1];
+  if (data.result?.length) return data.result[data.result.length - 1];
+  return null;
+}
+
+function buildDataSignature(data: LiveData): string {
+  const latest = getLatestResult(data);
+  return [
+    data.currentDate || "",
+    data.connectionStatus || "",
+    data.calculated2d || "",
+    String(data.setIndex ?? ""),
+    String(data.value ?? ""),
+    data.live?.time || "",
+    latest?.history_id || "",
+    latest?.stock_datetime || "",
+    latest?.twod || "",
+    data.holidayName || "",
+    data.holiday?.name || "",
+    data.source || "",
+  ].join("|");
+}
+
+function readLiveCache(): CachedLiveState | null {
+  try {
+    const raw = localStorage.getItem(LIVE_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CachedLiveState;
+    if (!parsed?.data || !parsed?.signature || !parsed?.savedAt) return null;
+    if (Date.now() - parsed.savedAt > LIVE_CACHE_TTL_MS) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveLiveCache(data: LiveData, signature: string) {
+  try {
+    localStorage.setItem(
+      LIVE_CACHE_KEY,
+      JSON.stringify({
+        data,
+        signature,
+        savedAt: Date.now(),
+      } as CachedLiveState),
+    );
+  } catch {
+    // Ignore storage failures (private mode / quota).
+  }
+}
+
+function getSessionVerificationStatus(
+  parts: ThailandParts,
+  stockDatetime: string | undefined,
+  sessionCloseTime: string,
+  isMarketLive: boolean,
+  firstSeenAt: number | null,
+): VerificationState {
+  const [closeH, closeM] = sessionCloseTime.split(":").map(Number);
+  const closeSeconds = closeH * 3600 + closeM * 60;
+
+  if (stockDatetime) {
+    const parsed = parseStockTime(stockDatetime);
+    if (parsed) {
+      const stockSeconds = parsed.h * 3600 + parsed.m * 60 + parsed.s;
+      if (stockSeconds >= closeSeconds) {
+        if (firstSeenAt && Date.now() - firstSeenAt < VERIFICATION_WINDOW_MS) {
+          return "verifying";
+        }
+        return "verified";
+      }
+    }
+  }
+
+  const nowSeconds = getSecondsOfDay(parts);
+  const diff = nowSeconds - closeSeconds;
+  if (diff >= 0 && diff <= 10) return "finalizing";
+  if (diff > 10 && !stockDatetime) return "closed";
+
+  if (isMarketLive) return "live";
+  return "closed";
+}
+
 export function useLiveDashboard() {
   const [ownerName, setOwnerName] = useState(() => {
     try {
@@ -177,74 +199,64 @@ export function useLiveDashboard() {
   });
 
   const [parts, setParts] = useState<ThailandParts>(getThailandParts());
-  const [liveData, setLiveData] = useState<LiveData | null>(() => {
-    // Warm start from localStorage cache
-    const cached = readCache();
-    return cached?.data || null;
-  });
-  const [isLive, setIsLive] = useState(false);
+  const [liveData, setLiveData] = useState<LiveData | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [apiNote, setApiNote] = useState("Data source: waiting for API response...");
   const [flash, setFlash] = useState(false);
   const [lastSuccessTime, setLastSuccessTime] = useState<string>("--");
+  const [pollIntervalMs, setPollIntervalMs] = useState(() => getPollIntervalMs(getThailandParts(), false));
 
+  const liveDataRef = useRef<LiveData | null>(null);
+  const lastSuccessRef = useRef("--");
   const lastFetchAtMs = useRef(0);
   const isUpdating = useRef(false);
-  const hasRendered = useRef(false);
+  const queuedForceFetchRef = useRef(false);
+  const pollTimerRef = useRef<number | null>(null);
+  const flashTimerRef = useRef<number | null>(null);
+  const requestSeqRef = useRef(0);
+  const latestAppliedSeqRef = useRef(0);
+  const latestSignatureRef = useRef<string>("");
   const prev2dRef = useRef<string | null>(null);
   const prevVerificationRef = useRef<string | null>(null);
   const prevHistoryIdRef = useRef<string | null>(null);
-  const prevPayloadSigRef = useRef<string>("");
-  const requestSeqRef = useRef(0); // Stale-response guard
-
-  // Track when a new 2D number was first seen for verification timing
   const firstSeenAtRef = useRef<number | null>(null);
   const firstSeenValueRef = useRef<string | null>(null);
+  const fetchLiveDataRef = useRef<(force?: boolean) => Promise<void>>(async () => {});
 
   const updateOwnerName = useCallback((value: string) => {
     const cleaned = String(value ?? "").replace(/\s+/g, " ").trim().slice(0, 24) || DEFAULT_OWNER_NAME;
     setOwnerName(cleaned);
     try {
       localStorage.setItem(OWNER_STORAGE_KEY, cleaned);
-    } catch {}
+    } catch {
+      // Ignore storage failures (private mode / quota).
+    }
   }, []);
 
-  const fetchLiveData = useCallback(async (force = false) => {
-    if (isUpdating.current) return;
-    isUpdating.current = true;
-    setIsSyncing(true);
+  const applyLiveData = useCallback(
+    (
+      data: LiveData,
+      options: {
+        fromCache?: boolean;
+        partsAtApply?: ThailandParts;
+        requestId?: number;
+      } = {},
+    ) => {
+      if (options.requestId != null && options.requestId < latestAppliedSeqRef.current) return;
+      if (options.requestId != null) latestAppliedSeqRef.current = options.requestId;
 
-    const seqId = ++requestSeqRef.current;
+      const signature = buildDataSignature(data);
+      const changed = signature !== latestSignatureRef.current;
+      const shouldHydrate = changed || liveDataRef.current == null;
 
-    try {
-      const { data: payload, error } = await supabase.functions.invoke("set-live");
-
-      // Stale-response guard: ignore if a newer request was started
-      if (seqId !== requestSeqRef.current) return;
-
-      if (error) throw new Error(error.message || "Edge function error");
-
-      const data = payload?.data;
-      if (!data) throw new Error("No data in response");
-
-      // Payload signature dedupe: skip full setState if critical data unchanged
-      const newSig = payloadSignature(data);
-      if (newSig === prevPayloadSigRef.current && !force) {
-        // Data unchanged — update fetch time but skip re-render
-        lastFetchAtMs.current = Date.now();
-        return;
+      if (shouldHydrate) {
+        latestSignatureRef.current = signature;
+        liveDataRef.current = data;
+        setLiveData(data);
       }
-      prevPayloadSigRef.current = newSig;
 
-      setLiveData(data);
-      writeCache(data);
-      hasRendered.current = true;
-
-      // Track 2D number changes for verification timing
+      const latestRes = getLatestResult(data);
       const new2d = data.calculated2d || "--";
-      const latestRes = data.currentDayResults?.length
-        ? data.currentDayResults[data.currentDayResults.length - 1]
-        : null;
       const newHistoryId = latestRes?.history_id || null;
 
       if (newHistoryId && newHistoryId !== prevHistoryIdRef.current) {
@@ -264,96 +276,186 @@ export function useLiveDashboard() {
         firstSeenValueRef.current = new2d;
       }
 
-      // Notify on 2D change during market hours
-      const currentParts2 = getThailandParts();
-      if (
-        prev2dRef.current !== null &&
-        prev2dRef.current !== new2d &&
-        new2d !== "--" &&
-        isWithinMarketHours(currentParts2)
-      ) {
-        const sessionTime = latestRes?.open_time?.slice(0, 5) || undefined;
-        notifyResultChange(new2d, sessionTime);
-      }
-      prev2dRef.current = new2d;
+      if (!options.fromCache) {
+        const currentParts = options.partsAtApply || getThailandParts();
+        if (
+          prev2dRef.current !== null &&
+          prev2dRef.current !== new2d &&
+          new2d !== "--" &&
+          isWithinMarketHours(currentParts)
+        ) {
+          const sessionTime = latestRes?.open_time?.slice(0, 5) || undefined;
+          notifyResultChange(new2d, sessionTime);
+        }
+        prev2dRef.current = new2d;
 
-      setFlash(true);
-      setTimeout(() => setFlash(false), 180);
+        if (changed) {
+          if (flashTimerRef.current != null) clearTimeout(flashTimerRef.current);
+          setFlash(true);
+          flashTimerRef.current = window.setTimeout(() => setFlash(false), 180);
+        }
+
+        saveLiveCache(data, signature);
+      }
 
       const now = formatTimestamp(new Date().toISOString());
+      lastSuccessRef.current = now;
       setLastSuccessTime(now);
 
+      const partsForCadence = options.partsAtApply || getThailandParts();
+      const hidden = typeof document !== "undefined" && document.visibilityState === "hidden";
+      const nextInterval = getPollIntervalMs(partsForCadence, hidden);
+      setPollIntervalMs((prev) => (prev === nextInterval ? prev : nextInterval));
+
       const source = data.source || "thaistock2d";
-      const p = getThailandParts();
-      const interval = getAdaptivePollInterval(p, !document.hidden);
-      setApiNote(`Source: ${source} | Refresh: ${Math.round(interval / 1000)}s${isBurstMinute(p) ? " 🔥" : isHotMinute(p) ? " ⚡" : ""} | ${now}`);
-    } catch (err) {
-      if (seqId !== requestSeqRef.current) return;
-      console.error("Fetch error:", err);
-      const msg = err instanceof Error ? err.message : "Unknown error";
-      setApiNote(`Error: ${msg} | Last sync: ${lastSuccessTime}`);
-    } finally {
-      if (seqId === requestSeqRef.current) {
+      const pace = Math.max(1, Math.round(nextInterval / 100) / 10);
+      const label = isBurstWindow(partsForCadence) ? " 🚀" : isHotMinute(partsForCadence) ? " ⚡" : "";
+      setApiNote(`Source: ${source} | Refresh: ${pace}s${label} | ${now}`);
+    },
+    [],
+  );
+
+  const fetchLiveData = useCallback(
+    async (force = false) => {
+      const currentParts = getThailandParts();
+      const hidden = typeof document !== "undefined" && document.visibilityState === "hidden";
+      const withinMarket = isWithinMarketHours(currentParts);
+      const withinBurst = isBurstWindow(currentParts);
+      const dueOffMarketRefresh = Date.now() - lastFetchAtMs.current >= POLL_OFF_MARKET_MS;
+
+      if (!force && !withinMarket && !withinBurst && (hidden || !dueOffMarketRefresh)) return;
+
+      if (isUpdating.current) {
+        if (force) queuedForceFetchRef.current = true;
+        return;
+      }
+
+      isUpdating.current = true;
+      setIsSyncing(true);
+      const requestId = ++requestSeqRef.current;
+
+      try {
+        const { data: payload, error } = await supabase.functions.invoke("set-live");
+        if (error) throw new Error(error.message || "Edge function error");
+
+        const data = payload?.data as LiveData | undefined;
+        if (!data) throw new Error("No data in response");
+
+        applyLiveData(data, {
+          fromCache: false,
+          partsAtApply: currentParts,
+          requestId,
+        });
+      } catch (err) {
+        console.error("Fetch error:", err);
+        const msg = err instanceof Error ? err.message : "Unknown error";
+        setApiNote(`Error: ${msg} | Last sync: ${lastSuccessRef.current}`);
+      } finally {
         lastFetchAtMs.current = Date.now();
         isUpdating.current = false;
         setIsSyncing(false);
-      }
-    }
-  }, [lastSuccessTime]);
 
-  // Clock tick every second with adaptive polling
+        if (queuedForceFetchRef.current) {
+          queuedForceFetchRef.current = false;
+          window.setTimeout(() => {
+            void fetchLiveDataRef.current(true);
+          }, 0);
+        }
+      }
+    },
+    [applyLiveData],
+  );
+
+  fetchLiveDataRef.current = fetchLiveData;
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      const p = getThailandParts();
-      setParts(p);
-
-      const apiStatus = liveData?.connectionStatus?.toLowerCase();
-      const withinMarket = isWithinMarketHours(p);
-      setIsLive(withinMarket && apiStatus === "live");
-
-      const isTabVisible = !document.hidden;
-      const pollInterval = getAdaptivePollInterval(p, isTabVisible);
-
-      if (!lastFetchAtMs.current || Date.now() - lastFetchAtMs.current >= pollInterval) {
-        fetchLiveData();
-      }
+    const clockId = setInterval(() => {
+      setParts(getThailandParts());
     }, 1000);
+    return () => clearInterval(clockId);
+  }, []);
 
-    return () => clearInterval(interval);
-  }, [fetchLiveData, liveData]);
-
-  // Visibility/focus/online: force immediate refresh
   useEffect(() => {
-    const forceRefresh = () => {
-      // Small delay to avoid race conditions
-      setTimeout(() => fetchLiveData(true), 100);
+    let cancelled = false;
+
+    const scheduleNext = async () => {
+      if (cancelled) return;
+      const startedAt = Date.now();
+      const cycleParts = getThailandParts();
+      const hidden = typeof document !== "undefined" && document.visibilityState === "hidden";
+      const interval = getPollIntervalMs(cycleParts, hidden);
+      setPollIntervalMs((prev) => (prev === interval ? prev : interval));
+
+      await fetchLiveDataRef.current(false);
+
+      const elapsed = Date.now() - startedAt;
+      const waitMs = Math.max(300, interval - elapsed);
+      pollTimerRef.current = window.setTimeout(scheduleNext, waitMs);
     };
 
-    const onVisibility = () => {
-      if (!document.hidden) forceRefresh();
-    };
-
-    document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("focus", forceRefresh);
-    window.addEventListener("online", forceRefresh);
+    void scheduleNext();
 
     return () => {
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("focus", forceRefresh);
-      window.removeEventListener("online", forceRefresh);
+      cancelled = true;
+      if (pollTimerRef.current != null) clearTimeout(pollTimerRef.current);
     };
-  }, [fetchLiveData]);
+  }, []);
 
-  // Initial fetch (always)
   useEffect(() => {
-    fetchLiveData(true);
-  }, [fetchLiveData]);
+    const onVisibilityChange = () => {
+      const hidden = document.visibilityState === "hidden";
+      const currentParts = getThailandParts();
+      const interval = getPollIntervalMs(currentParts, hidden);
+      setPollIntervalMs((prev) => (prev === interval ? prev : interval));
+      if (!hidden) void fetchLiveDataRef.current(true);
+    };
+
+    const onFocus = () => {
+      void fetchLiveDataRef.current(true);
+    };
+
+    const onOnline = () => {
+      void fetchLiveDataRef.current(true);
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("online", onOnline);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("online", onOnline);
+    };
+  }, []);
+
+  useEffect(() => {
+    const cached = readLiveCache();
+    if (cached) {
+      latestSignatureRef.current = cached.signature;
+      liveDataRef.current = cached.data;
+      prev2dRef.current = cached.data.calculated2d || null;
+      setLiveData(cached.data);
+      setLastSuccessTime(formatTimestamp(new Date(cached.savedAt).toISOString()));
+    }
+    void fetchLiveDataRef.current(true);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (flashTimerRef.current != null) clearTimeout(flashTimerRef.current);
+      if (pollTimerRef.current != null) clearTimeout(pollTimerRef.current);
+    };
+  }, []);
 
   const clock = formatPartsClock(parts);
   const dateStr = formatPartsDate(parts);
-
   const twod = liveData?.calculated2d || "--";
   const connectionStatus = liveData?.connectionStatus || "Closed";
+  const isLive = useMemo(
+    () => isWithinMarketHours(parts) && connectionStatus.toLowerCase() === "live",
+    [parts, connectionStatus],
+  );
 
   const getLastDigit = (raw: unknown) => {
     const digits = String(raw ?? "").replace(/\D/g, "");
@@ -367,22 +469,18 @@ export function useLiveDashboard() {
     const digits = String(Math.floor(Math.abs(Number(raw ?? 0)))).replace(/\D/g, "");
     return digits.length >= n ? digits.slice(-n) : digits.padStart(n, "0");
   };
+
   const threed = liveData?.value != null ? getLastNDigits(liveData.value, 3) : "---";
   const setFormatted = liveData?.setIndex != null ? formatNumber(liveData.setIndex) : "--";
   const valueFormatted = liveData?.value != null ? formatNumber(liveData.value) : "--";
   const lastUpdated = liveData ? formatTimestamp(liveData.fetchedAt || liveData.serverTime) : `${dateStr} ${clock}`;
 
   const liveTime = liveData?.live?.time;
-  const marketTimestamp = liveTime && liveTime !== "--"
-    ? `${liveData?.currentDate || "--"} ${liveTime}`
-    : liveData?.currentDate || "--";
+  const marketTimestamp =
+    liveTime && liveTime !== "--" ? `${liveData?.currentDate || "--"} ${liveTime}` : liveData?.currentDate || "--";
 
-  const latestResult = liveData?.currentDayResults?.length
-    ? liveData.currentDayResults[liveData.currentDayResults.length - 1]
-    : liveData?.result?.length
-      ? liveData.result[liveData.result.length - 1]
-      : null;
-  const rawStockDatetime = (latestResult as any)?.stock_datetime || "";
+  const latestResult = getLatestResult(liveData);
+  const rawStockDatetime = latestResult?.stock_datetime || "";
   const stockDatetime = (() => {
     if (!rawStockDatetime) return "--";
     const match = rawStockDatetime.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}:\d{2}:\d{2})/);
@@ -390,8 +488,7 @@ export function useLiveDashboard() {
     return rawStockDatetime;
   })();
 
-  const pollInterval = getAdaptivePollInterval(parts, !document.hidden);
-  const nextCheck = getNextCheckText(parts, lastFetchAtMs.current, pollInterval);
+  const nextCheck = getNextCheckText(parts, lastFetchAtMs.current, pollIntervalMs);
   const currentDate = liveData?.currentDate || "--";
 
   const resultVerificationStatus = useMemo(() => {
@@ -413,7 +510,6 @@ export function useLiveDashboard() {
     );
   }, [parts, rawStockDatetime, isLive]);
 
-  // Play verified chime when status transitions
   useEffect(() => {
     if (
       (prevVerificationRef.current === "finalizing" || prevVerificationRef.current === "verifying") &&
@@ -424,13 +520,11 @@ export function useLiveDashboard() {
     prevVerificationRef.current = resultVerificationStatus;
   }, [resultVerificationStatus, twod]);
 
-  const isResultLocked = resultVerificationStatus === "verified" ||
-    (!isLive && rawStockDatetime !== "");
-
+  const isResultLocked = resultVerificationStatus === "verified" || (!isLive && rawStockDatetime !== "");
   const dataSource = liveData?.source || "thaistock2d";
-
-  // Stable refresh callback for PullToRefresh
-  const refreshData = useCallback(() => fetchLiveData(true), [fetchLiveData]);
+  const refreshData = useCallback(() => {
+    void fetchLiveDataRef.current(true);
+  }, []);
 
   return {
     ownerName,
