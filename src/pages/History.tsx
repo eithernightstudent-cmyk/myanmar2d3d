@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { Footer } from "@/components/dashboard/Footer";
+import { HistoryTable } from "@/components/dashboard/HistoryTable";
 import { ArrowLeft, Clock, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -44,14 +45,6 @@ const History = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden">
-      <div
-        className="pointer-events-none fixed inset-0 -z-10"
-        aria-hidden="true"
-        style={{
-          background:
-            "radial-gradient(circle at 15% 20%, hsl(214 95% 93% / 0.95), transparent 32%), radial-gradient(circle at 90% 12%, hsl(30 100% 92% / 0.95), transparent 38%), hsl(var(--background))",
-        }}
-      />
 
       <Topbar ownerName={ownerName} />
 
@@ -76,6 +69,11 @@ const History = () => {
             Live stock changes throughout the trading day
           </p>
         </motion.div>
+
+        {/* Previous Results Table */}
+        <div className="mb-6">
+          <HistoryTable />
+        </div>
 
         {loading && (
           <div className="flex items-center justify-center py-20">
