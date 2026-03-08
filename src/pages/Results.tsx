@@ -25,14 +25,9 @@ const Results = () => {
   useEffect(() => {
     async function fetchResults() {
       try {
-        const { data, error: fnError } = await supabase.functions.invoke("set-live", {
-          body: null,
-          headers: {},
+        const response = await supabase.functions.invoke("set-live", {
+          body: { endpoint: "2d_result" },
         });
-
-        // Use query params via GET workaround - invoke with endpoint param
-        const response = await supabase.functions.invoke("set-live?endpoint=2d_result");
-
         if (response.error) throw new Error(response.error.message);
         setResults(response.data?.data || []);
       } catch (err) {
