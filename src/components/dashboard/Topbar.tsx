@@ -188,7 +188,7 @@ export function Topbar({ ownerName }: TopbarProps) {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.4, type: "spring" }}
-          className="flex items-center gap-1 rounded-2xl border border-border/40 bg-background/80 px-2 py-1.5 shadow-[0_8px_32px_hsl(0_0%_0%/0.12)] backdrop-blur-xl dark:shadow-[0_8px_32px_hsl(0_0%_0%/0.3)]"
+          className="flex items-center gap-1 rounded-2xl border border-border/30 bg-background/60 px-2 py-1.5 shadow-[0_8px_32px_hsl(0_0%_0%/0.08)] backdrop-blur-xl dark:bg-background/50 dark:shadow-[0_8px_32px_hsl(0_0%_0%/0.2)]"
         >
           {[
             { label: "Home", to: "/", Icon: Home },

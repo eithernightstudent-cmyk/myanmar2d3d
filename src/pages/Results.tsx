@@ -52,7 +52,7 @@ const Results = () => {
 
       <Topbar ownerName={ownerName} />
 
-      <main className="mx-auto w-[min(100%-2rem,72rem)] py-8">
+      <main className="mx-auto w-[min(100%-2rem,72rem)] pt-20 pb-24">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -90,7 +90,7 @@ const Results = () => {
               >
                 <div className="mb-3 flex items-center gap-2">
                   <Calendar size={14} className="text-primary" />
-                  <h2 className="font-display text-sm font-bold text-foreground">
+                  <h2 className="font-display text-sm font-extrabold tracking-wide text-foreground">
                     {day.date || "Unknown Date"}
                   </h2>
                 </div>
@@ -99,7 +99,7 @@ const Results = () => {
                   {day.child?.map((session, j) => (
                     <div
                       key={j}
-                      className="flex flex-col items-center gap-1 rounded-lg border border-border bg-secondary p-3"
+                      className="flex flex-col items-center gap-1 rounded-lg border border-border bg-secondary p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10 hover:border-primary/30"
                     >
                       <span className="font-display text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
                         {session.time?.slice(0, 5) || "--"}
