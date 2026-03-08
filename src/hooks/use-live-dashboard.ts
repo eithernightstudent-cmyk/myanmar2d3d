@@ -11,7 +11,7 @@ import {
   type ThailandParts,
 } from "@/lib/market-utils";
 
-const POLL_INTERVAL_MS = 30000;
+const POLL_INTERVAL_MS = 15000;
 const DEFAULT_OWNER_NAME = "KKTech";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
 
@@ -90,7 +90,7 @@ export function useLiveDashboard() {
       setTimeout(() => setFlash(false), 180);
 
       const connectionText = String(data.connectionStatus || "Closed");
-      setApiNote(`Source: api.thaistock2d.com/live | Connection: ${connectionText} | Auto-refresh: 30s in 09:30-16:30 (TH)`);
+      setApiNote(`Source: api.thaistock2d.com/live | Connection: ${connectionText} | Auto-refresh: 15s in 09:30-16:30 (TH)`);
     } catch (err) {
       console.error("Fetch error:", err);
       if (!hasRendered.current) {

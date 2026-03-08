@@ -12,14 +12,16 @@ export function StatusPill({ isLive, connectionStatus }: StatusPillProps) {
           : "border-[hsl(var(--warm))]/30 bg-[hsl(var(--warm-soft))] text-[hsl(var(--warm))]"
       }`}
     >
-      <span
-        className={`h-1.5 w-1.5 rounded-full ${
-          isLive ? "bg-primary" : "bg-[hsl(var(--warm))]"
-        }`}
-        style={{
-          animation: isLive ? "pulse-dot 1.6s infinite" : "pulse-dot-fail 1.6s infinite",
-        }}
-      />
+      <span className="relative flex h-2 w-2">
+        {isLive && (
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+        )}
+        <span
+          className={`relative inline-flex h-2 w-2 rounded-full ${
+            isLive ? "bg-primary" : "bg-[hsl(var(--warm))]"
+          }`}
+        />
+      </span>
       <span>{connectionStatus}</span>
     </div>
   );
