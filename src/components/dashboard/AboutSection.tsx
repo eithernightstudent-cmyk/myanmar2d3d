@@ -106,7 +106,8 @@ export function AboutSection() {
           Stock Exchange of Thailand (SET)
         </a>
         {" "}| API Provider:{" "}
-        <span className="font-semibold">api.thaistock2d.com</span>
+        <span className="font-semibold">RapidAPI (thai-lotto-new-api)</span>
+        {" "}& <span className="font-semibold">api.thaistock2d.com</span>
       </p>
     </motion.section>
   );
