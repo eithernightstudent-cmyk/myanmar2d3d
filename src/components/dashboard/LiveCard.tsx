@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { StatusPill } from "./StatusPill";
-import { Loader2, CheckCircle, ShieldCheck, Lock } from "lucide-react";
+import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays } from "lucide-react";
 import { tap } from "@/lib/haptic";
 
 interface LiveCardProps {
@@ -66,7 +66,7 @@ export function LiveCard({
             </span>
             <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
             {isSyncing && (
-              <div className="flex items-center gap-1" style={{ color: "hsl(var(--text-secondary))" }}>
+              <div className="flex items-center gap-1.5" style={{ color: "hsl(var(--text-secondary))" }}>
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
                 <span className="font-display text-[0.6rem] font-semibold uppercase tracking-wider">
                   Syncing
@@ -86,14 +86,17 @@ export function LiveCard({
               Market Closed
             </p>
             {holidayName && (
-              <p className="mt-1 font-display text-sm font-bold text-primary/80">
-                📅 {holidayName}
-              </p>
+              <div className="mt-1.5 inline-flex items-center gap-1.5">
+                <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                <p className="font-display text-sm font-bold text-primary/80">
+                  {holidayName}
+                </p>
+              </div>
             )}
           </div>
         )}
 
-        {/* Big 2D Number — Vibrant Gold */}
+        {/* Big 2D Number */}
         <div className="flex flex-col items-center justify-center py-4">
           <div className="relative">
             <motion.span
@@ -114,9 +117,9 @@ export function LiveCard({
               <motion.div
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="absolute -right-6 -top-1"
+                className="absolute -right-7 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-success/10 border border-success/30"
               >
-                <Lock className="h-4 w-4 text-success" />
+                <Lock className="h-3.5 w-3.5 text-success" />
               </motion.div>
             )}
           </div>
@@ -154,9 +157,11 @@ export function LiveCard({
           </AnimatePresence>
         </div>
 
-        {/* Updated timestamp — premium style with green verified checkmark */}
+        {/* Updated timestamp */}
         <div className="mb-6 flex items-center justify-center gap-2">
-          <CheckCircle className="h-4 w-4" style={{ color: isResultLocked ? "hsl(var(--success))" : "hsl(var(--muted-foreground))" }} />
+          <div className={`flex h-5 w-5 items-center justify-center rounded-full ${isResultLocked ? "bg-success/10" : "bg-muted"}`}>
+            <CheckCircle className="h-3.5 w-3.5" style={{ color: isResultLocked ? "hsl(var(--success))" : "hsl(var(--muted-foreground))" }} />
+          </div>
           <span className="font-display text-[0.8rem] font-semibold" style={{ color: "hsl(var(--text-secondary))" }}>
             Updated:{" "}
             <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>

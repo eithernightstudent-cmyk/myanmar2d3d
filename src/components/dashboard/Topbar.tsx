@@ -23,8 +23,6 @@ export function Topbar({ ownerName }: TopbarProps) {
 
   const toggleTheme = () => {
     const next = !dark;
-    
-    // Try View Transition API for smooth radial reveal
     if (document.startViewTransition) {
       document.startViewTransition(() => {
         document.documentElement.classList.toggle("dark", next);
@@ -42,7 +40,6 @@ export function Topbar({ ownerName }: TopbarProps) {
     localStorage.setItem("kktech-theme", dark ? "dark" : "light");
   }, []);
 
-  // Brief animation when notifications are enabled
   useEffect(() => {
     if (enabled) {
       setJustEnabled(true);
@@ -74,7 +71,7 @@ export function Topbar({ ownerName }: TopbarProps) {
             alt="2D Logo"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="h-8 w-8 rounded-full object-cover"
+            className="h-8 w-8 rounded-full object-cover ring-2 ring-primary/20"
           />
           <span className="font-display text-sm font-bold tracking-wide transition-colors duration-300">{ownerName}</span>
         </Link>
@@ -95,36 +92,40 @@ export function Topbar({ ownerName }: TopbarProps) {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {/* Notification Bell */}
           {supported && (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => { tapMedium(); toggleNotifications(); }}
               aria-label={bellLabel}
               title={bellLabel}
-              className={`relative grid h-9 w-9 place-items-center rounded-full border transition-all duration-300 active:scale-90 ${
+              className={`relative grid h-9 w-9 place-items-center rounded-xl border transition-all duration-300 ${
                 enabled
-                  ? "border-primary/40 bg-primary/10 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.2)]"
-                  : "border-border bg-[hsl(var(--card-strong))] text-muted-foreground hover:text-foreground hover:border-primary/40 hover:shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+                  ? "border-primary/40 bg-gradient-to-br from-primary/15 to-primary/5 text-primary shadow-[0_0_16px_hsl(var(--primary)/0.25)]"
+                  : "border-border bg-[hsl(var(--card-strong))] text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5"
               } ${permission === "denied" ? "opacity-50 cursor-not-allowed" : ""}`}
               disabled={permission === "denied"}
             >
               <motion.span
                 key={enabled ? "bell-on" : "bell-off"}
-                initial={{ scale: 0.7, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.2 }}
+                initial={{ scale: 0.7, opacity: 0, rotate: -15 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                transition={{ duration: 0.3, type: "spring" }}
               >
-                <BellIcon size={15} />
+                <BellIcon size={16} strokeWidth={2.2} />
               </motion.span>
               {enabled && (
-                <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-[hsl(var(--card-glass))] bg-primary" />
+                <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-[hsl(var(--card-glass))] bg-primary animate-pulse" />
               )}
-            </button>
+            </motion.button>
           )}
 
           {/* Sound Toggle */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => {
               const next = !soundOn;
               setClickSoundEnabled(next);
@@ -133,20 +134,29 @@ export function Topbar({ ownerName }: TopbarProps) {
             }}
             aria-label={soundOn ? "Turn off click sound" : "Turn on click sound"}
             title={soundOn ? "Click sound: ON" : "Click sound: OFF"}
-            className={`relative grid h-9 w-9 place-items-center rounded-full border transition-all duration-300 active:scale-90 ${
+            className={`relative grid h-9 w-9 place-items-center rounded-xl border transition-all duration-300 ${
               soundOn
-                ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-border bg-[hsl(var(--card-strong))] text-muted-foreground hover:text-foreground hover:border-primary/40"
+                ? "border-primary/40 bg-gradient-to-br from-primary/15 to-primary/5 text-primary"
+                : "border-border bg-[hsl(var(--card-strong))] text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5"
             }`}
           >
-            {soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />}
-          </button>
+            <motion.span
+              key={soundOn ? "on" : "off"}
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              {soundOn ? <Volume2 size={16} strokeWidth={2.2} /> : <VolumeX size={16} strokeWidth={2.2} />}
+            </motion.span>
+          </motion.button>
 
           {/* Dark Mode Toggle */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => { tap(); toggleTheme(); }}
             aria-label="Toggle dark mode"
-            className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-[hsl(var(--card-strong))] text-muted-foreground transition-all duration-300 active:scale-90 hover:text-foreground hover:border-primary/40 hover:shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+            className="relative grid h-9 w-9 place-items-center rounded-xl border border-border bg-[hsl(var(--card-strong))] text-muted-foreground transition-all duration-300 hover:text-foreground hover:border-primary/30 hover:bg-primary/5"
           >
             <AnimatePresence mode="wait" initial={false}>
               {dark ? (
@@ -156,9 +166,9 @@ export function Topbar({ ownerName }: TopbarProps) {
                   animate={{ rotate: 0, scale: 1, opacity: 1 }}
                   exit={{ rotate: 90, scale: 0, opacity: 0 }}
                   transition={{ duration: 0.25, ease: "easeInOut" }}
-                  className="absolute"
+                  className="absolute text-amber-500"
                 >
-                  <Sun size={15} />
+                  <Sun size={16} strokeWidth={2.2} />
                 </motion.span>
               ) : (
                 <motion.span
@@ -167,13 +177,13 @@ export function Topbar({ ownerName }: TopbarProps) {
                   animate={{ rotate: 0, scale: 1, opacity: 1 }}
                   exit={{ rotate: -90, scale: 0, opacity: 0 }}
                   transition={{ duration: 0.25, ease: "easeInOut" }}
-                  className="absolute"
+                  className="absolute text-indigo-400"
                 >
-                  <Moon size={15} />
+                  <Moon size={16} strokeWidth={2.2} />
                 </motion.span>
               )}
             </AnimatePresence>
-          </button>
+          </motion.button>
         </div>
       </div>
     </header>
