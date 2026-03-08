@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { StatusPill } from "./StatusPill";
 import { Loader2, CheckCircle } from "lucide-react";
+import { tap } from "@/lib/haptic";
 
 interface LiveCardProps {
   clock: string;
@@ -56,12 +57,12 @@ export function LiveCard({
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <span className="font-display text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
+            <span className="font-display text-xs font-bold uppercase tracking-[0.18em]" style={{ color: "hsl(var(--text-secondary))" }}>
               Live 2D
             </span>
             <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
             {isSyncing && (
-              <div className="flex items-center gap-1 text-muted-foreground">
+              <div className="flex items-center gap-1" style={{ color: "hsl(var(--text-secondary))" }}>
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
                 <span className="font-display text-[0.6rem] font-semibold uppercase tracking-wider">
                   Syncing
@@ -77,7 +78,7 @@ export function LiveCard({
         {/* Market Status & Holiday Name */}
         {marketClosed && (
           <div className="mb-2 text-center">
-            <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            <p className="font-display text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: "hsl(var(--text-secondary))" }}>
               Market Closed
             </p>
             {holidayName && (
@@ -88,18 +89,30 @@ export function LiveCard({
           </div>
         )}
 
-        {/* Big 2D Number */}
+        {/* Big 2D Number — Vibrant Gold */}
         <div className="flex justify-center py-4">
-          <span className="font-display text-[clamp(5rem,20vw,7rem)] font-bold leading-none text-primary [text-shadow:0_0_40px_hsl(var(--primary)/0.25)]">
+          <motion.span
+            key={twod}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="font-display text-[clamp(5rem,20vw,7rem)] font-bold leading-none text-primary"
+            style={{
+              textShadow: "0 4px 20px hsl(var(--primary) / 0.35), 0 0 60px hsl(var(--primary) / 0.15)",
+            }}
+          >
             {twod}
-          </span>
+          </motion.span>
         </div>
 
-        {/* Updated timestamp with verified checkmark */}
-        <div className="mb-6 flex items-center justify-center gap-1.5">
-          <CheckCircle className="h-4 w-4" style={{ color: "hsl(142, 71%, 45%)" }} />
-          <span className="font-display text-xs font-semibold text-muted-foreground">
-            Updated: <span className="text-foreground">{stockDatetime || "--"}</span>
+        {/* Updated timestamp — premium style with green verified checkmark */}
+        <div className="mb-6 flex items-center justify-center gap-2">
+          <CheckCircle className="h-4 w-4" style={{ color: "hsl(var(--success))" }} />
+          <span className="font-display text-[0.8rem] font-semibold" style={{ color: "hsl(var(--text-secondary))" }}>
+            Updated:{" "}
+            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>
+              {stockDatetime || "--"}
+            </span>
           </span>
         </div>
 
@@ -110,39 +123,41 @@ export function LiveCard({
             initial={{ opacity: 0.6 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4"
+            onTouchStart={() => tap()}
+            className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4 active:scale-95 transition-transform duration-150"
           >
-            <span className="block font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1">
+            <span className="block font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: "hsl(var(--text-secondary))" }}>
               SET Index
             </span>
-            <span className="font-display text-xl font-bold text-foreground">{setFormatted}</span>
+            <span className="font-display text-xl font-bold" style={{ color: "hsl(var(--text-strong))" }}>{setFormatted}</span>
           </motion.div>
           <motion.div
             key={`val-${valueFormatted}`}
             initial={{ opacity: 0.6 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4"
+            onTouchStart={() => tap()}
+            className="rounded-2xl border border-border bg-[hsl(var(--card-strong))] p-4 active:scale-95 transition-transform duration-150"
           >
-            <span className="block font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1">
+            <span className="block font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: "hsl(var(--text-secondary))" }}>
               Value
             </span>
-            <span className="font-display text-xl font-bold text-foreground">{valueFormatted}</span>
+            <span className="font-display text-xl font-bold" style={{ color: "hsl(var(--text-strong))" }}>{valueFormatted}</span>
           </motion.div>
         </div>
 
         {/* Date, Server Time & Last Sync */}
         <div className="space-y-1.5 border-t border-border pt-4">
           <div className="flex justify-between font-display text-xs">
-            <span className="font-bold text-foreground">Date</span>
-            <span className="text-muted-foreground">{currentDate}</span>
+            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Date</span>
+            <span style={{ color: "hsl(var(--text-secondary))" }}>{currentDate}</span>
           </div>
           <div className="flex justify-between font-display text-xs">
-            <span className="font-bold text-foreground">Server Time</span>
-            <span className="text-muted-foreground">{serverTime}</span>
+            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Server Time</span>
+            <span style={{ color: "hsl(var(--text-secondary))" }}>{serverTime}</span>
           </div>
           <div className="flex justify-between font-display text-xs">
-            <span className="font-bold text-foreground">Last Successful Sync</span>
+            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Last Successful Sync</span>
             <span className="text-primary font-semibold">{lastSuccessTime}</span>
           </div>
         </div>
