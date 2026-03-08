@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { notifyResultChange } from "@/lib/notify";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getThailandParts,
@@ -57,6 +58,7 @@ export function useLiveDashboard() {
   const lastFetchAtMs = useRef(0);
   const isUpdating = useRef(false);
   const hasRendered = useRef(false);
+  const prev2dRef = useRef<string | null>(null);
 
   const updateOwnerName = useCallback((value: string) => {
     const cleaned = String(value ?? "").replace(/\s+/g, " ").trim().slice(0, 24) || DEFAULT_OWNER_NAME;
@@ -89,6 +91,20 @@ export function useLiveDashboard() {
 
       setLiveData(data);
       hasRendered.current = true;
+
+      // Notify on 2D change during market hours
+      const new2d = data.calculated2d || "--";
+      const currentParts2 = getThailandParts();
+      if (
+        prev2dRef.current !== null &&
+        prev2dRef.current !== new2d &&
+        new2d !== "--" &&
+        isWithinMarketHours(currentParts2)
+      ) {
+        notifyResultChange();
+      }
+      prev2dRef.current = new2d;
+
       setFlash(true);
       setTimeout(() => setFlash(false), 180);
 
