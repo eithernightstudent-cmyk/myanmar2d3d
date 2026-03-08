@@ -112,7 +112,7 @@ const Index = () => {
       <FullScreenOverlay
         open={showHistory}
         onClose={() => setShowHistory(false)}
-        title="📊 Previous Results (Last 7 Days)"
+        title="Previous Results (Last 7 Days)"
       >
         <HistoryTable />
       </FullScreenOverlay>
