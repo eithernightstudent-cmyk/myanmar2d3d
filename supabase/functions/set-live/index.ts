@@ -46,8 +46,14 @@ function getRapidHeaders(): Record<string, string> {
 }
 
 function normalizePayload(payload: any, source: string) {
-  // Handle both thaistock2d and RapidAPI response formats
   const data = payload?.data || payload;
+
+  // RapidAPI /results has a different structure: afSet, afValue, evSet, evValue, etc.
+  if (source === "rapidapi" && (data?.afSet !== undefined || data?.evSet !== undefined)) {
+    return normalizeRapidAPIResults(data);
+  }
+
+  // Standard thaistock2d format
   const live = data?.live && typeof data.live === "object" ? data.live : {};
   const result = Array.isArray(data?.result) ? data.result : [];
   const holiday = data?.holiday && typeof data.holiday === "object" ? data.holiday : null;
@@ -91,14 +97,72 @@ function normalizePayload(payload: any, source: string) {
   };
 }
 
-function isValidLiveData(normalized: any): boolean {
-  // Check if we got meaningful data (not just zeros/empty)
-  return (
-    normalized &&
-    (normalized.setIndex !== null && normalized.setIndex !== 0) ||
-    (normalized.value !== null && normalized.value !== 0) ||
-    (normalized.result && normalized.result.length > 0)
+// Parse RapidAPI /results format: afSet, afValue, evSet, evValue, mModern, etc.
+function normalizeRapidAPIResults(data: any) {
+  const now = new Date();
+  const todayStr = now.toISOString().split("T")[0];
+
+  // "af" = afternoon session, "ev" = evening session
+  const afSet = parseNumeric(data.afSet);
+  const afValue = parseNumeric(data.afValue);
+  const evSet = parseNumeric(data.evSet);
+  const evValue = parseNumeric(data.evValue);
+
+  // Use the latest available session data
+  const setIndex = evSet ?? afSet;
+  const value = evValue ?? afValue;
+
+  const calculated2d = calculateTwoD(setIndex, value);
+
+  // Build result entries from afResult and evResult
+  const results: any[] = [];
+  if (Array.isArray(data.afResult)) {
+    data.afResult.forEach((r: any) => results.push(r));
+  }
+  if (Array.isArray(data.evResult)) {
+    data.evResult.forEach((r: any) => results.push(r));
+  }
+  const sortedResults = results.sort(sortByStockTime);
+
+  // Check if market is live
+  const isHolidayFlag = data.isHoliday === true || data.isHoliday === "true" || data.isHoliday === 1;
+  const hasLiveData = setIndex !== null && setIndex !== 0;
+  const connectionStatus = hasLiveData && !isHolidayFlag ? "Live" : "Closed";
+
+  // Build current day results
+  const currentDayResults = sortedResults.filter(
+    (r: any) => String(r?.stock_date || "") === todayStr
   );
+
+  // Build live object for compatibility
+  const live = {
+    set: setIndex !== null ? String(setIndex) : "--",
+    value: value !== null ? String(value) : "--",
+    twod: calculated2d,
+    date: todayStr,
+    time: "--",
+  };
+
+  return {
+    serverTime: now.toISOString(),
+    currentDate: todayStr,
+    connectionStatus,
+    setIndex,
+    value,
+    calculated2d,
+    live,
+    result: sortedResults,
+    currentDayResults,
+    holiday: isHolidayFlag ? { status: "1", date: todayStr, name: "Holiday" } : null,
+    source: "rapidapi",
+    fetchedAt: now.toISOString(),
+    // Extra RapidAPI fields
+    mModern: data.mModern || null,
+    mInternet: data.mInternet || null,
+    eModern: data.eModern || null,
+    eInternet: data.eInternet || null,
+    round: data.round || null,
+  };
 }
 
 async function fetchWithTimeout(url: string, headers: Record<string, string>, timeoutMs = 15000) {
