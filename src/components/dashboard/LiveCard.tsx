@@ -97,7 +97,7 @@ export function LiveCard({
 
         {/* Updated timestamp with verified checkmark */}
         <div className="mb-6 flex items-center justify-center gap-1.5">
-          <CheckCircle className="h-4 w-4 text-green-500" />
+          <CheckCircle className="h-4 w-4" style={{ color: "hsl(142, 71%, 45%)" }} />
           <span className="font-display text-xs font-semibold text-muted-foreground">
             Updated: <span className="text-foreground">{stockDatetime || "--"}</span>
           </span>
