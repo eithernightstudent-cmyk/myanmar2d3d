@@ -67,8 +67,9 @@ export function LiveCard({
     return null;
   })();
 
-  // Only show verification badges when market is live (not on weekends/holidays)
-  const showVerificationBadge = isLive || resultVerificationStatus === "verified";
+  // Only show verification badges and lock icon when market is live or just verified (not weekends)
+  const showVerificationBadge = isLive;
+  const showLockIcon = isLive || (resultVerificationStatus === "verified" && isResultLocked);
 
   return (
     <motion.section
