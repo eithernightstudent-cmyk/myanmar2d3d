@@ -23,7 +23,7 @@ export function HeroSection({ ownerName, isLive, connectionStatus, onOwnerChange
           <input
             type="text"
             maxLength={24}
-            placeholder="KKTech"
+            placeholder="2D3D"
             defaultValue={ownerName}
             onChange={(e) => onOwnerChange(e.target.value)}
             className="w-36 rounded-md border border-input bg-card px-2 py-1.5 font-display text-[0.72rem] font-semibold normal-case tracking-normal text-foreground outline-none transition-all focus:border-primary focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.2)]"

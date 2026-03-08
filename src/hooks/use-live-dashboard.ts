@@ -12,7 +12,7 @@ import {
 } from "@/lib/market-utils";
 
 const POLL_INTERVAL_MS = 15000;
-const DEFAULT_OWNER_NAME = "KKTech";
+const DEFAULT_OWNER_NAME = "2D3D";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
 
 export interface CurrentDayResult {
