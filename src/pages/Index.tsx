@@ -74,6 +74,7 @@ const Index = () => {
           <TodayResults
             currentDayResults={dashboard.currentDayResults}
             currentDate={dashboard.currentDate}
+            fallbackResults={dashboard.allResults}
           />
         </div>
 

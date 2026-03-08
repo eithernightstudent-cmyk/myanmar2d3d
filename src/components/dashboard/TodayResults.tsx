@@ -15,6 +15,7 @@ interface CurrentDayResult {
 interface TodayResultsProps {
   currentDayResults: CurrentDayResult[];
   currentDate: string;
+  fallbackResults?: CurrentDayResult[];
 }
 
 interface SessionSlot {
@@ -68,7 +69,11 @@ function matchResult(results: CurrentDayResult[], slotTime: string): CurrentDayR
   }) || null;
 }
 
-export function TodayResults({ currentDayResults, currentDate }: TodayResultsProps) {
+export function TodayResults({ currentDayResults, currentDate, fallbackResults = [] }: TodayResultsProps) {
+  // Use currentDayResults if available, otherwise fall back to last trading day results
+  const displayResults = currentDayResults.length > 0 ? currentDayResults : fallbackResults;
+  const isFallback = currentDayResults.length === 0 && fallbackResults.length > 0;
+  const fallbackDate = isFallback && fallbackResults[0]?.stock_date ? fallbackResults[0].stock_date : null;
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -84,10 +89,10 @@ export function TodayResults({ currentDayResults, currentDate }: TodayResultsPro
             </div>
             <div>
               <h2 className="font-display text-sm font-bold tracking-wide" style={{ color: "hsl(var(--text-strong))" }}>
-                Today's Results
+                {isFallback ? "Latest Results" : "Today's Results"}
               </h2>
               <p className="font-display text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                {currentDate || "--"}
+                {isFallback && fallbackDate ? fallbackDate : (currentDate || "--")}
               </p>
             </div>
           </div>
@@ -99,7 +104,7 @@ export function TodayResults({ currentDayResults, currentDate }: TodayResultsPro
         {/* Grid */}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {SESSION_SLOTS.map((slot, i) => {
-            const result = matchResult(currentDayResults, slot.time);
+            const result = matchResult(displayResults, slot.time);
             const has = !!result && !!result.twod && result.twod !== "--";
 
             return (
