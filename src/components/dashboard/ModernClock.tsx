@@ -55,7 +55,7 @@ export function ModernClock() {
     >
       <div className="flex items-center justify-between mb-3">
         <span className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          🇲🇲 Myanmar Time
+          <Globe className="inline h-3 w-3 mr-1 text-primary" /> Myanmar Time
         </span>
         <span className="font-display text-[0.6rem] text-muted-foreground">
           {parts.weekday} {padTwo(parts.day)}/{padTwo(parts.month)}/{parts.year}

@@ -164,7 +164,7 @@ export function useLiveDashboard() {
     } catch (err) {
       console.error("Fetch error:", err);
       const msg = err instanceof Error ? err.message : "Unknown error";
-      setApiNote(`⚠️ Error: ${msg} | Last sync: ${lastSuccessTime}`);
+      setApiNote(`Error: ${msg} | Last sync: ${lastSuccessTime}`);
     } finally {
       lastFetchAtMs.current = Date.now();
       isUpdating.current = false;
