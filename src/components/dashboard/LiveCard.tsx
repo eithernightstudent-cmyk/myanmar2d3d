@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 interface LiveCardProps {
   clock: string;
   twod: string;
+  threed: string;
   setDigit: string;
   valueDigit: string;
   setFormatted: string;
