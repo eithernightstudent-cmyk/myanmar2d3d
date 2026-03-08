@@ -21,10 +21,26 @@ export function Topbar({ ownerName }: TopbarProps) {
   const [justEnabled, setJustEnabled] = useState(false);
   const [soundOn, setSoundOn] = useState(isClickSoundEnabled);
 
+  const toggleTheme = () => {
+    const next = !dark;
+    
+    // Try View Transition API for smooth radial reveal
+    if (document.startViewTransition) {
+      document.startViewTransition(() => {
+        document.documentElement.classList.toggle("dark", next);
+        localStorage.setItem("kktech-theme", next ? "dark" : "light");
+      });
+    } else {
+      document.documentElement.classList.toggle("dark", next);
+      localStorage.setItem("kktech-theme", next ? "dark" : "light");
+    }
+    setDark(next);
+  };
+
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
     localStorage.setItem("kktech-theme", dark ? "dark" : "light");
-  }, [dark]);
+  }, []);
 
   // Brief animation when notifications are enabled
   useEffect(() => {
@@ -128,7 +144,7 @@ export function Topbar({ ownerName }: TopbarProps) {
 
           {/* Dark Mode Toggle */}
           <button
-            onClick={() => { tap(); setDark((d) => !d); }}
+            onClick={() => { tap(); toggleTheme(); }}
             aria-label="Toggle dark mode"
             className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-[hsl(var(--card-strong))] text-muted-foreground transition-all duration-300 active:scale-90 hover:text-foreground hover:border-primary/40 hover:shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
           >
