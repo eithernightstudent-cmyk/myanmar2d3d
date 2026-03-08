@@ -28,7 +28,9 @@ const History = () => {
   useEffect(() => {
     async function fetchHistory() {
       try {
-        const response = await supabase.functions.invoke("set-live?endpoint=history");
+        const response = await supabase.functions.invoke("set-live", {
+          body: { endpoint: "history" },
+        });
         if (response.error) throw new Error(response.error.message);
         setHistory(response.data?.data || []);
       } catch (err) {
