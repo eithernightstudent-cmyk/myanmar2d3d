@@ -97,7 +97,12 @@ export function useLiveDashboard() {
         new2d !== "--" &&
         isWithinMarketHours(currentParts2)
       ) {
-        notifyResultChange();
+        // Get session time from latest result
+        const latestRes = data.currentDayResults?.length
+          ? data.currentDayResults[data.currentDayResults.length - 1]
+          : null;
+        const sessionTime = latestRes?.open_time?.slice(0, 5) || undefined;
+        notifyResultChange(new2d, sessionTime);
       }
       prev2dRef.current = new2d;
 
