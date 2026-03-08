@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { StatusPill } from "./StatusPill";
-import { Loader2, CheckCircle } from "lucide-react";
+import { Loader2, CheckCircle, ShieldCheck, Lock } from "lucide-react";
 import { tap } from "@/lib/haptic";
 
 interface LiveCardProps {
@@ -23,6 +23,8 @@ interface LiveCardProps {
   lastSuccessTime: string;
   holidayName?: string | null;
   stockDatetime?: string;
+  resultVerificationStatus?: "verified" | "finalizing" | "live" | "closed";
+  isResultLocked?: boolean;
 }
 
 export function LiveCard({
@@ -39,6 +41,8 @@ export function LiveCard({
   lastSuccessTime,
   holidayName,
   stockDatetime,
+  resultVerificationStatus = "closed",
+  isResultLocked = false,
 }: LiveCardProps) {
   const marketClosed = !isLive;
 
