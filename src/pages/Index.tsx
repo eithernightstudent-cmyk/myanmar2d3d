@@ -76,7 +76,6 @@ const Index = () => {
               resultVerificationStatus={dashboard.resultVerificationStatus}
               isResultLocked={dashboard.isResultLocked}
               dataSource={dashboard.dataSource}
-              dataSource={dashboard.dataSource}
               isHotMinute={dashboard.isHotMinute}
             />
 
