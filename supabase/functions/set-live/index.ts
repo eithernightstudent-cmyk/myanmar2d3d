@@ -105,6 +105,7 @@ Deno.serve(async (req) => {
     }
 
     let apiUrl: string;
+    let scrapeMode = false;
 
     switch (endpoint) {
       case "live":
@@ -123,6 +124,10 @@ Deno.serve(async (req) => {
           ? `${BASE_URL}/history?date=${encodeURIComponent(date)}`
           : `${BASE_URL}/history`;
         break;
+      case "threed_result":
+        apiUrl = "https://www.thaistock2d.com/threedResult";
+        scrapeMode = true;
+        break;
       default:
         return new Response(
           JSON.stringify({ error: `Unknown endpoint: ${endpoint}` }),
@@ -139,7 +144,7 @@ Deno.serve(async (req) => {
       method: "GET",
       signal: controller.signal,
       headers: {
-        "accept": "application/json",
+        "accept": scrapeMode ? "text/html" : "application/json",
         "user-agent": "KKTech-Live-Dashboard/1.0",
       },
     });
@@ -147,6 +152,21 @@ Deno.serve(async (req) => {
 
     if (!response.ok) {
       throw new Error(`API returned ${response.status}`);
+    }
+
+    // Handle 3D scraping
+    if (scrapeMode) {
+      const html = await response.text();
+      const results: Array<{ date: string; threed: string }> = [];
+      // Parse threed_result_item rows from HTML
+      const itemRegex = /<div class="threed_result_item[^"]*"[^>]*>.*?<h4>(\d{4}-\d{2}-\d{2})<\/h4>.*?<h4[^>]*>(\d{3})<\/h4>.*?<\/div>/gs;
+      let match;
+      while ((match = itemRegex.exec(html)) !== null) {
+        results.push({ date: match[1], threed: match[2] });
+      }
+      return new Response(JSON.stringify({ data: results }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const data = await response.json();
