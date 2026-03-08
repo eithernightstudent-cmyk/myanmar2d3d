@@ -17,7 +17,7 @@ const FEATURES = [
   {
     icon: Clock,
     title: "Real-time Updates",
-    desc: "Market ဖွင့်ချိန်တွင် 15 စက္ကန့်တိုင်း auto-refresh ဖြစ်ပါသည်။",
+    desc: "Market ဖွင့်ချိန်တွင် 20 စက္ကန့်တိုင်း auto-refresh ဖြစ်ပါသည်။",
   },
   {
     icon: Database,
