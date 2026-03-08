@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { formatNumber } from "@/lib/market-utils";
@@ -30,17 +31,20 @@ const SECONDARY_SLOTS = [
   { time: "15:00", display: "3:00 PM", label: "Afternoon" },
 ];
 
-function matchResult(results: CurrentDayResult[], slotTime: string): CurrentDayResult | null {
-  return results.find((r) => {
-    const t = String(r.open_time ?? "").trim().slice(0, 5);
-    return t === slotTime;
-  }) || null;
-}
-
-export function TodayResults({ currentDayResults, currentDate, fallbackResults = [] }: TodayResultsProps) {
+export const TodayResults = React.memo(function TodayResults({ currentDayResults, currentDate, fallbackResults = [] }: TodayResultsProps) {
   const displayResults = currentDayResults.length > 0 ? currentDayResults : fallbackResults;
   const isFallback = currentDayResults.length === 0 && fallbackResults.length > 0;
   const fallbackDate = isFallback && fallbackResults[0]?.stock_date ? fallbackResults[0].stock_date : null;
+
+  // Memoized lookup map: open_time (first 5 chars) -> result
+  const resultMap = useMemo(() => {
+    const map = new Map<string, CurrentDayResult>();
+    for (const r of displayResults) {
+      const t = String(r.open_time ?? "").trim().slice(0, 5);
+      if (t) map.set(t, r);
+    }
+    return map;
+  }, [displayResults]);
 
   return (
     <motion.section
@@ -67,7 +71,7 @@ export function TodayResults({ currentDayResults, currentDate, fallbackResults =
         {/* Primary Cards — 12:01 PM & 4:30 PM */}
         <div className="grid grid-cols-2 gap-3 mb-3">
           {PRIMARY_SLOTS.map((slot, i) => {
-            const result = matchResult(displayResults, slot.time);
+            const result = resultMap.get(slot.time) || null;
             const has = !!result && !!result.twod && result.twod !== "--";
 
             return (
@@ -140,7 +144,7 @@ export function TodayResults({ currentDayResults, currentDate, fallbackResults =
         {/* Secondary Cards — 11:00 AM & 3:00 PM — compact rows */}
         <div className="grid grid-cols-2 gap-3">
           {SECONDARY_SLOTS.map((slot, i) => {
-            const result = matchResult(displayResults, slot.time);
+            const result = resultMap.get(slot.time) || null;
             const has = !!result && !!result.twod && result.twod !== "--";
 
             return (
@@ -188,4 +192,4 @@ export function TodayResults({ currentDayResults, currentDate, fallbackResults =
       </article>
     </motion.section>
   );
-}
+});
