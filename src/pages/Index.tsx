@@ -105,8 +105,7 @@ const Index = () => {
           <HistoryTable />
         </div>
 
-        {/* About Section */}
-        <AboutSection />
+        {/* About info moved to footer */}
       </main>
 
       <Footer ownerName={dashboard.ownerName} />
