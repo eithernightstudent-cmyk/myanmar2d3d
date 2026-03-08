@@ -151,7 +151,7 @@ export function LiveCard({
             </motion.span>
 
             {/* Lock icon when result is verified */}
-            {isResultLocked && twod !== "--" && (
+            {showLockIcon && isResultLocked && twod !== "--" && (
               <motion.div
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}

@@ -3,7 +3,6 @@ import { Topbar } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
 import { TodayResults } from "@/components/dashboard/TodayResults";
-import { SessionPanel } from "@/components/dashboard/SessionPanel";
 import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
 import { HistoryTable } from "@/components/dashboard/HistoryTable";
 import { DashboardNavButtons } from "@/components/dashboard/DashboardNavButtons";
@@ -50,7 +49,7 @@ const Index = () => {
       <Topbar ownerName={dashboard.ownerName} />
 
       <main className="mx-auto w-[min(100%-1.25rem,72rem)] py-6 sm:w-[min(100%-2rem,72rem)] sm:py-8">
-        {/* Live Card + Clock */}
+        {/* Live Card + Today's Results */}
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
           <div className="grid gap-5">
             <LiveCard
@@ -93,17 +92,6 @@ const Index = () => {
             currentDayResults={dashboard.currentDayResults}
             currentDate={dashboard.currentDate}
             fallbackResults={dashboard.allResults}
-          />
-        </div>
-
-        {/* Session Results Bar */}
-        <div className="mt-6">
-          <SessionPanel
-            connectionStatus={dashboard.connectionStatus}
-            currentDate={dashboard.currentDate}
-            lastFetchTime={dashboard.lastFetchTime}
-            nextCheck={dashboard.nextCheck}
-            currentDayResults={dashboard.currentDayResults}
           />
         </div>
       </main>
