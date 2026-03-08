@@ -6,40 +6,40 @@
 
 @layer base {
   :root {
-    --background: 155 47% 97%;
-    --foreground: 191 53% 12%;
+    --background: 30 40% 96%;
+    --foreground: 220 20% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 191 53% 12%;
+    --card-foreground: 220 20% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 191 53% 12%;
-    --primary: 174 78% 26%;
+    --popover-foreground: 220 20% 14%;
+    --primary: 25 95% 53%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 166 50% 94%;
-    --secondary-foreground: 191 53% 12%;
-    --muted: 166 30% 94%;
-    --muted-foreground: 192 19% 38%;
-    --accent: 35 100% 95%;
-    --accent-foreground: 28 91% 37%;
+    --secondary: 30 30% 93%;
+    --secondary-foreground: 220 20% 14%;
+    --muted: 30 20% 93%;
+    --muted-foreground: 220 10% 42%;
+    --accent: 30 100% 95%;
+    --accent-foreground: 25 91% 40%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 174 30% 82%;
-    --input: 174 30% 82%;
-    --ring: 174 78% 26%;
+    --border: 30 20% 85%;
+    --input: 30 20% 85%;
+    --ring: 25 95% 53%;
     --radius: 1rem;
 
-    --success: 174 78% 26%;
-    --success-light: 166 76% 94%;
-    --success-border: 174 40% 72%;
+    --success: 160 60% 40%;
+    --success-light: 160 50% 94%;
+    --success-border: 160 30% 72%;
     --fail: 0 72% 44%;
     --fail-light: 0 86% 94%;
     --fail-border: 0 50% 80%;
-    --warm: 28 91% 37%;
+    --warm: 25 95% 53%;
     --warm-soft: 30 100% 92%;
 
-    --line-soft: 174 30% 82%;
+    --line-soft: 30 20% 85%;
     --card-glass: 0 0% 100% / 0.82;
     --card-strong: 0 0% 100% / 0.93;
-    --shadow-panel: 0 28px 60px -34px rgba(17, 63, 72, 0.5);
+    --shadow-panel: 0 28px 60px -34px rgba(120, 60, 20, 0.15);
 
     --font-display: "Space Grotesk", "Noto Sans Myanmar", "Segoe UI", sans-serif;
     --font-body: "Noto Sans Myanmar", "Space Grotesk", "Segoe UI", sans-serif;
@@ -51,42 +51,42 @@
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 25 95% 53%;
   }
 
   .dark {
-    --background: 192 50% 7%;
-    --foreground: 166 30% 88%;
-    --card: 192 42% 11%;
-    --card-foreground: 166 30% 88%;
-    --popover: 192 42% 11%;
-    --popover-foreground: 166 30% 88%;
-    --primary: 174 65% 38%;
+    --background: 215 35% 9%;
+    --foreground: 30 15% 82%;
+    --card: 215 30% 13%;
+    --card-foreground: 30 15% 82%;
+    --popover: 215 30% 13%;
+    --popover-foreground: 30 15% 82%;
+    --primary: 25 95% 53%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 192 30% 16%;
-    --secondary-foreground: 166 30% 88%;
-    --muted: 192 25% 18%;
-    --muted-foreground: 192 15% 55%;
-    --accent: 192 30% 16%;
-    --accent-foreground: 166 30% 85%;
+    --secondary: 215 25% 17%;
+    --secondary-foreground: 30 15% 82%;
+    --muted: 215 20% 19%;
+    --muted-foreground: 215 12% 50%;
+    --accent: 215 25% 17%;
+    --accent-foreground: 30 15% 80%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 192 25% 20%;
-    --input: 192 25% 20%;
-    --ring: 174 65% 38%;
+    --border: 215 20% 20%;
+    --input: 215 20% 20%;
+    --ring: 25 95% 53%;
 
-    --success: 174 65% 38%;
-    --success-light: 174 30% 14%;
-    --success-border: 174 30% 28%;
+    --success: 160 60% 40%;
+    --success-light: 160 25% 14%;
+    --success-border: 160 25% 28%;
     --fail: 0 72% 44%;
     --fail-light: 0 30% 14%;
     --fail-border: 0 30% 28%;
-    --warm: 28 80% 50%;
-    --warm-soft: 28 40% 16%;
+    --warm: 25 90% 55%;
+    --warm-soft: 25 35% 16%;
 
-    --line-soft: 192 25% 20%;
-    --card-glass: 192 42% 11% / 0.85;
-    --card-strong: 192 42% 11% / 0.93;
+    --line-soft: 215 20% 20%;
+    --card-glass: 215 30% 13% / 0.85;
+    --card-strong: 215 30% 13% / 0.93;
     --shadow-panel: 0 28px 60px -34px rgba(0, 0, 0, 0.6);
   }
 }
