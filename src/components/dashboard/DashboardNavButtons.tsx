@@ -1,0 +1,62 @@
+import { motion } from "framer-motion";
+import { CalendarDays, Dice3 } from "lucide-react";
+import { tap } from "@/lib/haptic";
+
+interface DashboardNavButtonsProps {
+  onOpenHistory: () => void;
+  onOpen3D: () => void;
+}
+
+export function DashboardNavButtons({ onOpenHistory, onOpen3D }: DashboardNavButtonsProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1, duration: 0.4 }}
+      className="grid grid-cols-2 gap-3"
+    >
+      {/* 2D History Button */}
+      <button
+        onClick={() => { tap(); onOpenHistory(); }}
+        className="group relative flex flex-col items-center gap-3 rounded-2xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg transition-all duration-200 active:scale-[0.96] hover:border-primary/40 hover:shadow-lg overflow-hidden"
+      >
+        {/* Gradient overlay on hover */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md transition-transform duration-200 group-hover:scale-110">
+          <CalendarDays className="h-6 w-6" strokeWidth={2.2} />
+        </div>
+
+        <div className="relative text-center">
+          <p className="font-display text-sm font-bold" style={{ color: "hsl(var(--text-strong))" }}>
+            Previous Results
+          </p>
+          <p className="font-display text-[0.6rem] font-medium text-muted-foreground mt-0.5">
+            Last 7 Days
+          </p>
+        </div>
+      </button>
+
+      {/* 3D Results Button */}
+      <button
+        onClick={() => { tap(); onOpen3D(); }}
+        className="group relative flex flex-col items-center gap-3 rounded-2xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg transition-all duration-200 active:scale-[0.96] hover:border-primary/40 hover:shadow-lg overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-md transition-transform duration-200 group-hover:scale-110">
+          <Dice3 className="h-6 w-6" strokeWidth={2.2} />
+        </div>
+
+        <div className="relative text-center">
+          <p className="font-display text-sm font-bold" style={{ color: "hsl(var(--text-strong))" }}>
+            3D Results
+          </p>
+          <p className="font-display text-[0.6rem] font-medium text-muted-foreground mt-0.5">
+            Latest 3-Digit
+          </p>
+        </div>
+      </button>
+    </motion.div>
+  );
+}
