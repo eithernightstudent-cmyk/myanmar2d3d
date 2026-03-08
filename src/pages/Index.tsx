@@ -75,6 +75,9 @@ const Index = () => {
               stockDatetime={dashboard.stockDatetime}
               resultVerificationStatus={dashboard.resultVerificationStatus}
               isResultLocked={dashboard.isResultLocked}
+              onManualRefresh={dashboard.refreshData}
+              dataSource={dashboard.dataSource}
+              isHotMinute={dashboard.isHotMinute}
             />
 
             {/* Navigation Buttons */}
@@ -120,7 +123,7 @@ const Index = () => {
       <FullScreenOverlay
         open={show3D}
         onClose={() => setShow3D(false)}
-        title="🎲 Latest 3D Results"
+        title="Latest 3D Results"
       >
         <ThreeDSection lastUpdated={dashboard.lastUpdated} />
       </FullScreenOverlay>

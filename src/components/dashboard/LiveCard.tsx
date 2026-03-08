@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { StatusPill } from "./StatusPill";
-import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays } from "lucide-react";
-import { tap } from "@/lib/haptic";
+import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, RefreshCw, Zap } from "lucide-react";
+import { tap, tapMedium } from "@/lib/haptic";
 
 interface LiveCardProps {
   clock: string;
@@ -23,8 +23,11 @@ interface LiveCardProps {
   lastSuccessTime: string;
   holidayName?: string | null;
   stockDatetime?: string;
-  resultVerificationStatus?: "verified" | "finalizing" | "live" | "closed";
+  resultVerificationStatus?: "verified" | "verifying" | "finalizing" | "live" | "closed";
   isResultLocked?: boolean;
+  onManualRefresh?: () => void;
+  dataSource?: string;
+  isHotMinute?: boolean;
 }
 
 export function LiveCard({
@@ -43,6 +46,9 @@ export function LiveCard({
   stockDatetime,
   resultVerificationStatus = "closed",
   isResultLocked = false,
+  onManualRefresh,
+  dataSource,
+  isHotMinute = false,
 }: LiveCardProps) {
   const marketClosed = !isLive;
 
@@ -73,10 +79,45 @@ export function LiveCard({
                 </span>
               </div>
             )}
+            {/* Hot Minute Indicator */}
+            {isHotMinute && isLive && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5"
+              >
+                <Zap className="h-3 w-3 text-amber-500" fill="currentColor" />
+                <span className="font-display text-[0.55rem] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                  Fast
+                </span>
+              </motion.div>
+            )}
           </div>
-          <span className="rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1.5 font-display text-xs font-bold text-primary">
-            {clock}
-          </span>
+          <div className="flex items-center gap-2">
+            {/* Manual Refresh Button */}
+            {onManualRefresh && (
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.85, rotate: 180 }}
+                onClick={() => {
+                  tapMedium();
+                  onManualRefresh();
+                }}
+                disabled={isSyncing}
+                className={`grid h-8 w-8 place-items-center rounded-xl border transition-all duration-300 ${
+                  isSyncing
+                    ? "border-primary/30 bg-primary/5 text-primary"
+                    : "border-border bg-[hsl(var(--card-strong))] text-muted-foreground hover:text-primary hover:border-primary/30 hover:bg-primary/5"
+                }`}
+                title="Refresh data"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? "animate-spin" : ""}`} strokeWidth={2.5} />
+              </motion.button>
+            )}
+            <span className="rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1.5 font-display text-xs font-bold text-primary">
+              {clock}
+            </span>
+          </div>
         </div>
 
         {/* Market Status & Holiday Name */}
@@ -124,8 +165,22 @@ export function LiveCard({
             )}
           </div>
 
-          {/* Verification Status Badge */}
+          {/* Verification Status Badges */}
           <AnimatePresence mode="wait">
+            {resultVerificationStatus === "verifying" && (
+              <motion.div
+                key="verifying"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/8 px-3 py-1"
+              >
+                <Loader2 className="h-3 w-3 animate-spin text-amber-500" />
+                <span className="font-display text-[0.65rem] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                  Verifying...
+                </span>
+              </motion.div>
+            )}
             {resultVerificationStatus === "finalizing" && (
               <motion.div
                 key="finalizing"
@@ -150,7 +205,7 @@ export function LiveCard({
               >
                 <ShieldCheck className="h-3.5 w-3.5 text-success" />
                 <span className="font-display text-[0.65rem] font-bold uppercase tracking-wider text-success">
-                  Verified
+                  Official
                 </span>
               </motion.div>
             )}
@@ -200,7 +255,7 @@ export function LiveCard({
           </motion.div>
         </div>
 
-        {/* Date, Server Time & Last Sync */}
+        {/* Date, Server Time, Last Sync & Source */}
         <div className="space-y-1.5 border-t border-border pt-4">
           <div className="flex justify-between font-display text-xs">
             <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Date</span>
@@ -211,9 +266,17 @@ export function LiveCard({
             <span style={{ color: "hsl(var(--text-secondary))" }}>{serverTime}</span>
           </div>
           <div className="flex justify-between font-display text-xs">
-            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Last Successful Sync</span>
+            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Last Sync</span>
             <span className="text-primary font-semibold">{lastSuccessTime}</span>
           </div>
+          {dataSource && (
+            <div className="flex justify-between font-display text-xs">
+              <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Source</span>
+              <span className={`font-semibold ${dataSource === "rapidapi-fallback" ? "text-amber-500" : "text-primary"}`}>
+                {dataSource === "rapidapi-fallback" ? "Fallback API" : "Primary API"}
+              </span>
+            </div>
+          )}
         </div>
       </article>
     </motion.section>

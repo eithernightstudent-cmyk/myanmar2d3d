@@ -15,6 +15,26 @@ import {
 /** Session closing times in HH:MM format */
 const SESSION_CLOSE_TIMES = ["11:00", "12:01", "15:00", "16:30"];
 
+/** Hot minutes windows (Myanmar Time = Thailand Time) for aggressive polling */
+const HOT_WINDOWS = [
+  { startH: 11, startM: 55, endH: 12, endM: 5 },   // 11:55 AM - 12:05 PM
+  { startH: 16, startM: 25, endH: 16, endM: 40 },   // 4:25 PM - 4:40 PM
+];
+
+const POLL_NORMAL_MS = 60000;     // 60s during normal hours
+const POLL_HOT_MS = 7000;         // 7s during hot minutes
+const VERIFICATION_WINDOW_MS = 60000; // 60s verification window
+
+/** Check if current time falls within a hot window */
+function isHotMinute(parts: ThailandParts): boolean {
+  const nowMins = parts.hour * 60 + parts.minute;
+  return HOT_WINDOWS.some(w => {
+    const start = w.startH * 60 + w.startM;
+    const end = w.endH * 60 + w.endM;
+    return nowMins >= start && nowMins <= end;
+  });
+}
+
 /** Parse "YYYY-MM-DD HH:MM:SS" into { h, m, s } */
 function parseStockTime(raw: string): { h: number; m: number; s: number } | null {
   const match = raw?.match(/(\d{2}):(\d{2}):(\d{2})\s*$/);
@@ -24,7 +44,8 @@ function parseStockTime(raw: string): { h: number; m: number; s: number } | null
 
 /**
  * Determine verification status for a session:
- * - "verified": stock_datetime confirms result at or after session close
+ * - "verified": result stayed consistent for 60s or history_id confirmed
+ * - "verifying": new number detected within last 60s
  * - "finalizing": within 10s after session close time, not yet confirmed
  * - "live": market open, session not yet closed
  * - "closed": market closed / no data
@@ -34,32 +55,36 @@ function getSessionVerificationStatus(
   stockDatetime: string | undefined,
   sessionCloseTime: string,
   isMarketLive: boolean,
-): "verified" | "finalizing" | "live" | "closed" {
-  // Parse the session close time
+  firstSeenAt: number | null,
+): "verified" | "verifying" | "finalizing" | "live" | "closed" {
   const [closeH, closeM] = sessionCloseTime.split(":").map(Number);
   const closeSeconds = closeH * 3600 + closeM * 60;
 
-  // If we have a stock_datetime at or after the session close, it's verified
+  // If we have a stock_datetime at or after the session close
   if (stockDatetime) {
     const parsed = parseStockTime(stockDatetime);
     if (parsed) {
       const stockSeconds = parsed.h * 3600 + parsed.m * 60 + parsed.s;
-      if (stockSeconds >= closeSeconds) return "verified";
+      if (stockSeconds >= closeSeconds) {
+        // Check if we're still in the verification window
+        if (firstSeenAt && Date.now() - firstSeenAt < VERIFICATION_WINDOW_MS) {
+          return "verifying";
+        }
+        return "verified";
+      }
     }
   }
 
   // Check if we're in the finalizing window (0-10s after close)
-  if (isMarketLive || true) {
-    const nowSeconds = parts.hour * 3600 + parts.minute * 60 + parts.second;
-    const diff = nowSeconds - closeSeconds;
-    if (diff >= 0 && diff <= 10) return "finalizing";
-    if (diff > 10 && !stockDatetime) return "closed";
-  }
+  const nowSeconds = parts.hour * 3600 + parts.minute * 60 + parts.second;
+  const diff = nowSeconds - closeSeconds;
+  if (diff >= 0 && diff <= 10) return "finalizing";
+  if (diff > 10 && !stockDatetime) return "closed";
 
   if (isMarketLive) return "live";
   return "closed";
 }
-const POLL_INTERVAL_MS = 20000;
+
 const DEFAULT_OWNER_NAME = "2D3D";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
 
@@ -70,6 +95,7 @@ export interface CurrentDayResult {
   twod: string;
   stock_date?: string;
   stock_datetime?: string;
+  history_id?: string;
 }
 
 export interface LiveData {
@@ -109,6 +135,11 @@ export function useLiveDashboard() {
   const hasRendered = useRef(false);
   const prev2dRef = useRef<string | null>(null);
   const prevVerificationRef = useRef<string | null>(null);
+  const prevHistoryIdRef = useRef<string | null>(null);
+  
+  // Track when a new 2D number was first seen for verification timing
+  const firstSeenAtRef = useRef<number | null>(null);
+  const firstSeenValueRef = useRef<string | null>(null);
 
   const updateOwnerName = useCallback((value: string) => {
     const cleaned = String(value ?? "").replace(/\s+/g, " ").trim().slice(0, 24) || DEFAULT_OWNER_NAME;
@@ -136,8 +167,34 @@ export function useLiveDashboard() {
       setLiveData(data);
       hasRendered.current = true;
 
-      // Notify on 2D change during market hours
+      // Track 2D number changes for verification timing
       const new2d = data.calculated2d || "--";
+      const latestRes = data.currentDayResults?.length
+        ? data.currentDayResults[data.currentDayResults.length - 1]
+        : null;
+      const newHistoryId = latestRes?.history_id || null;
+
+      // If history_id changed, this is a confirmed new result
+      if (newHistoryId && newHistoryId !== prevHistoryIdRef.current) {
+        if (new2d !== "--" && new2d !== firstSeenValueRef.current) {
+          firstSeenAtRef.current = Date.now();
+          firstSeenValueRef.current = new2d;
+        }
+      }
+      prevHistoryIdRef.current = newHistoryId;
+
+      // If first seen value stayed consistent for 60s, mark as verified
+      if (firstSeenAtRef.current && firstSeenValueRef.current === new2d) {
+        if (Date.now() - firstSeenAtRef.current >= VERIFICATION_WINDOW_MS) {
+          firstSeenAtRef.current = null; // Clear - it's verified now
+        }
+      } else if (new2d !== firstSeenValueRef.current && new2d !== "--") {
+        // Number changed, reset verification timer
+        firstSeenAtRef.current = Date.now();
+        firstSeenValueRef.current = new2d;
+      }
+
+      // Notify on 2D change during market hours
       const currentParts2 = getThailandParts();
       if (
         prev2dRef.current !== null &&
@@ -145,10 +202,6 @@ export function useLiveDashboard() {
         new2d !== "--" &&
         isWithinMarketHours(currentParts2)
       ) {
-        // Get session time from latest result
-        const latestRes = data.currentDayResults?.length
-          ? data.currentDayResults[data.currentDayResults.length - 1]
-          : null;
         const sessionTime = latestRes?.open_time?.slice(0, 5) || undefined;
         notifyResultChange(new2d, sessionTime);
       }
@@ -160,7 +213,10 @@ export function useLiveDashboard() {
       const now = formatTimestamp(new Date().toISOString());
       setLastSuccessTime(now);
 
-      setApiNote(`Source: thaistock2d | Auto-refresh: 20s | ${now}`);
+      const source = data.source || "thaistock2d";
+      const hot = isHotMinute(currentParts);
+      const interval = hot ? `${POLL_HOT_MS / 1000}s` : `${POLL_NORMAL_MS / 1000}s`;
+      setApiNote(`Source: ${source} | Refresh: ${interval}${hot ? " ⚡" : ""} | ${now}`);
     } catch (err) {
       console.error("Fetch error:", err);
       const msg = err instanceof Error ? err.message : "Unknown error";
@@ -172,7 +228,7 @@ export function useLiveDashboard() {
     }
   }, [lastSuccessTime]);
 
-  // Clock tick every second
+  // Clock tick every second with smart polling
   useEffect(() => {
     const interval = setInterval(() => {
       const p = getThailandParts();
@@ -182,7 +238,10 @@ export function useLiveDashboard() {
       const withinMarket = isWithinMarketHours(p);
       setIsLive(withinMarket && apiStatus === "live");
 
-      if (withinMarket && (!lastFetchAtMs.current || Date.now() - lastFetchAtMs.current >= POLL_INTERVAL_MS)) {
+      // Smart polling: hot minutes = fast, normal = slower
+      const pollInterval = isHotMinute(p) ? POLL_HOT_MS : POLL_NORMAL_MS;
+
+      if (withinMarket && (!lastFetchAtMs.current || Date.now() - lastFetchAtMs.current >= pollInterval)) {
         fetchLiveData();
       }
     }, 1000);
@@ -223,17 +282,14 @@ export function useLiveDashboard() {
     ? `${liveData?.currentDate || "--"} ${liveTime}`
     : liveData?.currentDate || "--";
 
-  // Build stockDatetime from the latest result's stock_datetime field
   const latestResult = liveData?.currentDayResults?.length
     ? liveData.currentDayResults[liveData.currentDayResults.length - 1]
     : liveData?.result?.length
       ? liveData.result[liveData.result.length - 1]
       : null;
   const rawStockDatetime = (latestResult as any)?.stock_datetime || "";
-  // Format as DD/MM/YYYY HH:mm:ss
   const stockDatetime = (() => {
     if (!rawStockDatetime) return "--";
-    // Expected format: "2026-03-06 16:30:05"
     const match = rawStockDatetime.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}:\d{2}:\d{2})/);
     if (match) return `${match[3]}/${match[2]}/${match[1]} ${match[4]}`;
     return rawStockDatetime;
@@ -242,17 +298,15 @@ export function useLiveDashboard() {
   const nextCheck = getNextCheckText(parts, lastFetchAtMs.current);
   const currentDate = liveData?.currentDate || "--";
 
-  // Determine the overall 2D verification status based on the latest session
+  // Determine verification status with timing-based verification
   const resultVerificationStatus = useMemo(() => {
-    // Find the latest session that has closed
     const latestSessionTime = (() => {
       const nowMins = parts.hour * 60 + parts.minute;
-      // Find the most recent session close time
       for (let i = SESSION_CLOSE_TIMES.length - 1; i >= 0; i--) {
         const [h, m] = SESSION_CLOSE_TIMES[i].split(":").map(Number);
         if (nowMins >= h * 60 + m) return SESSION_CLOSE_TIMES[i];
       }
-      return SESSION_CLOSE_TIMES[SESSION_CLOSE_TIMES.length - 1]; // default to last
+      return SESSION_CLOSE_TIMES[SESSION_CLOSE_TIMES.length - 1];
     })();
 
     return getSessionVerificationStatus(
@@ -260,13 +314,14 @@ export function useLiveDashboard() {
       rawStockDatetime,
       latestSessionTime,
       isLive,
+      firstSeenAtRef.current,
     );
   }, [parts, rawStockDatetime, isLive]);
 
-  // Play verified chime when status transitions from finalizing → verified
+  // Play verified chime when status transitions
   useEffect(() => {
     if (
-      prevVerificationRef.current === "finalizing" &&
+      (prevVerificationRef.current === "finalizing" || prevVerificationRef.current === "verifying") &&
       resultVerificationStatus === "verified"
     ) {
       notifyVerified(twod);
@@ -274,9 +329,10 @@ export function useLiveDashboard() {
     prevVerificationRef.current = resultVerificationStatus;
   }, [resultVerificationStatus, twod]);
 
-  // Whether the 2D number is locked (verified or market fully closed with data)
   const isResultLocked = resultVerificationStatus === "verified" || 
     (!isLive && rawStockDatetime !== "");
+
+  const dataSource = liveData?.source || "thaistock2d";
 
   return {
     ownerName,
@@ -310,6 +366,8 @@ export function useLiveDashboard() {
     stockDatetime,
     resultVerificationStatus,
     isResultLocked,
+    dataSource,
+    isHotMinute: isHotMinute(parts),
     refreshData: () => fetchLiveData(true),
   };
 }

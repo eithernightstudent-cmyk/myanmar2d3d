@@ -45,11 +45,7 @@ function getRapidHeaders(): Record<string, string> {
   };
 }
 
-/**
- * Normalize thaistock2d /live response.
- * Shape: { live: { set, value, twod, date, time }, result: [...], holiday: { status, date, name } | null, server_time }
- */
-function normalizeThaistock(payload: any) {
+function normalizeThaistock(payload: any, source: string = "thaistock2d") {
   const data = payload?.data || payload;
 
   const live = data?.live && typeof data.live === "object" ? data.live : {};
@@ -79,12 +75,10 @@ function normalizeThaistock(payload: any) {
   const isHoliday = holiday && String(holiday.status || "") !== "0";
   const connectionStatus = isLiveFeed && !isHoliday ? "Live" : "Closed";
 
-  // Holiday name - use API holiday name, or derive day name if weekend
   let holidayName: string | null = null;
   if (isHoliday && holiday?.name) {
     holidayName = holiday.name;
   } else if (!isLiveFeed) {
-    // Check if it's a weekend
     const now = new Date(serverTime || Date.now());
     const dayOfWeek = now.getDay();
     if (dayOfWeek === 0) holidayName = "Sunday";
@@ -103,12 +97,21 @@ function normalizeThaistock(payload: any) {
     currentDayResults,
     holiday: isHoliday ? holiday : (holidayName ? { status: "1", date: currentDate, name: holidayName } : null),
     holidayName,
-    source: "thaistock2d",
+    source,
     fetchedAt: new Date().toISOString(),
   };
 }
 
-async function fetchWithTimeout(url: string, headers: Record<string, string>, timeoutMs = 15000) {
+/**
+ * Normalize RapidAPI /live response to match our standard shape.
+ * RapidAPI returns: { data: { live: {...}, result: [...], holiday: {...} } }
+ */
+function normalizeRapidApiLive(payload: any) {
+  // RapidAPI has similar shape, reuse normalizer
+  return normalizeThaistock(payload, "rapidapi-fallback");
+}
+
+async function fetchWithTimeout(url: string, headers: Record<string, string>, timeoutMs = 10000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -161,24 +164,41 @@ Deno.serve(async (req) => {
     const rapidHeaders = getRapidHeaders();
     const hasRapidKey = !!rapidHeaders["x-rapidapi-key"];
 
-    // ===== LIVE endpoint: thaistock2d PRIMARY =====
+    // ===== LIVE endpoint: thaistock2d PRIMARY, RapidAPI FALLBACK =====
     if (endpoint === "live") {
+      // Try PRIMARY: thaistock2d
       try {
         console.log("Fetching PRIMARY: thaistock2d/live");
         const data = await fetchWithTimeout(`${THAISTOCK_BASE}/live`, {
           "accept": "application/json",
           "user-agent": "KKTech-Live-Dashboard/1.0",
-        });
+        }, 8000);
         const normalized = normalizeThaistock(data);
-        console.log("thaistock2d OK — status:", normalized.connectionStatus, "2D:", normalized.calculated2d);
+        console.log("PRIMARY OK — status:", normalized.connectionStatus, "2D:", normalized.calculated2d);
         return new Response(JSON.stringify({ data: normalized }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
-      } catch (err) {
-        console.error("thaistock2d/live failed:", err);
-        // Could add RapidAPI fallback here if needed
-        throw err;
+      } catch (primaryErr) {
+        console.error("PRIMARY (thaistock2d) failed:", primaryErr);
       }
+
+      // Try FALLBACK: RapidAPI
+      if (hasRapidKey) {
+        try {
+          console.log("Fetching FALLBACK: RapidAPI /live");
+          const data = await fetchWithTimeout(`${RAPIDAPI_BASE}/live`, rapidHeaders, 10000);
+          const normalized = normalizeRapidApiLive(data);
+          console.log("FALLBACK OK — status:", normalized.connectionStatus, "2D:", normalized.calculated2d);
+          return new Response(JSON.stringify({ data: normalized }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } catch (fallbackErr) {
+          console.error("FALLBACK (RapidAPI) also failed:", fallbackErr);
+          throw fallbackErr;
+        }
+      }
+
+      throw new Error("Primary API failed and no fallback API key configured");
     }
 
     // ===== 3D endpoint: RapidAPI primary, DB fallback =====
@@ -238,7 +258,6 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Fallback to thaistock2d
       const apiUrl = date
         ? `${THAISTOCK_BASE}/2d_result?date=${encodeURIComponent(date)}`
         : `${THAISTOCK_BASE}/2d_result`;
