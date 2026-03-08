@@ -68,7 +68,7 @@ export function Topbar({ ownerName }: TopbarProps) {
         <Link to="/" className="inline-flex items-center gap-2.5 text-inherit no-underline">
           <motion.img
             src={logoImg}
-            alt="2D Logo"
+            alt="2D3D Live - Myanmar 2D Live Result"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="h-8 w-8 rounded-full object-cover ring-2 ring-primary/20"
