@@ -91,6 +91,20 @@ export function useLiveDashboard() {
 
       setLiveData(data);
       hasRendered.current = true;
+
+      // Notify on 2D change during market hours
+      const new2d = data.calculated2d || "--";
+      const currentParts2 = getThailandParts();
+      if (
+        prev2dRef.current !== null &&
+        prev2dRef.current !== new2d &&
+        new2d !== "--" &&
+        isWithinMarketHours(currentParts2)
+      ) {
+        notifyResultChange();
+      }
+      prev2dRef.current = new2d;
+
       setFlash(true);
       setTimeout(() => setFlash(false), 180);
 
