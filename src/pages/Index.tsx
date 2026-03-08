@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
+import { ModernClock } from "@/components/dashboard/ModernClock";
 import { SessionPanel } from "@/components/dashboard/SessionPanel";
 import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
 import { Footer } from "@/components/dashboard/Footer";
