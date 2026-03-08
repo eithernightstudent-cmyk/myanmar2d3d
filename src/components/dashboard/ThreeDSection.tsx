@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 interface ThreeDResult {
   date: string;
   threed: string;
+  [key: string]: unknown;
 }
 
 interface ThreeDSectionProps {
@@ -26,6 +27,26 @@ export function ThreeDSection({ lastUpdated }: ThreeDSectionProps) {
   useEffect(() => {
     async function fetchThreeD() {
       try {
+        // Try RapidAPI via edge function first
+        const { data: payload, error } = await supabase.functions.invoke("set-live", {
+          body: { endpoint: "threed_result" },
+        });
+
+        if (!error && payload?.data && Array.isArray(payload.data) && payload.data.length > 0) {
+          // Map RapidAPI response - adapt field names
+          const mapped = payload.data.map((item: any) => ({
+            date: item.date || item.stock_date || "--",
+            threed: item.threed || item.three_d || item["3d"] || "--",
+          }));
+          setResults(mapped);
+          return;
+        }
+      } catch {
+        // silent, try DB fallback
+      }
+
+      // Fallback: read from database table
+      try {
         const { data, error } = await supabase
           .from("threed_results")
           .select("date, threed")
@@ -39,7 +60,8 @@ export function ThreeDSection({ lastUpdated }: ThreeDSectionProps) {
         setLoading(false);
       }
     }
-    fetchThreeD();
+
+    fetchThreeD().finally(() => setLoading(false));
   }, []);
 
   return (
@@ -49,7 +71,6 @@ export function ThreeDSection({ lastUpdated }: ThreeDSectionProps) {
       transition={{ delay: 0.08, duration: 0.5 }}
       className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-6 shadow-[var(--shadow-panel)] backdrop-blur-lg"
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-display text-lg font-bold text-foreground">
           Latest 3D Results

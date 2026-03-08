@@ -11,7 +11,7 @@ import {
   type ThailandParts,
 } from "@/lib/market-utils";
 
-const POLL_INTERVAL_MS = 15000;
+const POLL_INTERVAL_MS = 20000; // 20 seconds
 const DEFAULT_OWNER_NAME = "2D3D";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
 
@@ -35,6 +35,7 @@ export interface LiveData {
   currentDayResults: CurrentDayResult[];
   live: { set: string; value: string; time: string; twod: string; date: string };
   holiday: { status: string; date: string; name: string } | null;
+  source?: string;
 }
 
 export function useLiveDashboard() {
@@ -49,8 +50,10 @@ export function useLiveDashboard() {
   const [parts, setParts] = useState<ThailandParts>(getThailandParts());
   const [liveData, setLiveData] = useState<LiveData | null>(null);
   const [isLive, setIsLive] = useState(false);
-  const [apiNote, setApiNote] = useState("Data source: waiting for api.thaistock2d.com/live response...");
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [apiNote, setApiNote] = useState("Data source: waiting for API response...");
   const [flash, setFlash] = useState(false);
+  const [lastSuccessTime, setLastSuccessTime] = useState<string>("--");
   const lastFetchAtMs = useRef(0);
   const isUpdating = useRef(false);
   const hasRendered = useRef(false);
@@ -68,6 +71,7 @@ export function useLiveDashboard() {
     if (!force && !isWithinMarketHours(currentParts)) return;
     if (isUpdating.current) return;
     isUpdating.current = true;
+    setIsSyncing(true);
 
     try {
       const { data: payload, error } = await supabase.functions.invoke("set-live");
@@ -77,7 +81,6 @@ export function useLiveDashboard() {
       const data = payload?.data;
       if (!data) throw new Error("No data in response");
 
-      // Validate we have numeric SET/Value
       const setNumeric = data.setIndex;
       const valueNumeric = data.value;
       if (setNumeric === null || valueNumeric === null) {
@@ -89,20 +92,22 @@ export function useLiveDashboard() {
       setFlash(true);
       setTimeout(() => setFlash(false), 180);
 
-      const connectionText = String(data.connectionStatus || "Closed");
-      setApiNote(`Source: api.thaistock2d.com/live | Connection: ${connectionText} | Auto-refresh: 15s in 09:30-16:30 (TH)`);
+      const now = formatTimestamp(new Date().toISOString());
+      setLastSuccessTime(now);
+
+      const sourceLabel = data.source === "rapidapi" ? "RapidAPI" : "thaistock2d";
+      setApiNote(`Source: ${sourceLabel} | Auto-refresh: 20s | ${now}`);
     } catch (err) {
       console.error("Fetch error:", err);
-      if (!hasRendered.current) {
-        // Show placeholder state
-      }
       const msg = err instanceof Error ? err.message : "Unknown error";
-      setApiNote(`Fetch error: ${msg}`);
+      setApiNote(`⚠️ Error: ${msg} | Last sync: ${lastSuccessTime}`);
+      // Keep previous liveData so UI doesn't go blank
     } finally {
       lastFetchAtMs.current = Date.now();
       isUpdating.current = false;
+      setIsSyncing(false);
     }
-  }, []);
+  }, [lastSuccessTime]);
 
   // Clock tick every second
   useEffect(() => {
@@ -110,12 +115,11 @@ export function useLiveDashboard() {
       const p = getThailandParts();
       setParts(p);
 
-      // Use connectionStatus from API directly
       const apiStatus = liveData?.connectionStatus?.toLowerCase();
       const withinMarket = isWithinMarketHours(p);
       setIsLive(withinMarket && apiStatus === "live");
 
-      // Auto-fetch during market hours
+      // Auto-fetch during market hours at 20s intervals
       if (withinMarket && (!lastFetchAtMs.current || Date.now() - lastFetchAtMs.current >= POLL_INTERVAL_MS)) {
         fetchLiveData();
       }
@@ -132,7 +136,6 @@ export function useLiveDashboard() {
   const clock = formatPartsClock(parts);
   const dateStr = formatPartsDate(parts);
 
-  // Use API's calculated 2D and connectionStatus directly
   const twod = liveData?.calculated2d || "--";
   const connectionStatus = liveData?.connectionStatus || "Closed";
 
@@ -144,7 +147,6 @@ export function useLiveDashboard() {
   const setDigit = liveData?.setIndex != null ? getLastDigit(liveData.setIndex) : "-";
   const valueDigit = liveData?.value != null ? getLastDigit(liveData.value) : "-";
 
-  // 3D = last 3 digits of Value (before decimal)
   const getLastNDigits = (raw: unknown, n: number) => {
     const digits = String(Math.floor(Math.abs(Number(raw ?? 0)))).replace(/\D/g, "");
     return digits.length >= n ? digits.slice(-n) : digits.padStart(n, "0");
@@ -154,7 +156,6 @@ export function useLiveDashboard() {
   const valueFormatted = liveData?.value != null ? formatNumber(liveData.value) : "--";
   const lastUpdated = liveData ? formatTimestamp(liveData.fetchedAt || liveData.serverTime) : `${dateStr} ${clock}`;
 
-  // Market timestamp: use live.time if available
   const liveTime = liveData?.live?.time;
   const marketTimestamp = liveTime && liveTime !== "--"
     ? `${liveData?.currentDate || "--"} ${liveTime}`
@@ -169,6 +170,7 @@ export function useLiveDashboard() {
     clock,
     dateStr,
     isLive,
+    isSyncing,
     flash,
     twod,
     threed,
@@ -182,6 +184,7 @@ export function useLiveDashboard() {
     nextCheck,
     connectionStatus,
     currentDate,
+    lastSuccessTime,
     currentDayResults: liveData?.currentDayResults || [],
     lastFetchTime: lastFetchAtMs.current
       ? `${formatPartsDate(getThailandParts(new Date(lastFetchAtMs.current)))} ${formatPartsClock(getThailandParts(new Date(lastFetchAtMs.current)))} (TH)`
