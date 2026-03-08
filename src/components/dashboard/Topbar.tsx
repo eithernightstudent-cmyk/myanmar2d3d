@@ -24,12 +24,13 @@ export function Topbar({ ownerName }: TopbarProps) {
     <header className="sticky top-0 z-30 border-b border-border bg-[hsl(var(--card-glass))] backdrop-blur-lg transition-colors duration-300">
       <div className="mx-auto flex min-h-[56px] w-[min(100%-2rem,72rem)] items-center justify-between gap-4">
         <Link to="/" className="inline-flex items-center gap-2.5 text-inherit no-underline">
-          <motion.span
+          <motion.img
+            src={logoImg}
+            alt="2D Logo"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="grid h-8 w-8 place-items-center rounded-xl bg-primary font-display text-xs font-bold text-primary-foreground transition-colors duration-300"
-          >
-            2D
+            className="h-8 w-8 rounded-full object-cover"
+          />
           </motion.span>
           <span className="font-display text-sm font-bold tracking-wide transition-colors duration-300">{ownerName}</span>
         </Link>
