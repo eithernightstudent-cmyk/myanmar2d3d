@@ -83,10 +83,10 @@ export function isWithinMarketHours(parts: ThailandParts) {
   return minutes >= MARKET_WINDOW.start && minutes <= MARKET_WINDOW.end;
 }
 
-export function getNextCheckText(parts: ThailandParts, lastFetchAtMs: number) {
+export function getNextCheckText(parts: ThailandParts, lastFetchAtMs: number, pollIntervalMs = 20000) {
   if (isWithinMarketHours(parts)) {
     if (!lastFetchAtMs) return "Now";
-    const msLeft = Math.max(0, 20000 - (Date.now() - lastFetchAtMs));
+    const msLeft = Math.max(0, pollIntervalMs - (Date.now() - lastFetchAtMs));
     return `in ${Math.ceil(msLeft / 1000)}s`;
   }
   if (!isWeekday(parts)) return "Next weekday 09:30 (TH)";

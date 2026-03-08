@@ -1,3 +1,4 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { formatNumber } from "@/lib/market-utils";
 import { tap } from "@/lib/haptic";
@@ -10,10 +11,6 @@ interface CurrentDayResult {
 }
 
 interface SessionPanelProps {
-  connectionStatus: string;
-  currentDate: string;
-  lastFetchTime: string;
-  nextCheck: string;
   currentDayResults: CurrentDayResult[];
 }
 
@@ -39,7 +36,7 @@ function getSubLabel(entry: CurrentDayResult) {
   return `SET ${formatNumber(entry.set)}`;
 }
 
-export function SessionPanel({
+export const SessionPanel = React.memo(function SessionPanel({
   currentDayResults,
 }: SessionPanelProps) {
   if (!currentDayResults || currentDayResults.length === 0) return null;
@@ -53,7 +50,7 @@ export function SessionPanel({
     >
       {currentDayResults.map((entry, i) => (
         <div
-          key={i}
+          key={`${String(entry.open_time ?? "").trim().slice(0, 5)}-${entry.twod}-${i}`}
           onTouchStart={() => tap()}
           className="flex flex-col items-center gap-1 rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 shadow-[var(--shadow-panel)] backdrop-blur-lg active:scale-95 transition-transform duration-150"
         >
@@ -70,4 +67,4 @@ export function SessionPanel({
       ))}
     </motion.div>
   );
-}
+});

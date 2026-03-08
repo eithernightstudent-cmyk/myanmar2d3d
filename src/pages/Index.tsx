@@ -69,13 +69,10 @@ const Index = () => {
               isSyncing={dashboard.isSyncing}
               connectionStatus={dashboard.connectionStatus}
               currentDate={dashboard.currentDate}
-              serverTime={dashboard.clock}
-              lastSuccessTime={dashboard.lastSuccessTime}
               holidayName={dashboard.holidayName}
               stockDatetime={dashboard.stockDatetime}
               resultVerificationStatus={dashboard.resultVerificationStatus}
               isResultLocked={dashboard.isResultLocked}
-              dataSource={dashboard.dataSource}
               isHotMinute={dashboard.isHotMinute}
             />
 

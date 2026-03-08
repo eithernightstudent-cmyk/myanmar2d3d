@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StatusPill } from "./StatusPill";
 import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, Zap } from "lucide-react";
@@ -20,14 +19,10 @@ interface LiveCardProps {
   isSyncing: boolean;
   connectionStatus: string;
   currentDate: string;
-  serverTime: string;
-  lastSuccessTime: string;
   holidayName?: string | null;
   stockDatetime?: string;
   resultVerificationStatus?: "verified" | "verifying" | "finalizing" | "live" | "closed";
   isResultLocked?: boolean;
-  onManualRefresh?: () => void;
-  dataSource?: string;
   isHotMinute?: boolean;
 }
 
@@ -40,24 +35,13 @@ export function LiveCard({
   isLive,
   isSyncing,
   connectionStatus,
-  currentDate,
-  serverTime,
-  lastSuccessTime,
   holidayName,
   stockDatetime,
   resultVerificationStatus = "closed",
   isResultLocked = false,
-  dataSource,
   isHotMinute = false,
 }: LiveCardProps) {
   const marketClosed = !isLive;
-
-  // Log technical info to console for debugging (hidden from UI)
-  useEffect(() => {
-    console.log(
-      `[Dashboard Debug] Source: ${dataSource || "unknown"} | Server: ${serverTime} | Last Sync: ${lastSuccessTime}`
-    );
-  }, [dataSource, serverTime, lastSuccessTime]);
 
   // Clean holiday name — filter out null/undefined/empty
   const cleanHolidayName = (() => {
