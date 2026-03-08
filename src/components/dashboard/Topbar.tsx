@@ -3,6 +3,7 @@ import { Moon, Sun, Bell, BellOff, BellRing } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "@/hooks/use-notifications";
+import { hapticMedium, hapticLight } from "@/lib/haptic";
 import logoImg from "@/assets/logo.png";
 
 interface TopbarProps {
@@ -80,7 +81,7 @@ export function Topbar({ ownerName }: TopbarProps) {
           {/* Notification Bell */}
           {supported && (
             <button
-              onClick={toggleNotifications}
+              onClick={() => { hapticMedium(); toggleNotifications(); }}
               aria-label={bellLabel}
               title={bellLabel}
               className={`relative grid h-9 w-9 place-items-center rounded-full border transition-all duration-300 ${
@@ -106,7 +107,7 @@ export function Topbar({ ownerName }: TopbarProps) {
 
           {/* Dark Mode Toggle */}
           <button
-            onClick={() => setDark((d) => !d)}
+            onClick={() => { hapticLight(); setDark((d) => !d); }}
             aria-label="Toggle dark mode"
             className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-[hsl(var(--card-strong))] text-muted-foreground transition-all duration-300 hover:text-foreground hover:border-primary/40 hover:shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
           >

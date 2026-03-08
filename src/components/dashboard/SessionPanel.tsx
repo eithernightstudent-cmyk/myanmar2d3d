@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { formatNumber } from "@/lib/market-utils";
+import { hapticLight } from "@/lib/haptic";
 
 interface CurrentDayResult {
   set: string;
@@ -53,7 +54,8 @@ export function SessionPanel({
       {currentDayResults.map((entry, i) => (
         <div
           key={i}
-          className="flex flex-col items-center gap-1 rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 shadow-[var(--shadow-panel)] backdrop-blur-lg"
+          onTouchStart={hapticLight}
+          className="flex flex-col items-center gap-1 rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 shadow-[var(--shadow-panel)] backdrop-blur-lg active:scale-[0.97] transition-transform"
         >
           <span className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             {getSessionLabel(entry.open_time)}
