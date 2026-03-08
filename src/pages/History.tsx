@@ -45,14 +45,6 @@ const History = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden">
-      <div
-        className="pointer-events-none fixed inset-0 -z-10"
-        aria-hidden="true"
-        style={{
-          background:
-            "radial-gradient(circle at 15% 20%, hsl(214 95% 93% / 0.95), transparent 32%), radial-gradient(circle at 90% 12%, hsl(30 100% 92% / 0.95), transparent 38%), hsl(var(--background))",
-        }}
-      />
 
       <Topbar ownerName={ownerName} />
 
