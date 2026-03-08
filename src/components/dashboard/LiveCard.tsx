@@ -201,11 +201,11 @@ export function LiveCard({
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-success-border bg-success-light px-3 py-1"
+                className="mt-2 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-950/80 px-4 py-1.5 backdrop-blur-sm"
               >
-                <ShieldCheck className="h-3.5 w-3.5 text-success" />
-                <span className="font-display text-[0.65rem] font-bold uppercase tracking-wider text-success">
-                  Official
+                <ShieldCheck className="h-4 w-4 text-emerald-400" strokeWidth={2.2} />
+                <span className="font-display text-[0.7rem] font-bold uppercase tracking-wider text-emerald-400">
+                  Verified
                 </span>
               </motion.div>
             )}
