@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { notifyResultChange, notifyVerified } from "@/lib/notify";
+import { notifyVerified } from "@/lib/notify";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getThailandParts,
@@ -277,16 +277,7 @@ export function useLiveDashboard() {
       }
 
       if (!options.fromCache) {
-        const currentParts = options.partsAtApply || getThailandParts();
-        if (
-          prev2dRef.current !== null &&
-          prev2dRef.current !== new2d &&
-          new2d !== "--" &&
-          isWithinMarketHours(currentParts)
-        ) {
-          const sessionTime = latestRes?.open_time?.slice(0, 5) || undefined;
-          notifyResultChange(new2d, sessionTime);
-        }
+        // Keep UI update immediate but delay alert notification until verification completes.
         prev2dRef.current = new2d;
 
         if (changed) {
@@ -510,6 +501,13 @@ export function useLiveDashboard() {
     );
   }, [parts, rawStockDatetime, isLive]);
 
+  const resultConfirmSecondsLeft =
+    resultVerificationStatus === "verifying" && firstSeenAtRef.current
+      ? Math.max(0, Math.ceil((VERIFICATION_WINDOW_MS - (Date.now() - firstSeenAtRef.current)) / 1000))
+      : 0;
+
+  const isResultPreliminary = resultVerificationStatus === "verifying" || resultVerificationStatus === "finalizing";
+
   useEffect(() => {
     if (
       (prevVerificationRef.current === "finalizing" || prevVerificationRef.current === "verifying") &&
@@ -520,7 +518,7 @@ export function useLiveDashboard() {
     prevVerificationRef.current = resultVerificationStatus;
   }, [resultVerificationStatus, twod]);
 
-  const isResultLocked = resultVerificationStatus === "verified" || (!isLive && rawStockDatetime !== "");
+  const isResultLocked = resultVerificationStatus === "verified";
   const dataSource = liveData?.source || "thaistock2d";
   const refreshData = useCallback(() => {
     void fetchLiveDataRef.current(true);
@@ -568,6 +566,8 @@ export function useLiveDashboard() {
     stockDatetime,
     resultVerificationStatus,
     isResultLocked,
+    isResultPreliminary,
+    resultConfirmSecondsLeft,
     dataSource,
     isHotMinute: isHotMinute(parts),
     refreshData,
