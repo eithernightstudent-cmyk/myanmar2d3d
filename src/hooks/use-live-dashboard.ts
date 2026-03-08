@@ -11,7 +11,7 @@ import {
   type ThailandParts,
 } from "@/lib/market-utils";
 
-const POLL_INTERVAL_MS = 30000;
+const POLL_INTERVAL_MS = 15000;
 const DEFAULT_OWNER_NAME = "KKTech";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
 
