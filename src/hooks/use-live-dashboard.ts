@@ -58,6 +58,7 @@ export function useLiveDashboard() {
   const lastFetchAtMs = useRef(0);
   const isUpdating = useRef(false);
   const hasRendered = useRef(false);
+  const prev2dRef = useRef<string | null>(null);
 
   const updateOwnerName = useCallback((value: string) => {
     const cleaned = String(value ?? "").replace(/\s+/g, " ").trim().slice(0, 24) || DEFAULT_OWNER_NAME;
