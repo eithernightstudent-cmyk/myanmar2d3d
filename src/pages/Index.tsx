@@ -70,6 +70,8 @@ const Index = () => {
               lastSuccessTime={dashboard.lastSuccessTime}
               holidayName={dashboard.holidayName}
               stockDatetime={dashboard.stockDatetime}
+              resultVerificationStatus={dashboard.resultVerificationStatus}
+              isResultLocked={dashboard.isResultLocked}
             />
             <ModernClock />
           </div>
