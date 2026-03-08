@@ -231,8 +231,8 @@ Deno.serve(async (req) => {
           console.log("RapidAPI /results raw keys:", JSON.stringify(Object.keys(rawData || {})));
           const candidate = normalizePayload(rawData, "rapidapi");
           
-          // Only use RapidAPI data if it has meaningful content
-          if (isValidLiveData(candidate)) {
+          // Only use if we got meaningful SET/Value data
+          if (candidate.setIndex !== null && candidate.setIndex !== 0) {
             normalized = candidate;
             source = "rapidapi";
             console.log("Using RapidAPI data, setIndex:", candidate.setIndex, "value:", candidate.value);
