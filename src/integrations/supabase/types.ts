@@ -14,7 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      threed_results: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          threed: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          threed: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          threed?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
