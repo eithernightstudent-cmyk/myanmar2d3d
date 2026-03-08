@@ -58,9 +58,12 @@ const Results = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="font-display text-[clamp(1.8rem,4vw,2.4rem)] font-bold tracking-tight text-foreground">
-            2D Results — Last 10 Days
-          </h1>
+          <div className="mb-6 inline-flex items-center gap-2">
+            <Calendar size={14} className="text-primary" />
+            <span className="font-display text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              2D Results — Last 10 Days
+            </span>
+          </div>
         </motion.div>
 
         {loading && (
