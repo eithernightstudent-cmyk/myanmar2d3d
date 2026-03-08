@@ -37,6 +37,7 @@ const Index = () => {
             <LiveCard
               clock={dashboard.clock}
               twod={dashboard.twod}
+              threed={dashboard.threed}
               setDigit={dashboard.setDigit}
               valueDigit={dashboard.valueDigit}
               setFormatted={dashboard.setFormatted}

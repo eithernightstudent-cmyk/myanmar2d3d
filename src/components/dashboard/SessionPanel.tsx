@@ -44,13 +44,19 @@ export function SessionPanel({
             currentDayResults.map((entry, i) => (
               <li
                 key={i}
-                className="grid grid-cols-[auto_auto_1fr] items-center gap-2 rounded-md border border-border bg-secondary px-3 py-2.5"
+                className="grid grid-cols-[auto_auto_auto_1fr] items-center gap-2 rounded-md border border-border bg-secondary px-3 py-2.5"
               >
                 <span className="font-display text-[0.68rem] font-bold text-muted-foreground">
                   {formatResultTime(entry.open_time)}
                 </span>
                 <span className="font-display text-base font-bold text-primary">
                   {entry.twod || "--"}
+                </span>
+                <span className="rounded bg-accent px-1.5 py-0.5 font-display text-sm font-bold text-accent-foreground">
+                  {(() => {
+                    const digits = String(Math.floor(Math.abs(Number(String(entry.value ?? "").replace(/,/g, ""))))).replace(/\D/g, "");
+                    return digits.length >= 3 ? digits.slice(-3) : digits.padStart(3, "0");
+                  })()}
                 </span>
                 <span className="font-display text-[0.62rem] font-semibold uppercase tracking-wide text-muted-foreground">
                   SET {formatNumber(entry.set)} | VALUE {formatNumber(entry.value)}
