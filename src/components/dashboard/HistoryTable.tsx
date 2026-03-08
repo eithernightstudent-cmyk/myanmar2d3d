@@ -69,8 +69,9 @@ export function HistoryTable() {
       transition={{ delay: 0.14, duration: 0.5 }}
       className="rounded-3xl border border-border bg-card/90 p-5 shadow-[0_20px_24px_-18px_hsl(var(--foreground)/0.15)] backdrop-blur-md"
     >
-      <h3 className="mb-4 font-display text-[0.8rem] font-bold uppercase tracking-wider text-foreground">
-        📊 Previous Results (Last 7 Days)
+      <h3 className="mb-4 flex items-center gap-2 font-display text-[0.8rem] font-bold uppercase tracking-wider text-foreground">
+        <BarChart3 className="h-4 w-4 text-primary" />
+        Previous Results (Last 7 Days)
       </h3>
 
       {loading ? (
