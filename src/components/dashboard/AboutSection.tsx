@@ -17,7 +17,7 @@ const FEATURES = [
   {
     icon: Clock,
     title: "Real-time Updates",
-    desc: "Market ဖွင့်ချိန်တွင် 15 စက္ကန့်တိုင်း auto-refresh ဖြစ်ပါသည်။",
+    desc: "Market ဖွင့်ချိန်တွင် 20 စက္ကန့်တိုင်း auto-refresh ဖြစ်ပါသည်။",
   },
   {
     icon: Database,
@@ -106,7 +106,8 @@ export function AboutSection() {
           Stock Exchange of Thailand (SET)
         </a>
         {" "}| API Provider:{" "}
-        <span className="font-semibold">api.thaistock2d.com</span>
+        <span className="font-semibold">RapidAPI (thai-lotto-new-api)</span>
+        {" "}& <span className="font-semibold">api.thaistock2d.com</span>
       </p>
     </motion.section>
   );
