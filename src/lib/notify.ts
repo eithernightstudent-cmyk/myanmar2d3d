@@ -1,7 +1,8 @@
-// Notification sound + vibration for 2D result changes
+// Notification sound + vibration + Web Push for 2D result changes
 
-const BEEP_FREQUENCY = 880; // Hz (A5 note)
-const BEEP_DURATION = 150; // ms
+const BEEP_FREQUENCY = 880;
+const BEEP_DURATION = 150;
+const NOTIFICATION_PERMISSION_KEY = "kktech-notif-enabled";
 
 let audioCtx: AudioContext | null = null;
 
@@ -20,7 +21,6 @@ export function playNotificationBeep() {
   const ctx = getAudioContext();
   if (!ctx) return;
 
-  // Resume if suspended (autoplay policy)
   if (ctx.state === "suspended") {
     ctx.resume();
   }
@@ -34,7 +34,6 @@ export function playNotificationBeep() {
   oscillator.type = "sine";
   oscillator.frequency.setValueAtTime(BEEP_FREQUENCY, ctx.currentTime);
 
-  // Quick fade in/out to avoid click
   gain.gain.setValueAtTime(0, ctx.currentTime);
   gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.01);
   gain.gain.linearRampToValueAtTime(0, ctx.currentTime + BEEP_DURATION / 1000);
@@ -46,14 +45,84 @@ export function playNotificationBeep() {
 export function vibrateDevice() {
   try {
     if (navigator.vibrate) {
-      navigator.vibrate([100, 50, 100]); // short-pause-short pattern
+      navigator.vibrate([100, 50, 100]);
     }
   } catch {
     // Vibration API not supported
   }
 }
 
-export function notifyResultChange() {
+/** Check if browser supports notifications */
+export function isNotificationSupported(): boolean {
+  return "Notification" in window;
+}
+
+/** Get current notification permission */
+export function getNotificationPermission(): NotificationPermission | "unsupported" {
+  if (!isNotificationSupported()) return "unsupported";
+  return Notification.permission;
+}
+
+/** Request notification permission */
+export async function requestNotificationPermission(): Promise<NotificationPermission | "unsupported"> {
+  if (!isNotificationSupported()) return "unsupported";
+  
+  try {
+    const result = await Notification.requestPermission();
+    if (result === "granted") {
+      localStorage.setItem(NOTIFICATION_PERMISSION_KEY, "true");
+    }
+    return result;
+  } catch {
+    return "denied";
+  }
+}
+
+/** Check if user has opted in */
+export function isNotificationEnabled(): boolean {
+  if (!isNotificationSupported()) return false;
+  return (
+    Notification.permission === "granted" &&
+    localStorage.getItem(NOTIFICATION_PERMISSION_KEY) === "true"
+  );
+}
+
+/** Toggle notification opt-in/out */
+export function setNotificationEnabled(enabled: boolean) {
+  localStorage.setItem(NOTIFICATION_PERMISSION_KEY, enabled ? "true" : "false");
+}
+
+/** Send a browser notification for 2D result */
+export function sendResultNotification(twod: string, sessionTime?: string) {
+  if (!isNotificationEnabled()) return;
+  
+  try {
+    const timeLabel = sessionTime || new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    const notification = new Notification("🎯 2D Result is out!", {
+      body: `Number: ${twod} (${timeLabel})`,
+      icon: "/favicon.png",
+      badge: "/favicon.png",
+      tag: `2d-result-${twod}-${Date.now()}`,
+      requireInteraction: false,
+      silent: false,
+    });
+
+    // Auto-close after 8 seconds
+    setTimeout(() => notification.close(), 8000);
+
+    notification.onclick = () => {
+      window.focus();
+      notification.close();
+    };
+  } catch (err) {
+    console.warn("Notification failed:", err);
+  }
+}
+
+export function notifyResultChange(twod?: string, sessionTime?: string) {
   playNotificationBeep();
   vibrateDevice();
+  if (twod && twod !== "--") {
+    sendResultNotification(twod, sessionTime);
+  }
 }
