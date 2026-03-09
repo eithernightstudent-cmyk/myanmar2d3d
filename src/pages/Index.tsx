@@ -1,5 +1,4 @@
-import { useState
-import { Topbar } from "@/components/dashboard/Topbar";
+import { useState } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
 import { TodayResults } from "@/components/dashboard/TodayResults";
@@ -8,7 +7,7 @@ import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
 import { HistoryTable } from "@/components/dashboard/HistoryTable";
 import { DashboardNavButtons } from "@/components/dashboard/DashboardNavButtons";
 import { FullScreenOverlay } from "@/components/dashboard/FullScreenOverlay";
-const Footer = limport { LazyFooter } from "@/components/dashboard/LazyFooter"oRefresh } from "@/components/dashboard/PullToRefresh";
+const Footer = limport { LazyFooimport { LazyFooter } from "@/components/dashboard/LazyFooter"omponents/dashboard/PullToRefresh";
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
 const Index = () => {
@@ -109,9 +108,7 @@ const Index = () => {
         </div>
       </main>
 
-      <Suspense fallback={null}><Footer ownerName={dashboard.ownerName} /></Suspense>
-
-      {/* Full-screen overlays */}
+      <Suspense fallback={nLazyFooter ownerName={dashboard.ownerName} /reen overlays */}
       <FullScreenOverlay
         open={showHistory}
         onClose={() => setShowHistory(false)}
