@@ -95,20 +95,26 @@ const Index = () => {
               onOpen3D={() => setShow3D(true)}
             />
 
-            <ModernClock />
+            <Suspense fallback={null}>
+              <ModernClock />
+            </Suspense>
           </div>
 
-          <TodayResults
-            currentDayResults={dashboard.currentDayResults}
-            currentDate={dashboard.currentDate}
-            fallbackResults={dashboard.allResults}
-          />
+          <Suspense fallback={null}>
+            <TodayResults
+              currentDayResults={dashboard.currentDayResults}
+              currentDate={dashboard.currentDate}
+              fallbackResults={dashboard.allResults}
+            />
+          </Suspense>
         </div>
 
         <div className="mt-4">
-          <SessionPanel
-            currentDayResults={dashboard.currentDayResults}
-          />
+          <Suspense fallback={null}>
+            <SessionPanel
+              currentDayResults={dashboard.currentDayResults}
+            />
+          </Suspense>
         </div>
       </main>
 
