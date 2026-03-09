@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { LazyMotion, domAnimation, AnimatePresence, m } from "framer-motion";
 import { BottomNav } from "@/components/dashboard/BottomNav";
 
 const Index = lazy(() => import("./pages/Index"));
@@ -18,24 +18,26 @@ function AnimatedRoutes() {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -12 }}
-        transition={{ duration: 0.25, ease: "easeInOut" }}
-      >
-        <Suspense fallback={null}>
-          <Routes location={location}>
-            <Route path="/" element={<Index />} />
-            <Route path="/results" element={<Results />} />
-            <Route path="/history" element={<History />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </motion.div>
-    </AnimatePresence>
+    <LazyMotion features={domAnimation} strict>
+      <AnimatePresence mode="wait">
+        <m.div
+          key={location.pathname}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+        >
+          <Suspense fallback={null}>
+            <Routes location={location}>
+              <Route path="/" element={<Index />} />
+              <Route path="/results" element={<Results />} />
+              <Route path="/history" element={<History />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </m.div>
+      </AnimatePresence>
+    </LazyMotion>
   );
 }
 

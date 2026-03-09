@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState } from "react";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
@@ -8,7 +8,7 @@ import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
 import { HistoryTable } from "@/components/dashboard/HistoryTable";
 import { DashboardNavButtons } from "@/components/dashboard/DashboardNavButtons";
 import { FullScreenOverlay } from "@/components/dashboard/FullScreenOverlay";
-const Footer = lazy(() => import("@/components/dashboard/Footer"));
+import { LazyFooter } from "@/components/dashboard/LazyFooter";
 import { PullToRefresh } from "@/components/dashboard/PullToRefresh";
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
@@ -110,7 +110,7 @@ const Index = () => {
         </div>
       </main>
 
-      <Suspense fallback={null}><Footer ownerName={dashboard.ownerName} /></Suspense>
+      <LazyFooter ownerName={dashboard.ownerName} />
 
       {/* Full-screen overlays */}
       <FullScreenOverlay
