@@ -28,9 +28,9 @@ function AnimatedRoutes() {
       >
         <Routes location={location}>
           <Route path="/" element={<Index />} />
-          <Route path="/results" element={<Results />} />
-          <Route path="/history" element={<History />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="/results" element={<Suspense fallback={null}><Results /></Suspense>} />
+          <Route path="/history" element={<Suspense fallback={null}><History /></Suspense>} />
+          <Route path="*" element={<Suspense fallback={null}><NotFound /></Suspense>} />
         </Routes>
       </motion.div>
     </AnimatePresence>
