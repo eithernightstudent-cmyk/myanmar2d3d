@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { forwardRef, useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
-import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface RollingNumberProps {
@@ -15,13 +15,13 @@ interface RollingNumberProps {
  * Smooth rolling animation for short numeric strings (e.g. 2D result).
  * It animates each character only when the rendered value actually changes.
  */
-export function RollingNumber({
+export const RollingNumber = forwardRef<HTMLSpanElement, RollingNumberProps>(function RollingNumber({
   value,
   placeholder = "--",
   className,
   digitClassName,
   digitStyle,
-}: RollingNumberProps) {
+}, ref) {
   const safeValue = useMemo(() => {
     const text = String(value ?? "").trim();
     return text.length > 0 ? text : placeholder;
