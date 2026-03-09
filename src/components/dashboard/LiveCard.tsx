@@ -265,6 +265,6 @@ export function LiveCard({
           </div>
         </div>
       </article>
-    </motion.section>
+    </section>
   );
 }

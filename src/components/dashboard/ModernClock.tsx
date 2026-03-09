@@ -131,6 +131,6 @@ export function ModernClock() {
           );
         })}
       </div>
-    </motion.article>
+    </article>
   );
 }

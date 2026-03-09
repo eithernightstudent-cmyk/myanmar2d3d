@@ -191,7 +191,7 @@ export const TodayResults = memo(function TodayResults({
           })}
         </div>
       </article>
-    </motion.section>
+    </section>
   );
 });
 
