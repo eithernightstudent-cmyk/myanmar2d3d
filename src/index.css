@@ -68,10 +68,10 @@
     --text-secondary: 220 10% 52%;
 
     --line-soft: 220 13% 88% / 0.6;
-    --card-glass: 0 0% 100% / 0.85;
-    --card-strong: 220 14% 96% / 0.9;
-    --shadow-panel: 0 8px 32px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
-    --shadow-hover: 0 12px 40px -12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+    --card-glass: 0 0% 100% / 0.92;
+    --card-strong: 220 14% 97% / 0.95;
+    --shadow-panel: 0 4px 24px -8px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.03);
+    --shadow-hover: 0 8px 32px -8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
 
     --font-display: "Plus Jakarta Sans", "Inter", "Noto Sans Myanmar", "Segoe UI", sans-serif;
     --font-body: "Plus Jakarta Sans", "Inter", "Noto Sans Myanmar", "Segoe UI", sans-serif;

@@ -33,10 +33,10 @@ const ALL_SLOTS = [
 ];
 
 const CARD_GRADIENTS = [
-  "linear-gradient(135deg, hsl(var(--primary) / 0.25), hsl(var(--primary) / 0.12))",
-  "linear-gradient(135deg, hsl(var(--primary) / 0.35), hsl(var(--primary) / 0.18))",
-  "linear-gradient(135deg, hsl(var(--primary) / 0.25), hsl(var(--primary) / 0.12))",
-  "linear-gradient(135deg, hsl(var(--primary) / 0.35), hsl(var(--primary) / 0.18))",
+  "linear-gradient(135deg, hsl(210 40% 97%), hsl(220 30% 95%))",
+  "linear-gradient(135deg, hsl(200 35% 96%), hsl(210 28% 94%))",
+  "linear-gradient(135deg, hsl(180 30% 96%), hsl(195 25% 94%))",
+  "linear-gradient(135deg, hsl(38 50% 97%), hsl(38 40% 94%))",
 ];
 
 function hasValidTwoD(value: string | undefined) {
@@ -136,7 +136,7 @@ export const TodayResults = memo(function TodayResults({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 * i, duration: 0.35 }}
                 onTouchStart={() => tap()}
-                className="relative overflow-hidden rounded-2xl border border-primary/20 p-4 transition-all duration-200 active:scale-[0.98]"
+                className="relative overflow-hidden rounded-2xl border border-border/60 p-4 transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow-md"
                 style={{ background: CARD_GRADIENTS[i] }}
               >
                 {/* Time header */}
