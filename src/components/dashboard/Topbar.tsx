@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "@/hooks/use-notifications";
 import { tapMedium, tap, isClickSoundEnabled, setClickSoundEnabled } from "@/lib/haptic";
-import logoImg from "@/assets/logo-48.webp";
+import logoImg from "@/assets/logo-tiny.webp";
 
 interface TopbarProps {
   ownerName: string;
