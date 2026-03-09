@@ -1,7 +1,6 @@
 import { lazy, Suspense, useState } from "react";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
-import { DashboardNavButtons } from "@/components/dashboard/DashboardNavButtons";
 import { FullScreenOverlay } from "@/components/dashboard/FullScreenOverlay";
 import { LazyFooter } from "@/components/dashboard/LazyFooter";
 import { PullToRefresh } from "@/components/dashboard/PullToRefresh";
