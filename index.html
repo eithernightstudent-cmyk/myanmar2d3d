@@ -12,6 +12,22 @@
     <link rel="preload" href="/logo-24.webp" as="image" type="image/webp" />
     <link rel="preload" href="/fonts/PlusJakartaSans-Variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/NotoSansMyanmar-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <script>
+      // Prefetch live data in parallel with JS bundle loading to break the critical chain
+      (function(){
+        var url = "https://lkqfkztzujyxmfojslze.supabase.co/functions/v1/set-live";
+        var key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcWZrenR6dWp5eG1mb2pzbHplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Njg0MzcsImV4cCI6MjA4ODU0NDQzN30.j1F8RIRqKgXFeSgCDJ0r4Odx7twBYjYnyTCWez-pmWU";
+        window.__prefetchedLive = fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": key,
+            "authorization": "Bearer " + key
+          },
+          body: "{\"endpoint\":\"live\"}"
+        }).then(function(r){ return r.json(); }).catch(function(){ return null; });
+      })();
+    </script>
     <meta name="application-name" content="2D3D" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
