@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Bell, BellOff, BellRing, Volume2, VolumeX, Zap, Lock } from "lucide-react";
+import { Bell, BellOff, BellRing, Volume2, VolumeX, Zap, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "@/hooks/use-notifications";
@@ -15,34 +15,15 @@ interface TopbarProps {
 export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode }: TopbarProps) {
   const BRAND_NAME = "2D3D";
 
-  const [dark, setDark] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const saved = localStorage.getItem("kktech-theme");
-    return saved === "dark";
-  });
 
   const { supported, permission, enabled, toggleNotifications } = useNotifications();
   const [justEnabled, setJustEnabled] = useState(false);
   const [soundOn, setSoundOn] = useState(isClickSoundEnabled);
 
-  const toggleTheme = () => {
-    const next = !dark;
-    if (document.startViewTransition) {
-      document.startViewTransition(() => {
-        document.documentElement.classList.toggle("dark", next);
-        localStorage.setItem("kktech-theme", next ? "dark" : "light");
-      });
-    } else {
-      document.documentElement.classList.toggle("dark", next);
-      localStorage.setItem("kktech-theme", next ? "dark" : "light");
-    }
-    setDark(next);
-  };
-
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("kktech-theme", dark ? "dark" : "light");
-  }, [dark]);
+    document.documentElement.classList.add("dark");
+    localStorage.setItem("kktech-theme", "dark");
+  }, []);
 
   useEffect(() => {
     if (enabled) {
@@ -154,40 +135,6 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
           {soundOn ? <Volume2 size={14} strokeWidth={2.2} /> : <VolumeX size={14} strokeWidth={2.2} />}
         </motion.button>
 
-        {/* Dark Mode Toggle */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => { tap(); toggleTheme(); }}
-          aria-label="Toggle dark mode"
-          title="Toggle dark mode"
-          className={iconBtnDefault}
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            {dark ? (
-              <motion.span
-                key="sun"
-                initial={{ rotate: -90, scale: 0, opacity: 0 }}
-                animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                exit={{ rotate: 90, scale: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="absolute text-amber-500"
-              >
-                <Sun size={14} strokeWidth={2.2} />
-              </motion.span>
-            ) : (
-              <motion.span
-                key="moon"
-                initial={{ rotate: 90, scale: 0, opacity: 0 }}
-                animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                exit={{ rotate: -90, scale: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="absolute text-indigo-400"
-              >
-                <Moon size={14} strokeWidth={2.2} />
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.button>
       </div>
     </header>
   );
