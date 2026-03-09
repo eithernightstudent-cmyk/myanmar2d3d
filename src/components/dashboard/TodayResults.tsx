@@ -168,7 +168,7 @@ export const TodayResults = memo(function TodayResults({
                   </div>
 
                   <div
-                    className={`flex items-center justify-center gap-1 ${has && result!.history_id ? "cursor-pointer" : ""}`}
+                    className={`flex items-center justify-center gap-1 ${has && result!.stock_date ? "cursor-pointer" : ""}`}
                     onClick={() => {
                       if (has && result!.stock_date) {
                         tap();
