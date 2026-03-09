@@ -63,4 +63,4 @@ export const RollingNumber = forwardRef<HTMLSpanElement, RollingNumberProps>(fun
       ))}
     </span>
   );
-}
+});
