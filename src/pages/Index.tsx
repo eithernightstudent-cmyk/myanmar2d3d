@@ -60,33 +60,41 @@ const Index = () => {
         {/* Live Card + Clock */}
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
           <div className="grid gap-5">
-            <LiveCard
-              clock={dashboard.clock}
-              twod={dashboard.twod}
-              threed={dashboard.threed}
-              setDigit={dashboard.setDigit}
-              valueDigit={dashboard.valueDigit}
-              setFormatted={dashboard.setFormatted}
-              valueFormatted={dashboard.valueFormatted}
-              lastUpdated={dashboard.lastUpdated}
-              marketTimestamp={dashboard.marketTimestamp}
-              flash={dashboard.flash}
-              apiNote={dashboard.apiNote}
-              isLive={dashboard.isLive}
-              isSyncing={dashboard.isSyncing}
-              connectionStatus={dashboard.connectionStatus}
-              currentDate={dashboard.currentDate}
-              holidayName={dashboard.holidayName}
-              stockDatetime={dashboard.stockDatetime}
-              resultVerificationStatus={dashboard.resultVerificationStatus}
-              isResultLocked={dashboard.isResultLocked}
-              isResultPreliminary={dashboard.isResultPreliminary}
-              resultConfirmSecondsLeft={dashboard.resultConfirmSecondsLeft}
-              isFinalOnlyMode={dashboard.isFinalOnlyMode}
-              isHotMinute={dashboard.isHotMinute}
-            />
-
-            {/* Navigation Buttons */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={dashboard.resultDisplayMode}
+                initial={{ opacity: 0, scale: 0.97, y: 6 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.97, y: -6 }}
+                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <LiveCard
+                  clock={dashboard.clock}
+                  twod={dashboard.twod}
+                  threed={dashboard.threed}
+                  setDigit={dashboard.setDigit}
+                  valueDigit={dashboard.valueDigit}
+                  setFormatted={dashboard.setFormatted}
+                  valueFormatted={dashboard.valueFormatted}
+                  lastUpdated={dashboard.lastUpdated}
+                  marketTimestamp={dashboard.marketTimestamp}
+                  flash={dashboard.flash}
+                  apiNote={dashboard.apiNote}
+                  isLive={dashboard.isLive}
+                  isSyncing={dashboard.isSyncing}
+                  connectionStatus={dashboard.connectionStatus}
+                  currentDate={dashboard.currentDate}
+                  holidayName={dashboard.holidayName}
+                  stockDatetime={dashboard.stockDatetime}
+                  resultVerificationStatus={dashboard.resultVerificationStatus}
+                  isResultLocked={dashboard.isResultLocked}
+                  isResultPreliminary={dashboard.isResultPreliminary}
+                  resultConfirmSecondsLeft={dashboard.resultConfirmSecondsLeft}
+                  isFinalOnlyMode={dashboard.isFinalOnlyMode}
+                  isHotMinute={dashboard.isHotMinute}
+                />
+              </motion.div>
+            </AnimatePresence>
             <DashboardNavButtons
               onOpenHistory={() => setShowHistory(true)}
               onOpen3D={() => setShow3D(true)}
