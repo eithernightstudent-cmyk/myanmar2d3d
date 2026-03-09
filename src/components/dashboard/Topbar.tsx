@@ -88,6 +88,8 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
           <motion.img
             src={logoImg}
             alt={`${BRAND_NAME} logo`}
+            width={24}
+            height={24}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="h-6 w-6 rounded-full object-cover ring-1 ring-primary/20"
