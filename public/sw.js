@@ -1,5 +1,5 @@
 // Service Worker for Myanmar 2D Live PWA
-const CACHE_NAME = "myanmar-2d3d-v1";
+const CACHE_NAME = "myanmar-2d3d-v2";
 const STATIC_ASSETS = [
   "/",
   "/favicon.png",
