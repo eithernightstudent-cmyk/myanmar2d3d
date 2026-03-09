@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,9 +7,10 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { BottomNav } from "@/components/dashboard/BottomNav";
 import Index from "./pages/Index";
-import Results from "./pages/Results";
-import History from "./pages/History";
-import NotFound from "./pages/NotFound";
+
+const Results = lazy(() => import("./pages/Results"));
+const History = lazy(() => import("./pages/History"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -26,9 +28,9 @@ function AnimatedRoutes() {
       >
         <Routes location={location}>
           <Route path="/" element={<Index />} />
-          <Route path="/results" element={<Results />} />
-          <Route path="/history" element={<History />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="/results" element={<Suspense fallback={null}><Results /></Suspense>} />
+          <Route path="/history" element={<Suspense fallback={null}><History /></Suspense>} />
+          <Route path="*" element={<Suspense fallback={null}><NotFound /></Suspense>} />
         </Routes>
       </motion.div>
     </AnimatePresence>
