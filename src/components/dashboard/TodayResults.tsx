@@ -209,7 +209,8 @@ export const TodayResults = memo(function TodayResults({
       <TwoDHistoryOverlay
         open={!!historyOverlay}
         onClose={() => setHistoryOverlay(null)}
-        historyId={historyOverlay?.id || null}
+        date={historyOverlay?.date || null}
+        openTime={historyOverlay?.openTime || null}
         sessionTime={historyOverlay?.time}
       />
     </section>
