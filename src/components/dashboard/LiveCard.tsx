@@ -124,7 +124,7 @@ export function LiveCard({
         )}
 
         {/* Hero 2D Number — large, centered, dominant */}
-        <div className="flex flex-col items-center justify-center py-6 sm:py-8">
+        <div className="flex flex-col items-center justify-center py-4 sm:py-8">
           <div className="relative">
             {hasTwoD ? (
               <motion.div
@@ -191,7 +191,7 @@ export function LiveCard({
 
         {/* Updated timestamp — clean single line */}
         {hasStockDatetime && (
-          <div className="flex items-center justify-center gap-2 pb-5">
+          <div className="flex items-center justify-center gap-2 pb-3 sm:pb-5">
             <CheckCircle
               className="h-4 w-4"
               style={{ color: isResultLocked ? "hsl(var(--success))" : "hsl(var(--muted-foreground))" }}

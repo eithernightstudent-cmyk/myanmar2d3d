@@ -59,7 +59,7 @@ export const TodayResults = memo(function TodayResults({
 
   return (
     <section>
-      <article className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg">
+      <article className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 sm:p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg">
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
           <div>
@@ -76,7 +76,7 @@ export const TodayResults = memo(function TodayResults({
         </div>
 
         {/* Session Cards — stacked vertically */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5 sm:gap-3">
           {ALL_SLOTS.map((slot, i) => {
             const result = resultByTime.get(slot.time) || null;
             const has = !!result && hasValidTwoD(result.twod);
