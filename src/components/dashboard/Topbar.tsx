@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "@/hooks/use-notifications";
 import { tapMedium, tap, isClickSoundEnabled, setClickSoundEnabled } from "@/lib/haptic";
-import logoImg from "@/assets/logo-48.webp";
+import logoImg from "@/assets/logo-tiny.webp";
 
 interface TopbarProps {
   ownerName: string;
@@ -65,6 +65,10 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
         <motion.img
           src={logoImg}
           alt={`${BRAND_NAME} logo`}
+          width={24}
+          height={24}
+          loading="eager"
+          decoding="async"
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="h-6 w-6 rounded-full object-cover ring-1 ring-primary/20"
