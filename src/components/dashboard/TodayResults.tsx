@@ -195,7 +195,7 @@ export const TodayResults = memo(function TodayResults({
                         <p className="font-display text-xl font-extrabold text-muted-foreground">—</p>
                       )}
                     </div>
-                    {has && result!.history_id && (
+                    {has && result!.stock_date && (
                       <ChevronRight className="h-4 w-4 text-primary/60 mt-3" />
                     )}
                   </div>
