@@ -111,7 +111,7 @@ export function LiveCard({
         {/* Market Closed Banner */}
         {marketClosed && (
           <div className="mt-3 text-center">
-            <p className="inline-flex items-center rounded-full border border-amber-400/30 bg-amber-500/10 px-2.5 py-1 font-display text-xs font-semibold uppercase tracking-[0.2em] text-amber-300 status-badge-glow-closed">
+            <p className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-50 px-2.5 py-1 font-display text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 status-badge-glow-closed">
               Market Closed
             </p>
             {cleanHolidayName && (
