@@ -167,43 +167,36 @@ export const TodayResults = memo(function TodayResults({
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-center gap-1">
+                  <div
+                    className={`flex items-center justify-center gap-1 ${has && result!.history_id ? "cursor-pointer" : ""}`}
+                    onClick={() => {
+                      if (has && result!.history_id) {
+                        tap();
+                        setHistoryOverlay({ id: result!.history_id, time: slot.display });
+                      }
+                    }}
+                  >
                     <div>
                       <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
                         2D
                       </p>
                       {has ? (
-                        <a
-                          href={result!.history_id ? `https://www.thaistock2d.com/twodHistory_ByResult?history_id=${result!.history_id}` : undefined}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => { if (!result!.history_id) e.preventDefault(); tap(); }}
-                          className={result!.history_id ? "cursor-pointer" : "cursor-default"}
-                        >
-                          <RollingNumber
-                            value={result!.twod}
-                            className="font-display text-xl font-extrabold"
-                            digitStyle={{
-                              background: "linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%)",
-                              WebkitBackgroundClip: "text",
-                              WebkitTextFillColor: "transparent",
-                              backgroundClip: "text",
-                            }}
-                          />
-                        </a>
+                        <RollingNumber
+                          value={result!.twod}
+                          className="font-display text-xl font-extrabold"
+                          digitStyle={{
+                            background: "linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            backgroundClip: "text",
+                          }}
+                        />
                       ) : (
                         <p className="font-display text-xl font-extrabold text-muted-foreground">—</p>
                       )}
                     </div>
                     {has && result!.history_id && (
-                      <a
-                        href={`https://www.thaistock2d.com/twodHistory_ByResult?history_id=${result!.history_id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => tap()}
-                      >
-                        <ChevronRight className="h-4 w-4 text-primary/60 mt-3" />
-                      </a>
+                      <ChevronRight className="h-4 w-4 text-primary/60 mt-3" />
                     )}
                   </div>
                 </div>
