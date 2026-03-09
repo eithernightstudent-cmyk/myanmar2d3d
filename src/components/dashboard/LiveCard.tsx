@@ -124,7 +124,7 @@ export function LiveCard({
         )}
 
         {/* Hero 2D Number — large, centered, dominant */}
-        <div className="flex flex-col items-center justify-center py-6 sm:py-8">
+        <div className="flex flex-col items-center justify-center py-4 sm:py-8">
           <div className="relative">
             {hasTwoD ? (
               <motion.div
