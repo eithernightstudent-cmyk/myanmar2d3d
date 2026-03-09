@@ -524,9 +524,11 @@ export function useLiveDashboard() {
   const connectionStatus =
     !isTradingDay
       ? "Closed"
-      : isLive && rawConnectionStatus.toLowerCase() === "live"
-        ? "Live"
-        : "Open";
+      : !isLive
+        ? "Closed"
+        : rawConnectionStatus.toLowerCase() === "live"
+          ? "Live"
+          : "Open";
 
   const getLastDigit = (raw: unknown) => {
     const digits = String(raw ?? "").replace(/\D/g, "");
