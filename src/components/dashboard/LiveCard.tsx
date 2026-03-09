@@ -17,6 +17,7 @@ interface LiveCardProps {
   flash: boolean;
   apiNote: string;
   isLive: boolean;
+  isTradingDay?: boolean;
   isSyncing: boolean;
   connectionStatus: string;
   currentDate: string;
@@ -38,6 +39,7 @@ export function LiveCard({
   valueFormatted,
   flash,
   isLive,
+  isTradingDay = true,
   isSyncing,
   connectionStatus,
   currentDate,
@@ -50,7 +52,7 @@ export function LiveCard({
   isFinalOnlyMode = false,
   isHotMinute = false,
 }: LiveCardProps) {
-  const marketClosed = !isLive;
+  const marketClosed = !isTradingDay;
   const hasTwoD = /^\d{2}$/.test(String(twod ?? "").trim());
   const hasStockDatetime = !!stockDatetime && stockDatetime !== "--";
   const hasSetValue = !!setFormatted && setFormatted !== "--";

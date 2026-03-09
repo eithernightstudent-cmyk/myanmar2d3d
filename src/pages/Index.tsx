@@ -75,6 +75,7 @@ const Index = () => {
               flash={dashboard.flash}
               apiNote={dashboard.apiNote}
               isLive={dashboard.isLive}
+              isTradingDay={dashboard.isTradingDay}
               isSyncing={dashboard.isSyncing}
               connectionStatus={dashboard.connectionStatus}
               currentDate={dashboard.currentDate}

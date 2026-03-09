@@ -504,13 +504,17 @@ export function useLiveDashboard() {
   const twod = liveData?.calculated2d || "--";
   const rawConnectionStatus = liveData?.connectionStatus || "Closed";
   const isHoliday = isHolidayActive(liveData?.holiday || null);
-  const isLive = useMemo(() => isWithinMarketHours(parts) && !isHoliday, [parts, isHoliday]);
+  const isTradingDay = useMemo(
+    () => parts.weekday !== "Sat" && parts.weekday !== "Sun" && !isHoliday,
+    [parts.weekday, isHoliday],
+  );
+  const isLive = useMemo(() => isWithinMarketHours(parts) && isTradingDay, [parts, isTradingDay]);
   const connectionStatus =
-    isLive
-      ? rawConnectionStatus.toLowerCase() === "live"
+    !isTradingDay
+      ? "Closed"
+      : isLive && rawConnectionStatus.toLowerCase() === "live"
         ? "Live"
-        : "Open"
-      : "Closed";
+        : "Open";
 
   const getLastDigit = (raw: unknown) => {
     const digits = String(raw ?? "").replace(/\D/g, "");
@@ -612,6 +616,7 @@ export function useLiveDashboard() {
     clock,
     dateStr,
     isLive,
+    isTradingDay,
     isSyncing,
     flash,
     twod: displayTwod,
