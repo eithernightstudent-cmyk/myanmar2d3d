@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
@@ -20,7 +19,7 @@ const Index = () => {
 
   return (
     <PullToRefresh onRefresh={dashboard.refreshData}>
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden">
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden pb-safe">
       {/* Background scene */}
       <div
         className="pointer-events-none fixed inset-0 -z-10 transition-all duration-500"
@@ -54,47 +53,39 @@ const Index = () => {
         onToggleResultDisplayMode={dashboard.toggleResultDisplayMode}
       />
 
-      <main className="mx-auto w-[min(100%-1.25rem,72rem)] py-6 sm:w-[min(100%-2rem,72rem)] sm:py-8">
+      <main className="mx-auto w-[min(100%-1rem,72rem)] pt-14 pb-20 sm:w-[min(100%-2rem,72rem)] sm:pt-16 sm:pb-8">
         <h1 className="sr-only">2D3D Myanmar Live Results Dashboard</h1>
 
         {/* Live Card + Clock */}
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
           <div className="grid gap-5">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={dashboard.resultDisplayMode}
-                initial={{ opacity: 0, scale: 0.97, y: 6 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.97, y: -6 }}
-                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <LiveCard
-                  clock={dashboard.clock}
-                  twod={dashboard.twod}
-                  threed={dashboard.threed}
-                  setDigit={dashboard.setDigit}
-                  valueDigit={dashboard.valueDigit}
-                  setFormatted={dashboard.setFormatted}
-                  valueFormatted={dashboard.valueFormatted}
-                  lastUpdated={dashboard.lastUpdated}
-                  marketTimestamp={dashboard.marketTimestamp}
-                  flash={dashboard.flash}
-                  apiNote={dashboard.apiNote}
-                  isLive={dashboard.isLive}
-                  isSyncing={dashboard.isSyncing}
-                  connectionStatus={dashboard.connectionStatus}
-                  currentDate={dashboard.currentDate}
-                  holidayName={dashboard.holidayName}
-                  stockDatetime={dashboard.stockDatetime}
-                  resultVerificationStatus={dashboard.resultVerificationStatus}
-                  isResultLocked={dashboard.isResultLocked}
-                  isResultPreliminary={dashboard.isResultPreliminary}
-                  resultConfirmSecondsLeft={dashboard.resultConfirmSecondsLeft}
-                  isFinalOnlyMode={dashboard.isFinalOnlyMode}
-                  isHotMinute={dashboard.isHotMinute}
-                />
-              </motion.div>
-            </AnimatePresence>
+            <LiveCard
+              clock={dashboard.clock}
+              twod={dashboard.twod}
+              threed={dashboard.threed}
+              setDigit={dashboard.setDigit}
+              valueDigit={dashboard.valueDigit}
+              setFormatted={dashboard.setFormatted}
+              valueFormatted={dashboard.valueFormatted}
+              lastUpdated={dashboard.lastUpdated}
+              marketTimestamp={dashboard.marketTimestamp}
+              flash={dashboard.flash}
+              apiNote={dashboard.apiNote}
+              isLive={dashboard.isLive}
+              isSyncing={dashboard.isSyncing}
+              connectionStatus={dashboard.connectionStatus}
+              currentDate={dashboard.currentDate}
+              holidayName={dashboard.holidayName}
+              stockDatetime={dashboard.stockDatetime}
+              resultVerificationStatus={dashboard.resultVerificationStatus}
+              isResultLocked={dashboard.isResultLocked}
+              isResultPreliminary={dashboard.isResultPreliminary}
+              resultConfirmSecondsLeft={dashboard.resultConfirmSecondsLeft}
+              isFinalOnlyMode={dashboard.isFinalOnlyMode}
+              isHotMinute={dashboard.isHotMinute}
+            />
+
+            {/* Navigation Buttons */}
             <DashboardNavButtons
               onOpenHistory={() => setShowHistory(true)}
               onOpen3D={() => setShow3D(true)}
@@ -112,7 +103,7 @@ const Index = () => {
         </div>
 
         {/* Session Results Bar */}
-        <div className="mt-6">
+        <div className="mt-5">
           <SessionPanel
             currentDayResults={dashboard.currentDayResults}
           />
