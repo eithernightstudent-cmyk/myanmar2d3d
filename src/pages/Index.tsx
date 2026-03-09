@@ -61,7 +61,7 @@ const Index = () => {
         <h1 className="sr-only">2D3D Myanmar Live Results Dashboard</h1>
 
         {/* Live Card + Clock */}
-        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-3 sm:gap-4 lg:grid-cols-2">
           <div className="grid gap-4">
             <LiveCard
               clock={dashboard.clock}
