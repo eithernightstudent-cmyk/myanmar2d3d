@@ -1,7 +1,7 @@
 import { useLocation, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Home, BarChart3, Clock } from "lucide-react";
-import { tap } from "@/lib/haptic";
+import { tapMedium } from "@/lib/haptic";
 
 const TABS = [
   { to: "/", icon: Home, label: "Home" },
@@ -24,14 +24,10 @@ export function BottomNav() {
             <Link
               key={to}
               to={to}
-              onClick={() => tap()}
+              onClick={() => tapMedium()}
               aria-label={label}
               title={label}
-              className={`relative grid h-10 w-12 place-items-center rounded-xl transition-all duration-200 active:scale-90 ${
-                active
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className="relative grid h-10 w-12 place-items-center rounded-xl"
             >
               {active && (
                 <motion.div
@@ -40,7 +36,17 @@ export function BottomNav() {
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              <Icon size={20} strokeWidth={active ? 2.4 : 1.8} className="relative z-10" />
+              <motion.div
+                key={`${to}-${active}`}
+                initial={false}
+                animate={active ? { scale: [0.85, 1.12, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className={`relative z-10 transition-colors duration-200 ${
+                  active ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                <Icon size={20} strokeWidth={active ? 2.4 : 1.8} />
+              </motion.div>
               <span className="sr-only">{label}</span>
             </Link>
           );
