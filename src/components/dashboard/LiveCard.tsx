@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { StatusPill } from "./StatusPill";
 import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, Zap, CircleAlert } from "lucide-react";
 import { tap } from "@/lib/haptic";
+import { RollingNumber } from "./RollingNumber";
 
 interface LiveCardProps {
   clock: string;
@@ -140,18 +141,17 @@ export function LiveCard({
         <div className="flex flex-col items-center justify-center py-4">
           <div className="relative">
             {hasTwoD ? (
-              <motion.span
-                key={twod}
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              <motion.div
+                initial={{ opacity: 0.95 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
                 className="font-display text-[clamp(5rem,20vw,7rem)] font-bold leading-none text-primary"
                 style={{
                   textShadow: "0 4px 20px hsl(var(--primary) / 0.35), 0 0 60px hsl(var(--primary) / 0.15)",
                 }}
               >
-                {twod}
-              </motion.span>
+                <RollingNumber value={twod} />
+              </motion.div>
             ) : (
               <div className="h-[7rem] w-[10rem]" aria-hidden="true" />
             )}
