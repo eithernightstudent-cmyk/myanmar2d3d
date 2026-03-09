@@ -127,7 +127,7 @@ export function ModernClock() {
               <span className="font-display text-[0.55rem] font-semibold uppercase tracking-wider text-muted-foreground">
                 {rt.label}
               </span>
-              <span className={`font-display text-sm font-bold ${status === "done" ? "text-primary" : "text-foreground"}`}>
+              <span className={`font-display text-sm font-bold ${status === "done" ? "text-accent-foreground" : "text-foreground"}`}>
                 {padTwo(rt.h)}:{padTwo(rt.m)}
               </span>
             </div>
