@@ -89,11 +89,6 @@ const Index = () => {
               isHotMinute={dashboard.isHotMinute}
             />
 
-            <DashboardNavButtons
-              onOpenHistory={() => setShowHistory(true)}
-              onOpen3D={() => setShow3D(true)}
-            />
-
             <Suspense fallback={null}>
               <ModernClock />
             </Suspense>
@@ -104,6 +99,8 @@ const Index = () => {
               currentDayResults={dashboard.currentDayResults}
               currentDate={dashboard.currentDate}
               fallbackResults={dashboard.allResults}
+              onOpenHistory={() => setShowHistory(true)}
+              onOpen3D={() => setShow3D(true)}
             />
           </Suspense>
         </div>
