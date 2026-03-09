@@ -13,6 +13,10 @@ interface TopbarProps {
 }
 
 export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode }: TopbarProps) {
+  const BRAND_NAME = "2D3D";
+  const BRAND_TAGLINE = "Myanmar Live Results";
+  const showOwnerAlias = ownerName.trim().length > 0 && ownerName.trim() !== BRAND_NAME;
+
   const [dark, setDark] = useState(() => {
     if (typeof window === "undefined") return false;
     const saved = localStorage.getItem("kktech-theme");
@@ -40,7 +44,7 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
     localStorage.setItem("kktech-theme", dark ? "dark" : "light");
-  }, []);
+  }, [dark]);
 
   useEffect(() => {
     if (enabled) {
@@ -67,15 +71,31 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-[hsl(var(--card-glass))] backdrop-blur-lg transition-colors duration-300">
       <div className="mx-auto flex min-h-[52px] w-[min(100%-1.25rem,72rem)] items-center justify-between gap-3 sm:min-h-[56px] sm:w-[min(100%-2rem,72rem)] sm:gap-4">
-        <Link to="/" className="inline-flex items-center gap-2.5 text-inherit no-underline">
+        <Link
+          to="/"
+          aria-label={`${BRAND_NAME} home`}
+          className="inline-flex items-center gap-2.5 text-inherit no-underline"
+        >
           <motion.img
             src={logoImg}
-            alt="2D Logo"
+            alt={`${BRAND_NAME} logo`}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="h-8 w-8 rounded-full object-cover ring-2 ring-primary/20"
           />
-          <span className="font-display text-sm font-bold tracking-wide transition-colors duration-300">{ownerName}</span>
+          <div className="flex flex-col leading-none">
+            <span className="font-display text-[0.95rem] font-extrabold tracking-[0.03em] text-foreground transition-colors duration-300">
+              {BRAND_NAME}
+            </span>
+            <span className="mt-1 font-display text-[0.58rem] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              {BRAND_TAGLINE}
+            </span>
+          </div>
+          {showOwnerAlias && (
+            <span className="hidden rounded-full border border-border bg-[hsl(var(--card-strong))] px-2 py-1 font-display text-[0.55rem] font-semibold uppercase tracking-wider text-muted-foreground md:inline-flex">
+              {ownerName.trim()}
+            </span>
+          )}
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

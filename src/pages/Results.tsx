@@ -52,18 +52,26 @@ const Results = () => {
 
       <Topbar ownerName={ownerName} />
 
-      <main className="mx-auto w-[min(100%-2rem,72rem)] pt-20 pb-24">
+      <main className="mx-auto w-[min(100%-2rem,72rem)] py-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="mb-6 inline-flex items-center gap-2">
-            <Calendar size={14} className="text-primary" />
-            <span className="font-display text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-              2D Results — Last 10 Days
-            </span>
-          </div>
+          <Link
+            to="/"
+            className="mb-4 inline-flex items-center gap-1.5 font-display text-sm text-muted-foreground no-underline transition-colors hover:text-foreground"
+          >
+            <ArrowLeft size={14} />
+            Back to Dashboard
+          </Link>
+
+          <h1 className="font-display text-[clamp(1.8rem,4vw,2.4rem)] font-bold tracking-tight text-foreground">
+            2D3D Results — Last 10 Days
+          </h1>
+          <p className="mt-1 mb-6 text-muted-foreground">
+            Final 2D results from 2D3D Myanmar Live data sources
+          </p>
         </motion.div>
 
         {loading && (
@@ -90,7 +98,7 @@ const Results = () => {
               >
                 <div className="mb-3 flex items-center gap-2">
                   <Calendar size={14} className="text-primary" />
-                  <h2 className="font-display text-sm font-extrabold tracking-wide text-foreground">
+                  <h2 className="font-display text-sm font-bold text-foreground">
                     {day.date || "Unknown Date"}
                   </h2>
                 </div>
@@ -99,7 +107,7 @@ const Results = () => {
                   {day.child?.map((session, j) => (
                     <div
                       key={j}
-                      className="flex flex-col items-center gap-1 rounded-lg border border-border bg-secondary p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10 hover:border-primary/30"
+                      className="flex flex-col items-center gap-1 rounded-lg border border-border bg-secondary p-3"
                     >
                       <span className="font-display text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
                         {session.time?.slice(0, 5) || "--"}
