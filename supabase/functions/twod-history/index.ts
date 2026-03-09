@@ -11,55 +11,28 @@ interface HistoryEntry {
   isResult: boolean;
 }
 
-function extractSpanDigits(html: string): string {
-  return (html.match(/<span>([^<]*)<\/span>/g) || [])
-    .map((s: string) => s.replace(/<\/?span>/g, "").trim())
-    .join("");
-}
+// Session closing times to identify which session a row belongs to
+const SESSION_TIMES = [
+  { close: "11:00", label: "11:00 AM" },
+  { close: "12:01", label: "12:01 PM" },
+  { close: "15:00", label: "03:00 PM" },
+  { close: "16:30", label: "04:30 PM" },
+];
 
-function parseHistoryHtml(html: string): { result2d: string; updatedAt: string; entries: HistoryEntry[] } {
-  // Extract the main 2D result
-  const resultMatch = html.match(/<h2 class="static"><span>(\d{2})<\/span><\/h2>/);
-  const result2d = resultMatch?.[1] || "--";
+function getSessionForTime(timeStr: string): string | null {
+  const [h, m] = timeStr.split(":").map(Number);
+  const mins = h * 60 + m;
 
-  // Extract updated timestamp
-  const updatedMatch = html.match(/Updated:<\/span>\s*<span>([^<]+)<\/span>/);
-  const updatedAt = updatedMatch?.[1]?.trim() || "";
+  // 09:30 - 11:05 → 11:00
+  if (mins >= 570 && mins <= 665) return "11:00";
+  // 11:05 - 12:06 → 12:01
+  if (mins > 665 && mins <= 726) return "12:01";
+  // 12:06 - 15:05 → 15:00
+  if (mins > 726 && mins <= 905) return "15:00";
+  // 15:05 - 16:35 → 16:30
+  if (mins > 905 && mins <= 995) return "16:30";
 
-  // Extract rows - match each row div
-  const entries: HistoryEntry[] = [];
-  const rowRegex = /<div class="row el-row(?: active_bgNumber)?"[^>]*>([\s\S]*?)<\/div><\/div><\/div>/g;
-
-  let match;
-  while ((match = rowRegex.exec(html)) !== null) {
-    const rowHtml = match[0];
-    const isResult = rowHtml.includes("active_bgNumber");
-
-    // Extract time
-    const timeMatch = rowHtml.match(/<h4>(\d{2}:\d{2}:\d{2})<\/h4>/);
-    if (!timeMatch) continue;
-    const time = timeMatch[1];
-
-    // Extract set_data
-    const setMatch = rowHtml.match(/<div class="set_data[^"]*">([\s\S]*?)<\/div>/);
-    const setVal = setMatch ? extractSpanDigits(setMatch[1]) : "";
-
-    // Extract value_data
-    const valueMatch = rowHtml.match(/<div class="value_data[^"]*">([\s\S]*?)<\/div>/);
-    const valueVal = valueMatch ? extractSpanDigits(valueMatch[1]) : "";
-
-    // Extract 2D number - last el-col span with the bold style
-    const twodMatch = rowHtml.match(/<div class="el-col el-col-6"><span[^>]*>[\s\S]*?(\d{2})[\s\S]*?<\/span><\/div>/);
-    // Fallback: just get the last bold number
-    const twodFallback = rowHtml.match(/font-weight:\s*bold[^>]*>\s*(\d{2})\s*<\/span>/);
-    const twod = (twodMatch?.[1] || twodFallback?.[1] || "").trim();
-
-    if (time && twod) {
-      entries.push({ time, set: setVal, value: valueVal, twod, isResult });
-    }
-  }
-
-  return { result2d, updatedAt, entries };
+  return null;
 }
 
 Deno.serve(async (req) => {
@@ -68,37 +41,39 @@ Deno.serve(async (req) => {
   }
 
   try {
-    let historyId = "";
-
     const url = new URL(req.url);
-    historyId = url.searchParams.get("history_id") || "";
+    let date = url.searchParams.get("date") || "";
+    let openTime = url.searchParams.get("open_time") || "";
 
     if (req.method === "POST") {
       try {
         const body = await req.json();
-        historyId = body.history_id || historyId;
+        date = body.date || date;
+        openTime = body.open_time || openTime;
       } catch { /* no body */ }
     }
 
-    if (!historyId) {
+    if (!date || !openTime) {
       return new Response(
-        JSON.stringify({ error: "history_id is required" }),
+        JSON.stringify({ error: "date and open_time are required" }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log("Fetching 2D history for:", historyId);
+    // Normalize open_time to HH:MM
+    const sessionKey = openTime.slice(0, 5);
 
-    const pageUrl = `https://www.thaistock2d.com/twodHistory_ByResult?history_id=${encodeURIComponent(historyId)}`;
+    console.log("Fetching 2D history for date:", date, "session:", sessionKey);
+
+    const apiUrl = `https://api.thaistock2d.com/history?date=${encodeURIComponent(date)}`;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-    const response = await fetch(pageUrl, {
+    const response = await fetch(apiUrl, {
       signal: controller.signal,
       headers: {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "accept-language": "en-US,en;q=0.9",
+        "accept": "application/json",
+        "user-agent": "KKTech-Dashboard/1.0",
       },
     });
     clearTimeout(timeoutId);
@@ -107,14 +82,69 @@ Deno.serve(async (req) => {
       throw new Error(`HTTP ${response.status}`);
     }
 
-    const html = await response.text();
-    console.log("HTML length:", html.length, "Last 1000 chars:", html.substring(html.length - 1000));
-    const parsed = parseHistoryHtml(html);
+    const rawData = await response.json();
 
-    console.log(`Parsed ${parsed.entries.length} entries, result: ${parsed.result2d}`);
+    // rawData is an array with one element: { date, child: [...] }
+    const allEntries: { time: string; set: string; value: string; twod: string }[] =
+      rawData?.[0]?.child || [];
+
+    // Filter entries belonging to this session
+    const sessionEntries: HistoryEntry[] = [];
+    let result2d = "--";
+    let resultTime = "";
+
+    for (const entry of allEntries) {
+      const entrySession = getSessionForTime(entry.time);
+      if (entrySession === sessionKey) {
+        sessionEntries.push({
+          time: entry.time,
+          set: entry.set,
+          value: entry.value,
+          twod: entry.twod,
+          isResult: false,
+        });
+      }
+    }
+
+    // The first entry (latest time) closest to the session close is the result
+    // Find the entry at the exact session close time (or the latest one)
+    if (sessionEntries.length > 0) {
+      // Sort by time descending (they should already be)
+      sessionEntries.sort((a, b) => b.time.localeCompare(a.time));
+
+      // Mark the first entry (closest to close time) as the result
+      // Actually, the result is the entry at exactly the session close time
+      // The entries from the API at close time (e.g. 11:00:03) are the result
+      const closeMinute = sessionKey; // "11:00", "12:01", etc.
+      let foundResult = false;
+      for (const entry of sessionEntries) {
+        if (entry.time.startsWith(closeMinute)) {
+          if (!foundResult) {
+            entry.isResult = true;
+            result2d = entry.twod;
+            resultTime = entry.time;
+            foundResult = true;
+          }
+        }
+      }
+
+      // If no entry at exact close time, use the latest one
+      if (!foundResult && sessionEntries.length > 0) {
+        sessionEntries[0].isResult = true;
+        result2d = sessionEntries[0].twod;
+      }
+    }
+
+    console.log(`Parsed ${sessionEntries.length} entries for session ${sessionKey}, result: ${result2d}`);
 
     return new Response(
-      JSON.stringify({ data: parsed }),
+      JSON.stringify({
+        data: {
+          result2d,
+          updatedAt: resultTime || (sessionEntries.length > 0 ? sessionEntries[0].time : ""),
+          entries: sessionEntries,
+        },
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
