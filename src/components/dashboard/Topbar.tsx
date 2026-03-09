@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Bell, BellOff, BellRing, Volume2, VolumeX, Zap, Lock } from "lucide-react";
+import { Bell, BellOff, BellRing, Volume2, VolumeX, Zap, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "@/hooks/use-notifications";
