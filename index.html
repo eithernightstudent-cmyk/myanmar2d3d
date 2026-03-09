@@ -3,67 +3,85 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/favicon.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="2D3D Live">
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <meta name="application-name" content="2D3D" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="2D3D" />
     <link rel="canonical" href="https://myanmar2d3d.lovable.app/" />
 
-    <title>2D3D Live - Real-time Myanmar 2D &amp; 3D Results</title>
-    <meta name="description" content="Get the fastest and most accurate real-time Myanmar 2D and 3D results based on the Thai Stock Exchange (SET). View daily sessions and 7-day history.">
-    <meta name="author" content="2D3D Live" />
-    <meta name="keywords" content="Myanmar 2D, 3D Live, Thai Stock 2D, 2D result today, 2D live app, 2D3D Live, ထီရလဒ်, 2D ထီ, real-time SET, stock exchange thailand, 2D history, 3D results">
-    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <title>2D3D Myanmar Live Results | Real-time 2D & 3D</title>
+    <meta
+      name="description"
+      content="2D3D Myanmar Live Results gives real-time 2D updates, verified final results, and daily result history based on Thailand market sessions."
+    />
+    <meta name="author" content="2D3D" />
+    <meta name="keywords" content="Myanmar 2D, 2D live, Thai SET index, 2D result, ထီရလဒ်, 2D ထီ, live 2D, real-time SET, stock exchange thailand, 2D history, 3D results">
+    <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#0f766e" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="2D3D Live" />
+    <meta property="og:site_name" content="2D3D Myanmar Live Results" />
     <meta property="og:locale" content="my_MM" />
-    <meta property="og:title" content="2D3D Live - Real-time Myanmar 2D & 3D Results">
-    <meta property="og:description" content="Get the fastest and most accurate real-time Myanmar 2D and 3D results based on the Thai Stock Exchange (SET). View daily sessions and 7-day history.">
-    <meta property="og:image" content="https://myanmar2d3d.lovable.app/og-image.png">
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:title" content="2D3D Myanmar Live Results | Real-time 2D & 3D" />
+    <meta
+      property="og:description"
+      content="Follow live 2D updates and verified final results with 2D3D Myanmar Live Results."
+    />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:alt" content="2D3D Myanmar Live Results logo and dashboard preview" />
+    <meta property="og:logo" content="/favicon.png" />
     <meta property="og:url" content="https://myanmar2d3d.lovable.app/" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="2D3D Live - Real-time Myanmar 2D & 3D Results">
-    <meta name="twitter:description" content="Get the fastest and most accurate real-time Myanmar 2D and 3D results based on the Thai Stock Exchange (SET). View daily sessions and 7-day history.">
-    <meta name="twitter:image" content="https://myanmar2d3d.lovable.app/og-image.png">
+    <meta name="twitter:title" content="2D3D Myanmar Live Results | Real-time 2D & 3D" />
+    <meta
+      name="twitter:description"
+      content="Follow live 2D updates and verified final results with 2D3D Myanmar Live Results."
+    />
+    <meta name="twitter:image" content="/og-image.png" />
 
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "2D3D Live",
-      "alternateName": "Myanmar 2D Live",
-      "description": "Get the fastest and most accurate real-time Myanmar 2D and 3D results based on the Thai Stock Exchange (SET). View daily sessions at 11AM, 12PM, 3PM, 4:30PM Myanmar Time and 7-day history.",
-      "url": "https://myanmar2d3d.lovable.app/",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Web",
-      "inLanguage": ["my", "en"],
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "2D3D Live",
-        "url": "https://myanmar2d3d.lovable.app/"
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://myanmar2d3d.lovable.app/#organization",
+          "name": "2D3D",
+          "url": "https://myanmar2d3d.lovable.app/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://myanmar2d3d.lovable.app/favicon.png"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://myanmar2d3d.lovable.app/#website",
+          "url": "https://myanmar2d3d.lovable.app/",
+          "name": "2D3D Myanmar Live Results",
+          "publisher": { "@id": "https://myanmar2d3d.lovable.app/#organization" },
+          "inLanguage": ["my", "en"]
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://myanmar2d3d.lovable.app/#app",
+          "name": "2D3D Myanmar Live Results",
+          "description": "Live 2D results app powered by Thailand market data with verified final results and daily history.",
+          "url": "https://myanmar2d3d.lovable.app/",
+          "applicationCategory": "UtilitiesApplication",
+          "operatingSystem": "Web",
+          "inLanguage": ["my", "en"],
+          "publisher": { "@id": "https://myanmar2d3d.lovable.app/#organization" },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        }
       }
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "2D3D Live",
-      "url": "https://myanmar2d3d.lovable.app/",
-      "description": "Real-time Myanmar 2D and 3D results service based on Thai Stock Exchange (SET) data.",
-      "inLanguage": ["my", "en"]
     }
     </script>
   </head>

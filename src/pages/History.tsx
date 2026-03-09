@@ -62,10 +62,10 @@ const History = () => {
           </Link>
 
           <h1 className="font-display text-[clamp(1.8rem,4vw,2.4rem)] font-bold tracking-tight text-foreground">
-            2D Change History
+            2D3D Change History
           </h1>
           <p className="mt-1 mb-6 text-muted-foreground">
-            Live stock changes throughout the trading day
+            2D3D Myanmar Live stock changes throughout the trading day
           </p>
         </motion.div>
 
