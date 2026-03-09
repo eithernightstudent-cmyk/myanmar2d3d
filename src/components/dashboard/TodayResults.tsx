@@ -72,6 +72,7 @@ export const TodayResults = memo(function TodayResults({
   onOpen3D,
 }: TodayResultsProps) {
   const navigate = useNavigate();
+  const [historyOverlay, setHistoryOverlay] = useState<{ id: string; time: string } | null>(null);
   const displayResults = currentDayResults.length > 0 ? currentDayResults : fallbackResults;
   const isFallback = currentDayResults.length === 0 && fallbackResults.length > 0;
   const fallbackDate = isFallback && fallbackResults[0]?.stock_date ? fallbackResults[0].stock_date : null;
