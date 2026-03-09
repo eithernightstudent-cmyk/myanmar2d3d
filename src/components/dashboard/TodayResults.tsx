@@ -205,6 +205,13 @@ export const TodayResults = memo(function TodayResults({
           })}
         </div>
       </article>
+
+      <TwoDHistoryOverlay
+        open={!!historyOverlay}
+        onClose={() => setHistoryOverlay(null)}
+        historyId={historyOverlay?.id || null}
+        sessionTime={historyOverlay?.time}
+      />
     </section>
   );
 });
