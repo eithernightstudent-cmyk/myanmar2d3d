@@ -129,7 +129,9 @@ const Index = () => {
         onClose={() => setShow3D(false)}
         title="Latest 3D Results"
       >
-        <ThreeDSection lastUpdated={dashboard.lastUpdated} />
+        <Suspense fallback={null}>
+          <ThreeDSection lastUpdated={dashboard.lastUpdated} />
+        </Suspense>
       </FullScreenOverlay>
     </div>
     </PullToRefresh>
