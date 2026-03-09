@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { BottomNav } from "@/components/dashboard/BottomNav";
 import Index from "./pages/Index";
 import Results from "./pages/Results";
 import History from "./pages/History";
@@ -26,6 +27,7 @@ function AnimatedRoutes() {
         <Routes location={location}>
           <Route path="/" element={<Index />} />
           <Route path="/results" element={<Results />} />
+          <Route path="/history" element={<History />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.div>
@@ -40,6 +42,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AnimatedRoutes />
+        <BrowserRouter>
+          {/* BottomNav needs to be inside BrowserRouter but outside AnimatedRoutes */}
+        </BrowserRouter>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
