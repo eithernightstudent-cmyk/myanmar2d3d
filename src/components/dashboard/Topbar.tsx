@@ -62,15 +62,14 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
         aria-label={`${BRAND_NAME} — home`}
         className="pointer-events-auto inline-flex items-center gap-2 rounded-2xl border border-border/40 bg-[hsl(var(--card-glass))] px-2.5 py-1.5 text-inherit no-underline shadow-lg backdrop-blur-xl transition-all active:scale-95"
       >
-        <motion.img
+        <img
           src={logoImg}
           alt={`${BRAND_NAME} logo`}
           width={24}
           height={24}
           loading="eager"
           decoding="async"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
+          fetchPriority="high"
           className="h-6 w-6 rounded-full object-cover ring-1 ring-primary/20"
         />
         <span className="font-display text-[0.78rem] font-extrabold tracking-wide text-foreground">
