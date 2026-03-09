@@ -13,6 +13,7 @@ import {
 } from "@/lib/market-utils";
 
 const SESSION_CLOSE_TIMES = ["11:00", "12:01", "15:00", "16:30"];
+const SESSION_TIME_SET = new Set(SESSION_CLOSE_TIMES);
 const SESSION_CLOSE_SECONDS = SESSION_CLOSE_TIMES.map((time) => {
   const [h, m] = time.split(":").map(Number);
   return h * 3600 + m * 60;
@@ -112,6 +113,41 @@ function getLatestResult(data: LiveData | null): CurrentDayResult | null {
   if (data.currentDayResults?.length) return data.currentDayResults[data.currentDayResults.length - 1];
   if (data.result?.length) return data.result[data.result.length - 1];
   return null;
+}
+
+function toTimeKey(raw: string | undefined): string {
+  const text = String(raw ?? "").trim();
+  const matched = text.match(/(\d{2}):(\d{2})/);
+  return matched ? `${matched[1]}:${matched[2]}` : "";
+}
+
+function hasValidTwoD(raw: string | undefined): boolean {
+  return /^\d{2}$/.test(String(raw ?? "").trim());
+}
+
+function getLatestSessionResult(data: LiveData | null): CurrentDayResult | null {
+  if (!data) return null;
+  const source = data.currentDayResults?.length ? data.currentDayResults : data.result || [];
+  for (let i = source.length - 1; i >= 0; i--) {
+    const entry = source[i];
+    const timeKey = toTimeKey(entry?.open_time);
+    if (SESSION_TIME_SET.has(timeKey) && hasValidTwoD(entry?.twod)) {
+      return entry;
+    }
+  }
+  return null;
+}
+
+function isHolidayActive(holiday: LiveData["holiday"]): boolean {
+  if (!holiday) return false;
+  const status = String(holiday.status ?? "").trim().toLowerCase();
+  if (status === "1" || status === "true" || status === "yes" || status === "holiday" || status === "closed") {
+    return true;
+  }
+  if (status === "0" || status === "false" || status === "no" || status === "") {
+    return false;
+  }
+  return !!String(holiday.name ?? "").trim();
 }
 
 function buildDataSignature(data: LiveData): string {
@@ -466,11 +502,15 @@ export function useLiveDashboard() {
   const clock = formatPartsClock(parts);
   const dateStr = formatPartsDate(parts);
   const twod = liveData?.calculated2d || "--";
-  const connectionStatus = liveData?.connectionStatus || "Closed";
-  const isLive = useMemo(
-    () => isWithinMarketHours(parts) && connectionStatus.toLowerCase() === "live",
-    [parts, connectionStatus],
-  );
+  const rawConnectionStatus = liveData?.connectionStatus || "Closed";
+  const isHoliday = isHolidayActive(liveData?.holiday || null);
+  const isLive = useMemo(() => isWithinMarketHours(parts) && !isHoliday, [parts, isHoliday]);
+  const connectionStatus =
+    isLive
+      ? rawConnectionStatus.toLowerCase() === "live"
+        ? "Live"
+        : "Open"
+      : "Closed";
 
   const getLastDigit = (raw: unknown) => {
     const digits = String(raw ?? "").replace(/\D/g, "");
@@ -495,7 +535,12 @@ export function useLiveDashboard() {
     liveTime && liveTime !== "--" ? `${liveData?.currentDate || "--"} ${liveTime}` : liveData?.currentDate || "--";
 
   const latestResult = getLatestResult(liveData);
+  const latestSessionResult = getLatestSessionResult(liveData);
   const rawStockDatetime = latestResult?.stock_datetime || "";
+  const verificationStockDatetime = latestSessionResult?.stock_datetime || "";
+  const latestSessionTwod = String(latestSessionResult?.twod || "").trim();
+  const hasLatestSessionTwod = /^\d{2}$/.test(latestSessionTwod);
+  const isCurrentTwodSessionResult = hasLatestSessionTwod && twod === latestSessionTwod;
   const stockDatetime = (() => {
     if (!rawStockDatetime) return "--";
     const match = rawStockDatetime.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}:\d{2}:\d{2})/);
@@ -518,31 +563,37 @@ export function useLiveDashboard() {
 
     return getSessionVerificationStatus(
       parts,
-      rawStockDatetime,
+      verificationStockDatetime,
       latestSessionTime,
       isLive,
       firstSeenAtRef.current,
     );
-  }, [parts, rawStockDatetime, isLive]);
+  }, [parts, verificationStockDatetime, isLive]);
+
+  const uiVerificationStatus: VerificationState = useMemo(() => {
+    // When live-calculated 2D differs from the last finalized session result, keep it as "live".
+    if (isLive && !isCurrentTwodSessionResult) return "live";
+    return resultVerificationStatus;
+  }, [isLive, isCurrentTwodSessionResult, resultVerificationStatus]);
 
   const resultConfirmSecondsLeft =
-    isLive && resultVerificationStatus === "verifying" && firstSeenAtRef.current
+    isLive && uiVerificationStatus === "verifying" && firstSeenAtRef.current
       ? Math.max(0, Math.ceil((VERIFICATION_WINDOW_MS - (Date.now() - firstSeenAtRef.current)) / 1000))
       : 0;
 
-  const isResultPreliminary = isLive && (resultVerificationStatus === "verifying" || resultVerificationStatus === "finalizing");
+  const isResultPreliminary = isLive && (uiVerificationStatus === "verifying" || uiVerificationStatus === "finalizing");
 
   useEffect(() => {
     if (
       (prevVerificationRef.current === "finalizing" || prevVerificationRef.current === "verifying") &&
-      resultVerificationStatus === "verified"
+      uiVerificationStatus === "verified"
     ) {
       notifyVerified(twod);
     }
-    prevVerificationRef.current = resultVerificationStatus;
-  }, [resultVerificationStatus, twod]);
+    prevVerificationRef.current = uiVerificationStatus;
+  }, [uiVerificationStatus, twod]);
 
-  const isResultLocked = resultVerificationStatus === "verified" || (!isLive && rawStockDatetime !== "");
+  const isResultLocked = uiVerificationStatus === "verified" || (!isLive && verificationStockDatetime !== "");
   const isFinalOnlyMode = resultDisplayMode === "final-only";
   const shouldHideUnverified = isFinalOnlyMode && !isResultLocked;
   const displayTwod = shouldHideUnverified ? "--" : twod;
@@ -595,7 +646,7 @@ export function useLiveDashboard() {
       return null;
     })(),
     stockDatetime,
-    resultVerificationStatus,
+    resultVerificationStatus: uiVerificationStatus,
     isResultLocked,
     isResultPreliminary: showPreliminaryBadge,
     resultConfirmSecondsLeft,

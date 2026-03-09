@@ -29,6 +29,18 @@ function calculateTwoD(setIndex: unknown, value: unknown): string {
   return `${setDigit}${valueDigit}`;
 }
 
+function isHolidayActive(holiday: any): boolean {
+  if (!holiday || typeof holiday !== "object") return false;
+  const status = String(holiday.status ?? "").trim().toLowerCase();
+  if (status === "1" || status === "true" || status === "yes" || status === "holiday" || status === "closed") {
+    return true;
+  }
+  if (status === "0" || status === "false" || status === "no" || status === "") {
+    return false;
+  }
+  return !!String(holiday.name ?? "").trim();
+}
+
 function extractDateString(raw: unknown): string {
   const text = String(raw ?? "").trim();
   const match = text.match(/\d{4}-\d{2}-\d{2}/);
@@ -77,7 +89,7 @@ function normalizeThaistock(payload: any, source: string = "thaistock2d") {
   const calculated2d = /^\d{2}$/.test(liveTwoD) ? liveTwoD : calculateTwoD(setIndex, value);
 
   const isLiveFeed = liveSetNumeric !== null && liveValueNumeric !== null && live?.set !== "--" && live?.value !== "--";
-  const isHoliday = holiday && String(holiday.status || "") !== "0";
+  const isHoliday = isHolidayActive(holiday);
   const connectionStatus = isLiveFeed && !isHoliday ? "Live" : "Closed";
 
   let holidayName: string | null = null;
