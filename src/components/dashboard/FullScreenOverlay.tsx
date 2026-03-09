@@ -26,8 +26,8 @@ export function FullScreenOverlay({ open, onClose, title, children }: FullScreen
               {title}
             </h2>
             <motion.button
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.88 }}
+              whileHover={{ scale: 1.02, filter: "brightness(1.08)" }}
+              whileTap={{ scale: 0.97, filter: "brightness(0.94)" }}
               onClick={() => { tap(); onClose(); }}
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-[hsl(var(--card-strong))] text-muted-foreground transition-all hover:text-foreground hover:border-primary/30 hover:bg-primary/5"
             >

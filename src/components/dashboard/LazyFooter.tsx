@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useEffect, useRef } from "react";
 
-const Footer = lazy(() => import("@/components/dashboard/Footer"));
+const Footer = lazy(() => import("@/components/dashboard/Footer").then(m => ({ default: m.Footer })));
 
 interface LazyFooterProps {
   ownerName: string;

@@ -81,7 +81,7 @@ export function LiveCard({
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <span className="font-display text-xs font-bold uppercase tracking-[0.18em]" style={{ color: "hsl(var(--text-secondary))" }}>
+            <span className="inline-flex items-center rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] text-primary status-badge-glow-live">
               Live 2D
             </span>
             <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
@@ -115,7 +115,7 @@ export function LiveCard({
               </motion.div>
             )}
           </div>
-          <span className="rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1.5 font-display text-xs font-bold text-primary">
+          <span className="rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1.5 font-display text-xs font-bold gold-metal-text">
             {clock}
           </span>
         </div>
@@ -123,7 +123,7 @@ export function LiveCard({
         {/* Market Status & Holiday Name */}
         {marketClosed && (
           <div className="mb-2 text-center">
-            <p className="font-display text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: "hsl(var(--text-secondary))" }}>
+            <p className="inline-flex items-center rounded-full border border-amber-400/30 bg-amber-500/10 px-2.5 py-1 font-display text-xs font-semibold uppercase tracking-[0.2em] text-amber-300 status-badge-glow-closed">
               Market Closed
             </p>
             {cleanHolidayName && (
@@ -150,7 +150,7 @@ export function LiveCard({
                   textShadow: "0 4px 20px hsl(var(--primary) / 0.35), 0 0 60px hsl(var(--primary) / 0.15)",
                 }}
               >
-                <RollingNumber value={twod} />
+                <RollingNumber value={twod} digitClassName="gold-metal-text" />
               </motion.div>
             ) : (
               <div className="h-[7rem] w-[10rem]" aria-hidden="true" />

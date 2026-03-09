@@ -2,7 +2,7 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Topbar } from "@/components/dashboard/Topbar";
-const Footer = lazy(() => import("@/components/dashboard/Footer"));
+const Footer = lazy(() => import("@/components/dashboard/Footer").then(m => ({ default: m.Footer })));
 import { HistoryTable } from "@/components/dashboard/HistoryTable";
 import { ArrowLeft, Clock, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";

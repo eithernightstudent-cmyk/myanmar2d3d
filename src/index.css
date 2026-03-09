@@ -1,19 +1,4 @@
-/* Self-hosted fonts */
-@font-face {
-  font-family: 'Space Grotesk';
-  src: url('/fonts/SpaceGrotesk-Variable.woff2') format('woff2');
-  font-weight: 500 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Noto Sans Myanmar';
-  src: url('/fonts/NotoSansMyanmar-Variable.woff2') format('woff2');
-  font-weight: 400 700;
-  font-style: normal;
-  font-display: swap;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -21,25 +6,25 @@
 
 @layer base {
   :root {
-    --background: 36 45% 97%;
-    --foreground: 20 15% 8%;
-    --card: 0 0% 100%;
-    --card-foreground: 20 15% 8%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 20 15% 8%;
-    --primary: 38 92% 35%;
-    --primary-foreground: 20 15% 6%;
-    --secondary: 32 28% 93%;
-    --secondary-foreground: 20 12% 14%;
-    --muted: 34 18% 93%;
-    --muted-foreground: 220 8% 42%;
-    --accent: 35 100% 96%;
-    --accent-foreground: 25 85% 38%;
+    --background: 224 44% 8%;
+    --foreground: 38 22% 94%;
+    --card: 223 32% 12% / 0.62;
+    --card-foreground: 38 22% 94%;
+    --popover: 223 32% 12% / 0.9;
+    --popover-foreground: 38 22% 94%;
+    --primary: 43 98% 56%;
+    --primary-foreground: 24 22% 10%;
+    --secondary: 223 24% 16% / 0.7;
+    --secondary-foreground: 38 20% 90%;
+    --muted: 223 18% 18%;
+    --muted-foreground: 220 10% 66%;
+    --accent: 223 24% 16% / 0.72;
+    --accent-foreground: 38 22% 90%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 32 22% 88%;
-    --input: 32 22% 88%;
-    --ring: 38 92% 50%;
+    --border: 0 0% 100% / 0.05;
+    --input: 0 0% 100% / 0.08;
+    --ring: 43 98% 56%;
     --radius: 1rem;
 
     --success: 152 65% 42%;
@@ -51,17 +36,18 @@
     --warm: 38 92% 50%;
     --warm-soft: 38 100% 94%;
 
-    --text-strong: 20 15% 6%;
-    --text-secondary: 220 8% 36%;
+    --text-strong: 40 20% 96%;
+    --text-secondary: 220 12% 74%;
 
-    --line-soft: 32 22% 88%;
-    --card-glass: 0 0% 100% / 0.78;
-    --card-strong: 36 30% 98% / 0.92;
-    --shadow-panel: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px -8px rgba(180, 120, 50, 0.1), 0 20px 48px -20px rgba(180, 120, 50, 0.06);
-    --shadow-hover: 0 2px 4px rgba(0,0,0,0.04), 0 12px 32px -8px rgba(180, 120, 50, 0.15), 0 24px 56px -20px rgba(180, 120, 50, 0.08);
+    --line-soft: 0 0% 100% / 0.05;
+    --card-glass: 223 32% 12% / 0.58;
+    --card-strong: 223 28% 15% / 0.74;
+    --shadow-panel: 0 20px 45px -26px rgba(0, 0, 0, 0.82), 0 0 1px rgba(255, 255, 255, 0.1);
+    --shadow-hover: 0 24px 52px -26px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.08);
 
-    --font-display: "Space Grotesk", "Noto Sans Myanmar", "Segoe UI", sans-serif;
-    --font-body: "Noto Sans Myanmar", "Space Grotesk", "Segoe UI", sans-serif;
+    --font-display: "Plus Jakarta Sans", "Inter", "Noto Sans Myanmar", "Segoe UI", sans-serif;
+    --font-body: "Plus Jakarta Sans", "Inter", "Noto Sans Myanmar", "Segoe UI", sans-serif;
+    --font-myanmar: "Noto Sans Myanmar", "Pyidaungsu", "Myanmar Text", sans-serif;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -74,25 +60,25 @@
   }
 
   .dark {
-    --background: 220 28% 7%;
-    --foreground: 35 20% 92%;
-    --card: 222 25% 11%;
-    --card-foreground: 35 20% 92%;
-    --popover: 222 25% 11%;
-    --popover-foreground: 35 20% 92%;
-    --primary: 38 95% 58%;
-    --primary-foreground: 0 0% 4%;
-    --secondary: 222 20% 15%;
-    --secondary-foreground: 35 18% 88%;
-    --muted: 222 16% 16%;
-    --muted-foreground: 220 10% 50%;
-    --accent: 222 20% 15%;
-    --accent-foreground: 35 20% 82%;
+    --background: 224 52% 6%;
+    --foreground: 38 24% 95%;
+    --card: 223 36% 10% / 0.62;
+    --card-foreground: 38 24% 95%;
+    --popover: 223 36% 10% / 0.92;
+    --popover-foreground: 38 24% 95%;
+    --primary: 44 98% 58%;
+    --primary-foreground: 20 24% 8%;
+    --secondary: 223 24% 14% / 0.72;
+    --secondary-foreground: 38 20% 90%;
+    --muted: 223 16% 16%;
+    --muted-foreground: 220 10% 62%;
+    --accent: 223 24% 16% / 0.74;
+    --accent-foreground: 38 20% 90%;
     --destructive: 0 65% 42%;
     --destructive-foreground: 0 0% 98%;
-    --border: 222 15% 16%;
-    --input: 222 15% 16%;
-    --ring: 38 95% 58%;
+    --border: 0 0% 100% / 0.05;
+    --input: 0 0% 100% / 0.08;
+    --ring: 44 98% 58%;
 
     --success: 152 65% 48%;
     --success-light: 152 30% 12%;
@@ -103,13 +89,13 @@
     --warm: 38 95% 58%;
     --warm-soft: 38 40% 14%;
 
-    --text-strong: 35 15% 96%;
-    --text-secondary: 220 10% 58%;
+    --text-strong: 40 22% 96%;
+    --text-secondary: 220 12% 72%;
 
-    --line-soft: 222 15% 16%;
-    --card-glass: 222 25% 10% / 0.88;
-    --card-strong: 222 25% 12% / 0.95;
-    --shadow-panel: 0 28px 60px -20px rgba(0, 0, 0, 0.7), 0 0 80px -20px hsl(38 95% 58% / 0.04);
+    --line-soft: 0 0% 100% / 0.05;
+    --card-glass: 223 36% 10% / 0.62;
+    --card-strong: 223 28% 14% / 0.74;
+    --shadow-panel: 0 24px 56px -28px rgba(0, 0, 0, 0.86), 0 0 0 1px rgba(255, 255, 255, 0.08);
 
     --glow-primary: 0 0 40px -10px hsl(38 95% 58% / 0.15);
     --glow-ambient: 0 0 120px -40px hsl(38 95% 58% / 0.06);
@@ -126,18 +112,18 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    line-height: 1.55;
+    text-rendering: geometricPrecision;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-}
 
-/* Safe-area padding utilities for notch devices */
-@layer utilities {
-  .pt-safe {
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-  .pb-safe {
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem);
+  :lang(my),
+  [lang="my"],
+  .mm-text {
+    font-family: var(--font-myanmar);
+    line-height: 1.82;
+    letter-spacing: 0;
   }
 }
 
@@ -166,9 +152,42 @@
 @layer utilities {
   .font-display {
     font-family: var(--font-display);
+    letter-spacing: 0.01em;
   }
   .font-body {
     font-family: var(--font-body);
+    letter-spacing: 0.01em;
+  }
+  .gold-metal-text {
+    background: linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow: 0 3px 22px rgba(255, 190, 35, 0.35);
+  }
+  .gold-metal-button {
+    background: linear-gradient(135deg, #fff3b0 0%, #ffd154 34%, #f4a600 66%, #ffd975 100%);
+    color: #1d1302;
+    border-color: rgba(255, 214, 102, 0.55);
+    box-shadow: 0 8px 24px -14px rgba(255, 181, 31, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+  .status-badge-glow-live {
+    box-shadow: 0 0 0 1px rgba(255, 198, 48, 0.32), 0 0 16px rgba(255, 186, 28, 0.28);
+  }
+  .status-badge-glow-closed {
+    box-shadow: 0 0 0 1px rgba(255, 140, 92, 0.28), 0 0 12px rgba(255, 140, 92, 0.2);
+  }
+  .live-dot-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .live-dot-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: -30% -110%;
+    background: linear-gradient(120deg, transparent 40%, rgba(255, 255, 255, 0.8) 50%, transparent 60%);
+    animation: live-shimmer 1.8s linear infinite;
   }
 }
 
@@ -182,6 +201,12 @@
   0% { box-shadow: 0 0 0 0 hsl(var(--fail) / 0.45); }
   70% { box-shadow: 0 0 0 9px hsl(var(--fail) / 0); }
   100% { box-shadow: 0 0 0 0 hsl(var(--fail) / 0); }
+}
+
+@keyframes live-shimmer {
+  0% { transform: translateX(-100%) skewX(-18deg); opacity: 0; }
+  35% { opacity: 0.8; }
+  100% { transform: translateX(170%) skewX(-18deg); opacity: 0; }
 }
 
 /* Animated 3D icon effects */
@@ -213,6 +238,9 @@
 
 /* Light mode card enhancements */
 article {
+  background: hsl(var(--card-glass));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px);
   transition: border-color 0.3s ease, box-shadow 0.4s ease, transform 0.2s ease;
 }
 
