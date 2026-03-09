@@ -61,6 +61,6 @@ export function DashboardNavButtons({ onOpenHistory, onOpen3D }: DashboardNavBut
           </p>
         </div>
       </button>
-    </motion.div>
+    </div>
   );
 }
