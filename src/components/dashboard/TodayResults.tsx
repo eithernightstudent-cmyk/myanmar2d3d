@@ -170,9 +170,9 @@ export const TodayResults = memo(function TodayResults({
                   <div
                     className={`flex items-center justify-center gap-1 ${has && result!.history_id ? "cursor-pointer" : ""}`}
                     onClick={() => {
-                      if (has && result!.history_id) {
+                      if (has && result!.stock_date) {
                         tap();
-                        setHistoryOverlay({ id: result!.history_id, time: slot.display });
+                        setHistoryOverlay({ date: result!.stock_date!, openTime: String(result!.open_time).trim(), time: slot.display });
                       }
                     }}
                   >
