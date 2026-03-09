@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+/* Note: motion still used for inner elements (AnimatePresence, motion.div) */
 import { StatusPill } from "./StatusPill";
 import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, Zap, CircleAlert } from "lucide-react";
 import { tap } from "@/lib/haptic";
