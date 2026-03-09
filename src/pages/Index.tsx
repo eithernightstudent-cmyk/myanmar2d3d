@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
