@@ -110,7 +110,9 @@ const Index = () => {
         </div>
       </main>
 
-      <Suspense fallback={nLazyFooter ownerName={dashboard.ownerName} /reen overlays */}
+      <LazyFooter ownerName={dashboard.ownerName} />
+
+      {/* Full-screen overlays */}
       <FullScreenOverlay
         open={showHistory}
         onClose={() => setShowHistory(false)}
