@@ -19,21 +19,22 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <LazyMotion features={loadMotionFeatures} strict={false}>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/results" element={<Suspense fallback={null}><Results /></Suspense>} />
-            <Route path="/history" element={<Suspense fallback={null}><History /></Suspense>} />
-            <Route path="*" element={<Suspense fallback={null}><NotFound /></Suspense>} />
-          </Routes>
-          
-        </BrowserRouter>
-      </LazyMotion>
-    </TooltipProvider>
+    <Suspense fallback={null}>
+      <LazyTooltipProvider>
+        <LazyMotion features={loadMotionFeatures} strict={false}>
+          <LazyToaster />
+          <LazySonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/results" element={<Suspense fallback={null}><Results /></Suspense>} />
+              <Route path="/history" element={<Suspense fallback={null}><History /></Suspense>} />
+              <Route path="*" element={<Suspense fallback={null}><NotFound /></Suspense>} />
+            </Routes>
+          </BrowserRouter>
+        </LazyMotion>
+      </LazyTooltipProvider>
+    </Suspense>
   </QueryClientProvider>
 );
 
