@@ -19,6 +19,7 @@ const Index = () => {
   const [show3D, setShow3D] = useState(false);
 
   return (
+    <Suspense fallback={null}>
     <PullToRefresh onRefresh={dashboard.refreshData}>
     <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden">
       {/* Background scene */}
