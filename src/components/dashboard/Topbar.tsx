@@ -82,7 +82,7 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
         {/* Brand chip — top left */}
         <Link
           to="/"
-          aria-label={`${BRAND_NAME} home`}
+          aria-label={BRAND_NAME}
           className="pointer-events-auto inline-flex items-center gap-2 rounded-2xl border border-border/50 bg-[hsl(var(--card-glass))] px-2.5 py-1.5 text-inherit no-underline shadow-sm backdrop-blur-xl transition-all duration-300 active:scale-95"
         >
           <motion.img
