@@ -139,6 +139,7 @@ const Index = () => {
       </FullScreenOverlay>
     </div>
     </PullToRefresh>
+    </Suspense>
   );
 };
 
