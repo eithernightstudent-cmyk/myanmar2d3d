@@ -616,6 +616,7 @@ export function useLiveDashboard() {
     clock,
     dateStr,
     isLive,
+    isTradingDay,
     isSyncing,
     flash,
     twod: displayTwod,
