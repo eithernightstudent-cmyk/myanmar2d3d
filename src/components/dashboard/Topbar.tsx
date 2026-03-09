@@ -135,40 +135,6 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
           {soundOn ? <Volume2 size={14} strokeWidth={2.2} /> : <VolumeX size={14} strokeWidth={2.2} />}
         </motion.button>
 
-        {/* Dark Mode Toggle */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => { tap(); toggleTheme(); }}
-          aria-label="Toggle dark mode"
-          title="Toggle dark mode"
-          className={iconBtnDefault}
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            {dark ? (
-              <motion.span
-                key="sun"
-                initial={{ rotate: -90, scale: 0, opacity: 0 }}
-                animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                exit={{ rotate: 90, scale: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="absolute text-amber-500"
-              >
-                <Sun size={14} strokeWidth={2.2} />
-              </motion.span>
-            ) : (
-              <motion.span
-                key="moon"
-                initial={{ rotate: 90, scale: 0, opacity: 0 }}
-                animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                exit={{ rotate: -90, scale: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="absolute text-indigo-400"
-              >
-                <Moon size={14} strokeWidth={2.2} />
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.button>
       </div>
     </header>
   );
