@@ -33,8 +33,11 @@ const DEFAULT_OWNER_NAME = "2D3D";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
 const LIVE_CACHE_KEY = "kktech-live-cache-v1";
 const LIVE_CACHE_TTL_MS = 10 * 60 * 1000;
+const RESULT_MODE_STORAGE_KEY = "kktech-result-display-mode";
+const DEFAULT_RESULT_MODE = "hybrid";
 
 type VerificationState = "verified" | "verifying" | "finalizing" | "live" | "closed";
+type ResultDisplayMode = "hybrid" | "final-only";
 
 interface CachedLiveState {
   data: LiveData;
@@ -172,7 +175,6 @@ function getSessionVerificationStatus(
     if (parsed) {
       const stockSeconds = parsed.h * 3600 + parsed.m * 60 + parsed.s;
       if (stockSeconds >= closeSeconds) {
-        // Market already closed — skip preliminary window, finalize immediately.
         if (!isMarketLive) return "verified";
         if (firstSeenAt && Date.now() - firstSeenAt < VERIFICATION_WINDOW_MS) {
           return "verifying";
@@ -202,6 +204,14 @@ export function useLiveDashboard() {
 
   const [parts, setParts] = useState<ThailandParts>(getThailandParts());
   const [liveData, setLiveData] = useState<LiveData | null>(null);
+  const [resultDisplayMode, setResultDisplayMode] = useState<ResultDisplayMode>(() => {
+    try {
+      const saved = localStorage.getItem(RESULT_MODE_STORAGE_KEY);
+      return saved === "final-only" ? "final-only" : DEFAULT_RESULT_MODE;
+    } catch {
+      return DEFAULT_RESULT_MODE;
+    }
+  });
   const [isSyncing, setIsSyncing] = useState(false);
   const [apiNote, setApiNote] = useState("Data source: waiting for API response...");
   const [flash, setFlash] = useState(false);
@@ -233,6 +243,18 @@ export function useLiveDashboard() {
     } catch {
       // Ignore storage failures (private mode / quota).
     }
+  }, []);
+
+  const toggleResultDisplayMode = useCallback(() => {
+    setResultDisplayMode((prev) => {
+      const next: ResultDisplayMode = prev === "hybrid" ? "final-only" : "hybrid";
+      try {
+        localStorage.setItem(RESULT_MODE_STORAGE_KEY, next);
+      } catch {
+        // Ignore storage failures (private mode / quota).
+      }
+      return next;
+    });
   }, []);
 
   const applyLiveData = useCallback(
@@ -503,13 +525,11 @@ export function useLiveDashboard() {
     );
   }, [parts, rawStockDatetime, isLive]);
 
-  // Only run countdown while market is live
   const resultConfirmSecondsLeft =
     isLive && resultVerificationStatus === "verifying" && firstSeenAtRef.current
       ? Math.max(0, Math.ceil((VERIFICATION_WINDOW_MS - (Date.now() - firstSeenAtRef.current)) / 1000))
       : 0;
 
-  // Only show preliminary badge when market is live
   const isResultPreliminary = isLive && (resultVerificationStatus === "verifying" || resultVerificationStatus === "finalizing");
 
   useEffect(() => {
@@ -522,8 +542,11 @@ export function useLiveDashboard() {
     prevVerificationRef.current = resultVerificationStatus;
   }, [resultVerificationStatus, twod]);
 
-  // Lock result when verified OR when market is closed and we have a stock_datetime
   const isResultLocked = resultVerificationStatus === "verified" || (!isLive && rawStockDatetime !== "");
+  const isFinalOnlyMode = resultDisplayMode === "final-only";
+  const shouldHideUnverified = isFinalOnlyMode && !isResultLocked;
+  const displayTwod = shouldHideUnverified ? "--" : twod;
+  const showPreliminaryBadge = !isFinalOnlyMode && isResultPreliminary;
   const dataSource = liveData?.source || "thaistock2d";
   const refreshData = useCallback(() => {
     void fetchLiveDataRef.current(true);
@@ -532,12 +555,15 @@ export function useLiveDashboard() {
   return {
     ownerName,
     updateOwnerName,
+    resultDisplayMode,
+    toggleResultDisplayMode,
+    isFinalOnlyMode,
     clock,
     dateStr,
     isLive,
     isSyncing,
     flash,
-    twod,
+    twod: displayTwod,
     threed,
     setDigit,
     valueDigit,
@@ -571,7 +597,7 @@ export function useLiveDashboard() {
     stockDatetime,
     resultVerificationStatus,
     isResultLocked,
-    isResultPreliminary,
+    isResultPreliminary: showPreliminaryBadge,
     resultConfirmSecondsLeft,
     dataSource,
     isHotMinute: isHotMinute(parts),

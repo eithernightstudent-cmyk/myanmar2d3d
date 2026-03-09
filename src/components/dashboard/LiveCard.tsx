@@ -25,6 +25,7 @@ interface LiveCardProps {
   isResultLocked?: boolean;
   isResultPreliminary?: boolean;
   resultConfirmSecondsLeft?: number;
+  isFinalOnlyMode?: boolean;
   onManualRefresh?: () => void;
   isHotMinute?: boolean;
 }
@@ -45,6 +46,7 @@ export function LiveCard({
   isResultLocked = false,
   isResultPreliminary = false,
   resultConfirmSecondsLeft = 0,
+  isFinalOnlyMode = false,
   isHotMinute = false,
 }: LiveCardProps) {
   const marketClosed = !isLive;
@@ -53,6 +55,7 @@ export function LiveCard({
   const hasSetValue = !!setFormatted && setFormatted !== "--";
   const hasValueValue = !!valueFormatted && valueFormatted !== "--";
   const showPreliminaryNotice = hasTwoD && isResultPreliminary && !isResultLocked;
+  const showAwaitingFinalNotice = isFinalOnlyMode && !hasTwoD && isLive;
 
   // Clean holiday name — filter out null/undefined/empty
   const cleanHolidayName = (() => {
@@ -81,6 +84,14 @@ export function LiveCard({
               Live 2D
             </span>
             <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
+            {isFinalOnlyMode && (
+              <div className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-2 py-0.5">
+                <Lock className="h-3 w-3 text-success" />
+                <span className="font-display text-[0.55rem] font-bold uppercase tracking-wider text-success">
+                  Final-only
+                </span>
+              </div>
+            )}
             {isSyncing && isLive && (
               <div className="flex items-center gap-1.5" style={{ color: "hsl(var(--text-secondary))" }}>
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
@@ -188,6 +199,14 @@ export function LiveCard({
               </motion.div>
             )}
           </AnimatePresence>
+
+          {showAwaitingFinalNotice && (
+            <div className="mt-2 inline-flex items-center rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1">
+              <span className="font-display text-[0.62rem] font-semibold uppercase tracking-wider text-muted-foreground">
+                Awaiting Verified Result
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Updated timestamp */}
