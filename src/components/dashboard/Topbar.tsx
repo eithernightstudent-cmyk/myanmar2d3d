@@ -15,11 +15,6 @@ interface TopbarProps {
 export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode }: TopbarProps) {
   const BRAND_NAME = "2D3D";
 
-  const [dark, setDark] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const saved = localStorage.getItem("kktech-theme");
-    return saved === "dark";
-  });
 
   const { supported, permission, enabled, toggleNotifications } = useNotifications();
   const [justEnabled, setJustEnabled] = useState(false);
