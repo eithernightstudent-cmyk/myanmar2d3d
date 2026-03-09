@@ -19,14 +19,14 @@ const Index = () => {
 
   return (
     <PullToRefresh onRefresh={dashboard.refreshData}>
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden pb-safe">
+    <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden">
       {/* Background scene */}
       <div
         className="pointer-events-none fixed inset-0 -z-10 transition-all duration-500"
         aria-hidden="true"
         style={{
           background:
-            "radial-gradient(ellipse 70% 50% at 15% 10%, hsl(38 92% 50% / 0.12), transparent 50%), radial-gradient(ellipse 60% 40% at 85% 8%, hsl(152 65% 42% / 0.08), transparent 45%), radial-gradient(ellipse 80% 50% at 50% 100%, hsl(38 92% 50% / 0.06), transparent 50%), linear-gradient(160deg, hsl(var(--background)), hsl(36 50% 95%), hsl(32 40% 93%))",
+            "radial-gradient(ellipse 70% 50% at 15% 10%, hsl(38 92% 50% / 0.12), transparent 50%), radial-gradient(ellipse 60% 40% at 85% 8%, hsl(152 65% 42% / 0.08), transparent 45%), radial-gradient(ellipse 80% 50% at 50% 100%, hsl(38 92% 50% / 0.06), transparent 50%), linear-gradient(160deg, hsl(var(--background)), hsl(var(--background)))",
         }}
       />
       <div
@@ -53,12 +53,15 @@ const Index = () => {
         onToggleResultDisplayMode={dashboard.toggleResultDisplayMode}
       />
 
-      <main className="mx-auto w-[min(100%-1rem,72rem)] pt-14 pb-20 sm:w-[min(100%-2rem,72rem)] sm:pt-16 sm:pb-8">
+      <main
+        className="mx-auto w-[min(100%-0.75rem,72rem)] pb-20 sm:w-[min(100%-2rem,72rem)]"
+        style={{ paddingTop: "max(calc(env(safe-area-inset-top, 0px) + 3rem), 3.5rem)" }}
+      >
         <h1 className="sr-only">2D3D Myanmar Live Results Dashboard</h1>
 
         {/* Live Card + Clock */}
-        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
-          <div className="grid gap-5">
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+          <div className="grid gap-4">
             <LiveCard
               clock={dashboard.clock}
               twod={dashboard.twod}
@@ -85,7 +88,6 @@ const Index = () => {
               isHotMinute={dashboard.isHotMinute}
             />
 
-            {/* Navigation Buttons */}
             <DashboardNavButtons
               onOpenHistory={() => setShowHistory(true)}
               onOpen3D={() => setShow3D(true)}
@@ -94,7 +96,6 @@ const Index = () => {
             <ModernClock />
           </div>
 
-          {/* Today's Results on right column */}
           <TodayResults
             currentDayResults={dashboard.currentDayResults}
             currentDate={dashboard.currentDate}
@@ -102,8 +103,7 @@ const Index = () => {
           />
         </div>
 
-        {/* Session Results Bar */}
-        <div className="mt-5">
+        <div className="mt-4">
           <SessionPanel
             currentDayResults={dashboard.currentDayResults}
           />
@@ -112,7 +112,6 @@ const Index = () => {
 
       <LazyFooter ownerName={dashboard.ownerName} />
 
-      {/* Full-screen overlays */}
       <FullScreenOverlay
         open={showHistory}
         onClose={() => setShowHistory(false)}

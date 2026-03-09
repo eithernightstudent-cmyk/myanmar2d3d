@@ -1,5 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Home, BarChart3, Clock } from "lucide-react";
 import { tapMedium } from "@/lib/haptic";
 
@@ -14,10 +14,10 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 flex justify-center md:pb-2"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className="fixed inset-x-0 bottom-0 z-40 flex justify-center"
+      style={{ paddingBottom: "max(env(safe-area-inset-bottom, 0px), 0.35rem)" }}
     >
-      <div className="mx-auto flex w-[min(100%-1.5rem,22rem)] items-center justify-around gap-1 rounded-2xl border border-border/50 bg-[hsl(var(--card-glass))] px-2 py-1.5 shadow-lg backdrop-blur-xl md:w-auto md:gap-2 md:px-4">
+      <div className="mx-3 flex w-[min(100%,20rem)] items-center justify-around rounded-2xl border border-border/40 bg-[hsl(var(--card-glass))] px-2 py-1.5 shadow-lg backdrop-blur-xl md:w-auto md:mx-0 md:gap-1 md:px-4">
         {TABS.map(({ to, icon: Icon, label }) => {
           const active = pathname === to;
           return (
@@ -31,7 +31,7 @@ export function BottomNav() {
             >
               {active && (
                 <motion.div
-                  layoutId="bottom-nav-active"
+                  layoutId="bottom-nav-pill"
                   className="absolute inset-0 rounded-xl border border-primary/25 bg-primary/10"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />

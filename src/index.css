@@ -116,6 +116,12 @@
     text-rendering: geometricPrecision;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Safe-area bottom padding utility */
+  .pb-safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 4.5rem);
   }
 
   :lang(my),

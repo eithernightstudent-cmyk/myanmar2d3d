@@ -4,8 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Topbar } from "@/components/dashboard/Topbar";
 const Footer = lazy(() => import("@/components/dashboard/Footer").then(m => ({ default: m.Footer })));
 import { HistoryTable } from "@/components/dashboard/HistoryTable";
-import { ArrowLeft, Clock, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Clock, Loader2 } from "lucide-react";
 
 interface HistoryEntry {
   time: string;
@@ -44,27 +43,22 @@ const History = () => {
   }, []);
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden pb-safe">
+    <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden">
       <Topbar ownerName={ownerName} />
 
-      <main className="mx-auto w-[min(100%-1rem,72rem)] pt-14 pb-20 sm:w-[min(100%-2rem,72rem)] sm:pt-16 sm:pb-8">
+      <main
+        className="mx-auto w-[min(100%-0.75rem,72rem)] pb-20 sm:w-[min(100%-2rem,72rem)]"
+        style={{ paddingTop: "max(calc(env(safe-area-inset-top, 0px) + 3rem), 3.5rem)" }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Link
-            to="/"
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/50 bg-[hsl(var(--card-glass))] px-3 py-1.5 font-display text-sm text-muted-foreground no-underline backdrop-blur-sm transition-all hover:text-foreground hover:border-primary/30 active:scale-95"
-          >
-            <ArrowLeft size={14} strokeWidth={2.5} />
-            Back
-          </Link>
-
-          <h1 className="font-display text-[clamp(1.6rem,4vw,2.2rem)] font-bold tracking-tight text-foreground">
+          <h1 className="font-display text-[clamp(1.5rem,4vw,2rem)] font-bold tracking-tight text-foreground">
             Change History
           </h1>
-          <p className="mt-1 mb-5 text-sm text-muted-foreground">
+          <p className="mt-1 mb-4 text-sm text-muted-foreground">
             Intraday stock changes throughout the trading day
           </p>
         </motion.div>
@@ -93,7 +87,7 @@ const History = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.4 }}
-                className="rounded-2xl border border-border bg-card/90 p-5 shadow-[0_12px_20px_-14px_hsl(var(--foreground)/0.12)] backdrop-blur-md"
+                className="rounded-2xl border border-border bg-card/90 p-4 shadow-[0_12px_20px_-14px_hsl(var(--foreground)/0.12)] backdrop-blur-md"
               >
                 <div className="mb-3 flex items-center gap-2.5">
                   <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-indigo-500 shadow-sm">
