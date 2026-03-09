@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { formatNumber } from "@/lib/market-utils";
 import { tap } from "@/lib/haptic";
 import { RollingNumber } from "./RollingNumber";
+import { ChevronRight } from "lucide-react";
 
 interface CurrentDayResult {
   set: string;
@@ -19,16 +20,19 @@ interface TodayResultsProps {
   fallbackResults?: CurrentDayResult[];
 }
 
-/** Primary sessions show full SET/Value detail */
-const PRIMARY_SLOTS = [
+const ALL_SLOTS = [
+  { time: "11:00", display: "11:00 AM", label: "Morning" },
   { time: "12:01", display: "12:01 PM", label: "Midday" },
-  { time: "16:30", display: "4:30 PM", label: "Closing" },
+  { time: "15:00", display: "03:00 PM", label: "Afternoon" },
+  { time: "16:30", display: "04:30 PM", label: "Closing" },
 ];
 
-/** Secondary sessions show a compact row */
-const SECONDARY_SLOTS = [
-  { time: "11:00", display: "11:00 AM", label: "Morning" },
-  { time: "15:00", display: "3:00 PM", label: "Afternoon" },
+/** Card gradient tones — adapts to dark theme using primary hues */
+const CARD_GRADIENTS = [
+  "linear-gradient(135deg, hsl(var(--primary) / 0.25), hsl(var(--primary) / 0.12))",
+  "linear-gradient(135deg, hsl(var(--primary) / 0.35), hsl(var(--primary) / 0.18))",
+  "linear-gradient(135deg, hsl(var(--primary) / 0.25), hsl(var(--primary) / 0.12))",
+  "linear-gradient(135deg, hsl(var(--primary) / 0.35), hsl(var(--primary) / 0.18))",
 ];
 
 function hasValidTwoD(value: string | undefined) {
@@ -56,8 +60,8 @@ export const TodayResults = memo(function TodayResults({
   return (
     <section>
       <article className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg">
-        {/* Header — no icon */}
-        <div className="mb-5 flex items-center justify-between">
+        {/* Header */}
+        <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="font-display text-base font-bold tracking-wide text-foreground">
               {isFallback ? "Latest Results" : "Today's Results"}
@@ -71,121 +75,78 @@ export const TodayResults = memo(function TodayResults({
           </span>
         </div>
 
-        {/* Primary Cards — 12:01 PM & 4:30 PM */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
-          {PRIMARY_SLOTS.map((slot, i) => {
+        {/* Session Cards — stacked vertically */}
+        <div className="flex flex-col gap-3">
+          {ALL_SLOTS.map((slot, i) => {
             const result = resultByTime.get(slot.time) || null;
             const has = !!result && hasValidTwoD(result.twod);
 
             return (
               <motion.div
                 key={slot.time}
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.06 * i, duration: 0.4 }}
+                transition={{ delay: 0.05 * i, duration: 0.35 }}
                 onTouchStart={() => tap()}
-                className="rounded-2xl border border-border/60 bg-card p-4 transition-all duration-200 active:scale-[0.97]"
+                className="relative overflow-hidden rounded-2xl border border-primary/20 p-4 transition-all duration-200 active:scale-[0.98]"
+                style={{ background: CARD_GRADIENTS[i] }}
               >
-                {/* Time */}
-                <p className="font-display text-xs font-bold text-foreground">
+                {/* Time header */}
+                <p className="text-center font-display text-sm font-bold text-foreground mb-3">
                   {slot.display}
                 </p>
-                <p className="font-display text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-3">
-                  {slot.label}
-                </p>
 
-                {/* 2D Number */}
-                {has ? (
-                  <motion.div
-                    key={`${slot.time}-${result!.twod}`}
-                    initial={{ scale: 0.85, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="mb-3"
-                  >
-                    <RollingNumber
-                      value={result!.twod}
-                      className="font-display text-4xl font-extrabold leading-none"
-                      digitStyle={{
-                        background: "linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%)",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                      }}
-                    />
-                  </motion.div>
-                ) : (
-                  <div className="mb-3 h-[2.75rem]" aria-hidden="true" />
-                )}
+                {/* Divider */}
+                <div className="mb-3 h-px bg-foreground/10" />
 
-                {/* SET & Value */}
-                {has && (
-                  <div className="space-y-1 border-t border-border/50 pt-2">
-                    <div className="flex justify-between font-display text-[0.65rem]">
-                      <span className="font-bold text-foreground">SET</span>
-                      <span className="font-bold text-foreground">
-                        {formatNumber(result!.set)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between font-display text-[0.65rem]">
-                      <span className="font-bold text-foreground">VALUE</span>
-                      <span className="font-bold text-foreground">
-                        {formatNumber(result!.value)}
-                      </span>
-                    </div>
+                {/* Data row: Set / Value / 2D */}
+                <div className="grid grid-cols-3 items-end gap-2 text-center">
+                  {/* SET */}
+                  <div>
+                    <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
+                      Set
+                    </p>
+                    <p className="font-display text-sm font-bold text-foreground">
+                      {has ? formatNumber(result!.set) : "—"}
+                    </p>
                   </div>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
 
-        {/* Secondary Cards — 11:00 AM & 3:00 PM — compact rows */}
-        <div className="grid grid-cols-2 gap-3">
-          {SECONDARY_SLOTS.map((slot, i) => {
-            const result = resultByTime.get(slot.time) || null;
-            const has = !!result && hasValidTwoD(result.twod);
+                  {/* Value */}
+                  <div>
+                    <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
+                      Value
+                    </p>
+                    <p className="font-display text-sm font-bold text-foreground">
+                      {has ? formatNumber(result!.value) : "—"}
+                    </p>
+                  </div>
 
-            return (
-              <motion.div
-                key={slot.time}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.12 + 0.06 * i, duration: 0.4 }}
-                onTouchStart={() => tap()}
-                className="flex items-center justify-between rounded-xl border border-border/60 bg-card px-4 py-3 transition-all duration-200 active:scale-[0.97]"
-              >
-                {/* Left: time */}
-                <div>
-                  <p className="font-display text-xs font-bold text-foreground">
-                    {slot.display}
-                  </p>
-                  <p className="font-display text-[0.55rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    {slot.label}
-                  </p>
+                  {/* 2D */}
+                  <div className="flex items-center justify-center gap-1">
+                    <div>
+                      <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
+                        2D
+                      </p>
+                      {has ? (
+                        <RollingNumber
+                          value={result!.twod}
+                          className="font-display text-xl font-extrabold"
+                          digitStyle={{
+                            background: "linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            backgroundClip: "text",
+                          }}
+                        />
+                      ) : (
+                        <p className="font-display text-xl font-extrabold text-muted-foreground">—</p>
+                      )}
+                    </div>
+                    {has && (
+                      <ChevronRight className="h-4 w-4 text-primary/60 mt-3" />
+                    )}
+                  </div>
                 </div>
-
-                {/* Right: 2D number */}
-                {has ? (
-                  <motion.div
-                    key={`${slot.time}-${result!.twod}`}
-                    initial={{ scale: 0.85, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="leading-none"
-                  >
-                    <RollingNumber
-                      value={result!.twod}
-                      className="font-display text-2xl font-extrabold"
-                      digitStyle={{
-                        background: "linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%)",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                      }}
-                    />
-                  </motion.div>
-                ) : (
-                  <span className="h-8 w-10" aria-hidden="true" />
-                )}
               </motion.div>
             );
           })}
