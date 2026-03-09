@@ -80,20 +80,31 @@ export function TwoDHistoryOverlay({ open, onClose, date, openTime, sessionTime 
         <div className="space-y-5">
           {/* Hero result */}
           <div className="flex flex-col items-center gap-2">
-            <RollingNumber
-              value={data.result2d}
-              className="font-display text-6xl font-black"
-              digitStyle={{
-                background: "linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            />
-            {data.updatedAt && (
+            {data.result2d && data.result2d !== "--" ? (
+              <RollingNumber
+                value={data.result2d}
+                className="font-display text-6xl font-black"
+                digitStyle={{
+                  background: "linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              />
+            ) : (
+              <p className="font-display text-2xl font-bold text-muted-foreground">
+                ဤ Session အတွက် Result Data မရှိပါ
+              </p>
+            )}
+            {data.updatedAt && data.result2d !== "--" && (
               <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <span className="inline-block h-2 w-2 rounded-full bg-success" />
                 Updated: {data.updatedAt}
+              </p>
+            )}
+            {data.result2d === "--" && data.entries.length > 0 && (
+              <p className="text-xs text-muted-foreground text-center mt-1">
+                ရရှိနိုင်သော Timeline Data ကို အောက်တွင် ပြထားပါသည်
               </p>
             )}
           </div>
