@@ -119,7 +119,9 @@ const Index = () => {
         onClose={() => setShowHistory(false)}
         title="Previous Results (Last 7 Days)"
       >
-        <HistoryTable />
+        <Suspense fallback={null}>
+          <HistoryTable />
+        </Suspense>
       </FullScreenOverlay>
 
       <FullScreenOverlay
