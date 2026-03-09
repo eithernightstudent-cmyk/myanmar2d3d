@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Topbar } from "@/components/dashboard/Topbar";
-import { Footer } from "@/components/dashboard/Footer";
+const Footer = lazy(() => import("@/components/dashboard/Footer"));
 import { ArrowLeft, Calendar, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -127,7 +127,7 @@ const Results = () => {
         )}
       </main>
 
-      <Footer ownerName={ownerName} />
+      <Suspense fallback={null}><Footer ownerName={ownerName} /></Suspense>
     </div>
   );
 };

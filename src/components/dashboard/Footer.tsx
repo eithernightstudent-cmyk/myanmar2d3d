@@ -19,3 +19,5 @@ export const Footer = React.forwardRef<HTMLElement, FooterProps>(
 );
 
 Footer.displayName = "Footer";
+
+export default Footer;
