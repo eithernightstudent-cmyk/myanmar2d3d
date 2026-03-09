@@ -1,4 +1,5 @@
-import { useState } from "@/components/dashboard/Topbar";
+import { useState } from "react";
+import { Topbar } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
 import { TodayResults } from "@/components/dashboard/TodayResults";
@@ -7,7 +8,8 @@ import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
 import { HistoryTable } from "@/components/dashboard/HistoryTable";
 import { DashboardNavButtons } from "@/components/dashboard/DashboardNavButtons";
 import { FullScreenOverlay } from "@/components/dashboard/FullScreenOverlay";
-const Footer = limport { LazyFooimport { LazyFooter } from "@/components/dashboard/LazyFooter"omponents/dashboard/PullToRefresh";
+import { LazyFooter } from "@/components/dashboard/LazyFooter";
+import { PullToRefresh } from "@/components/dashboard/PullToRefresh";
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
 const Index = () => {
