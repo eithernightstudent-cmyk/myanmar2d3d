@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { CalendarDays, Dice3 } from "lucide-react";
 import { tap } from "@/lib/haptic";
 
@@ -9,9 +8,7 @@ interface DashboardNavButtonsProps {
 
 export function DashboardNavButtons({ onOpenHistory, onOpen3D }: DashboardNavButtonsProps) {
   return (
-    <div
-      className="grid grid-cols-2 gap-3"
-    >
+    <div className="grid grid-cols-2 gap-3">
       {/* 2D History Button */}
       <button
         onClick={() => { tap(); onOpenHistory(); }}
@@ -19,13 +16,9 @@ export function DashboardNavButtons({ onOpenHistory, onOpen3D }: DashboardNavBut
       >
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        <motion.div
-          whileHover={{ scale: 1.12, rotate: 5 }}
-          transition={{ type: "spring", stiffness: 300 }}
-          className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg transition-shadow duration-200 group-hover:shadow-xl group-hover:shadow-amber-500/20"
-        >
+        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg transition-all duration-200 group-hover:shadow-xl group-hover:shadow-amber-500/20 group-hover:scale-110 group-hover:rotate-[5deg]">
           <CalendarDays className="h-6 w-6 drop-shadow-sm" strokeWidth={2.2} />
-        </motion.div>
+        </div>
 
         <div className="relative text-center">
           <p className="font-display text-sm font-bold" style={{ color: "hsl(var(--text-strong))" }}>
@@ -44,13 +37,9 @@ export function DashboardNavButtons({ onOpenHistory, onOpen3D }: DashboardNavBut
       >
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        <motion.div
-          whileHover={{ scale: 1.12, rotate: -5 }}
-          transition={{ type: "spring", stiffness: 300 }}
-          className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-lg transition-shadow duration-200 group-hover:shadow-xl group-hover:shadow-emerald-500/20"
-        >
+        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-lg transition-all duration-200 group-hover:shadow-xl group-hover:shadow-emerald-500/20 group-hover:scale-110 group-hover:-rotate-[5deg]">
           <Dice3 className="h-6 w-6 drop-shadow-sm" strokeWidth={2.2} />
-        </motion.div>
+        </div>
 
         <div className="relative text-center">
           <p className="font-display text-sm font-bold" style={{ color: "hsl(var(--text-strong))" }}>
