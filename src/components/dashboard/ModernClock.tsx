@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+
 import { Globe, CheckCircle2 } from "lucide-react";
 import { getThailandParts, padTwo } from "@/lib/market-utils";
 
@@ -47,10 +47,7 @@ export function ModernClock() {
   };
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.06, duration: 0.5 }}
+    <article
       className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg"
     >
       <div className="flex items-center justify-between mb-3">
@@ -134,6 +131,6 @@ export function ModernClock() {
           );
         })}
       </div>
-    </motion.article>
+    </article>
   );
 }

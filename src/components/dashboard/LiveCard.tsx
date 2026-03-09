@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+/* Note: motion still used for inner elements (AnimatePresence, motion.div) */
 import { StatusPill } from "./StatusPill";
 import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, Zap, CircleAlert } from "lucide-react";
 import { tap } from "@/lib/haptic";
@@ -69,10 +70,7 @@ export function LiveCard({
   })();
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.05, duration: 0.5 }}
+    <section
       aria-live="polite"
     >
       <article
@@ -268,6 +266,6 @@ export function LiveCard({
           </div>
         </div>
       </article>
-    </motion.section>
+    </section>
   );
 }
