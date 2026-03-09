@@ -54,11 +54,7 @@ export const TodayResults = memo(function TodayResults({
   }, [displayResults]);
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.15, duration: 0.5 }}
-    >
+    <section>
       <article className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg">
         {/* Header — no icon */}
         <div className="mb-5 flex items-center justify-between">
