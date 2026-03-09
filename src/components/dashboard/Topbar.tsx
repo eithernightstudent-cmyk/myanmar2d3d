@@ -20,24 +20,10 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
   const [justEnabled, setJustEnabled] = useState(false);
   const [soundOn, setSoundOn] = useState(isClickSoundEnabled);
 
-  const toggleTheme = () => {
-    const next = !dark;
-    if (document.startViewTransition) {
-      document.startViewTransition(() => {
-        document.documentElement.classList.toggle("dark", next);
-        localStorage.setItem("kktech-theme", next ? "dark" : "light");
-      });
-    } else {
-      document.documentElement.classList.toggle("dark", next);
-      localStorage.setItem("kktech-theme", next ? "dark" : "light");
-    }
-    setDark(next);
-  };
-
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("kktech-theme", dark ? "dark" : "light");
-  }, [dark]);
+    document.documentElement.classList.add("dark");
+    localStorage.setItem("kktech-theme", "dark");
+  }, []);
 
   useEffect(() => {
     if (enabled) {
