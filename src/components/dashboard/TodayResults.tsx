@@ -136,7 +136,7 @@ export const TodayResults = memo(function TodayResults({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 * i, duration: 0.35 }}
                 onTouchStart={() => tap()}
-                className="relative overflow-hidden rounded-2xl border border-primary/20 p-4 transition-all duration-200 active:scale-[0.98]"
+                className="relative overflow-hidden rounded-2xl border border-border/60 p-4 transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow-md"
                 style={{ background: CARD_GRADIENTS[i] }}
               >
                 {/* Time header */}
