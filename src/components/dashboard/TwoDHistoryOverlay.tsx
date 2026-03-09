@@ -21,17 +21,18 @@ interface TwoDHistoryData {
 interface TwoDHistoryOverlayProps {
   open: boolean;
   onClose: () => void;
-  historyId: string | null;
+  date: string | null;
+  openTime: string | null;
   sessionTime?: string;
 }
 
-export function TwoDHistoryOverlay({ open, onClose, historyId, sessionTime }: TwoDHistoryOverlayProps) {
+export function TwoDHistoryOverlay({ open, onClose, date, openTime, sessionTime }: TwoDHistoryOverlayProps) {
   const [data, setData] = useState<TwoDHistoryData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!open || !historyId) {
+    if (!open || !date || !openTime) {
       setData(null);
       setError(null);
       return;
@@ -44,7 +45,7 @@ export function TwoDHistoryOverlay({ open, onClose, historyId, sessionTime }: Tw
     (async () => {
       try {
         const resp = await supabase.functions.invoke("twod-history", {
-          body: { history_id: historyId },
+          body: { date, open_time: openTime },
         });
         if (cancelled) return;
         if (resp.error) throw new Error(resp.error.message);
@@ -57,7 +58,7 @@ export function TwoDHistoryOverlay({ open, onClose, historyId, sessionTime }: Tw
     })();
 
     return () => { cancelled = true; };
-  }, [open, historyId]);
+  }, [open, date, openTime]);
 
   const title = sessionTime ? `2D History — ${sessionTime}` : "2D History";
 
