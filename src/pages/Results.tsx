@@ -127,7 +127,7 @@ const Results = () => {
         )}
       </main>
 
-      <Footer ownerName={ownerName} />
+      <Suspense fallback={null}><Footer ownerName={ownerName} /></Suspense>
     </div>
   );
 };

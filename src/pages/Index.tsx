@@ -110,7 +110,7 @@ const Index = () => {
         </div>
       </main>
 
-      <Footer ownerName={dashboard.ownerName} />
+      <Suspense fallback={null}><Footer ownerName={dashboard.ownerName} /></Suspense>
 
       {/* Full-screen overlays */}
       <FullScreenOverlay
