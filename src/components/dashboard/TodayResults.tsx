@@ -185,10 +185,11 @@ export const TodayResults = memo(function TodayResults({
                           value={result!.twod}
                           className="font-display text-xl font-extrabold"
                           digitStyle={{
-                            background: "linear-gradient(135deg, #b8860b 0%, #d4a017 30%, #c7922a 62%, #a67c00 100%)",
+                            background: "linear-gradient(135deg, #e8a020 0%, #f5c542 25%, #d4920a 50%, #f0b840 75%, #c88510 100%)",
                             WebkitBackgroundClip: "text",
                             WebkitTextFillColor: "transparent",
                             backgroundClip: "text",
+                            filter: "drop-shadow(0 1px 4px rgba(212, 146, 10, 0.3))",
                           }}
                         />
                       ) : (

@@ -170,12 +170,12 @@
     letter-spacing: 0.01em;
   }
   .gold-metal-text {
-    background: linear-gradient(135deg, #b8860b 0%, #d4a017 30%, #c7922a 62%, #a67c00 100%);
+    background: linear-gradient(135deg, #e8a020 0%, #f5c542 25%, #d4920a 50%, #f0b840 75%, #c88510 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-    text-shadow: none;
+    filter: drop-shadow(0 2px 6px rgba(212, 146, 10, 0.25));
   }
   .gold-metal-button {
     background: linear-gradient(135deg, #fff3b0 0%, #ffd154 34%, #f4a600 66%, #ffd975 100%);
