@@ -1,16 +1,17 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { LiveCard } from "@/components/dashboard/LiveCard";
 import { ModernClock } from "@/components/dashboard/ModernClock";
 import { TodayResults } from "@/components/dashboard/TodayResults";
 import { SessionPanel } from "@/components/dashboard/SessionPanel";
-import { ThreeDSection } from "@/components/dashboard/ThreeDSection";
-import { HistoryTable } from "@/components/dashboard/HistoryTable";
 import { DashboardNavButtons } from "@/components/dashboard/DashboardNavButtons";
 import { FullScreenOverlay } from "@/components/dashboard/FullScreenOverlay";
 import { LazyFooter } from "@/components/dashboard/LazyFooter";
 import { PullToRefresh } from "@/components/dashboard/PullToRefresh";
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
+
+const HistoryTable = lazy(() => import("@/components/dashboard/HistoryTable").then(m => ({ default: m.HistoryTable })));
+const ThreeDSection = lazy(() => import("@/components/dashboard/ThreeDSection").then(m => ({ default: m.ThreeDSection })));
 
 const Index = () => {
   const dashboard = useLiveDashboard();
