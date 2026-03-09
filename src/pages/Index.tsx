@@ -47,7 +47,11 @@ const Index = () => {
         }}
       />
 
-      <Topbar ownerName={dashboard.ownerName} />
+      <Topbar
+        ownerName={dashboard.ownerName}
+        resultDisplayMode={dashboard.resultDisplayMode}
+        onToggleResultDisplayMode={dashboard.toggleResultDisplayMode}
+      />
 
       <main className="mx-auto w-[min(100%-1.25rem,72rem)] py-6 sm:w-[min(100%-2rem,72rem)] sm:py-8">
         {/* Live Card + Clock */}
@@ -75,6 +79,7 @@ const Index = () => {
               isResultLocked={dashboard.isResultLocked}
               isResultPreliminary={dashboard.isResultPreliminary}
               resultConfirmSecondsLeft={dashboard.resultConfirmSecondsLeft}
+              isFinalOnlyMode={dashboard.isFinalOnlyMode}
               isHotMinute={dashboard.isHotMinute}
             />
 
