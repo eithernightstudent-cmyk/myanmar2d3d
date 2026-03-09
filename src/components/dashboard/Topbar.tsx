@@ -77,68 +77,6 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
         </span>
       </Link>
 
-      {/* Icon dock — top right */}
-      <div className="pointer-events-auto flex items-center gap-1 rounded-2xl border border-border/40 bg-[hsl(var(--card-glass))] px-1.5 py-1.5 shadow-lg backdrop-blur-xl">
-        {/* Result Display Mode */}
-        {onToggleResultDisplayMode && (
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => { tap(); onToggleResultDisplayMode(); }}
-            aria-label={resultDisplayMode === "final-only" ? "Switch to fast live mode" : "Switch to final-only mode"}
-            title={resultDisplayMode === "final-only" ? "Final-only mode" : "Fast live mode"}
-            className={resultDisplayMode === "final-only"
-              ? `${iconBtn} border-success/35 bg-success/10 text-success`
-              : `${iconBtn} gold-metal-button`
-            }
-          >
-            {resultDisplayMode === "final-only" ? <Lock size={14} strokeWidth={2.2} /> : <Zap size={14} strokeWidth={2.2} />}
-          </motion.button>
-        )}
-
-        {/* Notification Bell */}
-        {supported && (
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => { tapMedium(); toggleNotifications(); }}
-            aria-label={bellLabel}
-            title={bellLabel}
-            className={`${enabled ? iconBtnActive : iconBtnDefault} ${permission === "denied" ? "opacity-50 cursor-not-allowed" : ""}`}
-            disabled={permission === "denied"}
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span
-                key={enabled ? "bell-on" : "bell-off"}
-                initial={{ scale: 0.7, opacity: 0, rotate: -15 }}
-                animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                exit={{ scale: 0.7, opacity: 0, rotate: 15 }}
-                transition={{ duration: 0.25, type: "spring" }}
-              >
-                <BellIcon size={14} strokeWidth={2.2} />
-              </motion.span>
-            </AnimatePresence>
-            {enabled && (
-              <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border-2 border-[hsl(var(--card-glass))] bg-primary animate-pulse" />
-            )}
-          </motion.button>
-        )}
-
-        {/* Sound Toggle */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => {
-            const next = !soundOn;
-            setClickSoundEnabled(next);
-            setSoundOn(next);
-            tap();
-          }}
-          aria-label={soundOn ? "Turn off click sound" : "Turn on click sound"}
-          title={soundOn ? "Sound: ON" : "Sound: OFF"}
-          className={soundOn ? iconBtnActive : iconBtnDefault}
-        >
-          {soundOn ? <Volume2 size={14} strokeWidth={2.2} /> : <VolumeX size={14} strokeWidth={2.2} />}
-        </motion.button>
-
-      </div>
     </header>
   );
 }
