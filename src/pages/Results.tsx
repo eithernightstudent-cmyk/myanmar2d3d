@@ -7,7 +7,7 @@ import { formatNumber } from "@/lib/market-utils";
 import { Link } from "react-router-dom";
 import { tap } from "@/lib/haptic";
 
-const logoImg = "/logo-24.webp";
+const logoImg = "/logo-icon.webp";
 const Footer = lazy(() => import("@/components/dashboard/Footer").then(m => ({ default: m.Footer })));
 
 const SESSION_MAP: Record<string, string> = {
