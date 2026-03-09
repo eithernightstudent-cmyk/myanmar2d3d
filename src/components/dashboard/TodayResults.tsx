@@ -110,7 +110,7 @@ export const TodayResults = memo(function TodayResults({
                       value={result!.twod}
                       className="font-display text-4xl font-extrabold leading-none"
                       digitStyle={{
-                        background: "linear-gradient(135deg, hsl(330 85% 50%), hsl(275 75% 48%))",
+                        background: "linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                         backgroundClip: "text",
@@ -180,7 +180,7 @@ export const TodayResults = memo(function TodayResults({
                       value={result!.twod}
                       className="font-display text-2xl font-extrabold"
                       digitStyle={{
-                        background: "linear-gradient(135deg, hsl(330 85% 50%), hsl(275 75% 48%))",
+                        background: "linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                         backgroundClip: "text",
