@@ -40,7 +40,7 @@ const Results = () => {
   }, []);
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden">
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden pb-safe">
       <div
         className="pointer-events-none fixed inset-0 -z-10"
         aria-hidden="true"
@@ -52,7 +52,7 @@ const Results = () => {
 
       <Topbar ownerName={ownerName} />
 
-      <main className="mx-auto w-[min(100%-2rem,72rem)] py-8">
+      <main className="mx-auto w-[min(100%-1rem,72rem)] pt-14 pb-20 sm:w-[min(100%-2rem,72rem)] sm:pt-16 sm:pb-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -60,17 +60,17 @@ const Results = () => {
         >
           <Link
             to="/"
-            className="mb-4 inline-flex items-center gap-1.5 font-display text-sm text-muted-foreground no-underline transition-colors hover:text-foreground"
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/50 bg-[hsl(var(--card-glass))] px-3 py-1.5 font-display text-sm text-muted-foreground no-underline backdrop-blur-sm transition-all hover:text-foreground hover:border-primary/30 active:scale-95"
           >
-            <ArrowLeft size={14} />
-            Back to Dashboard
+            <ArrowLeft size={14} strokeWidth={2.5} />
+            Back
           </Link>
 
-          <h1 className="font-display text-[clamp(1.8rem,4vw,2.4rem)] font-bold tracking-tight text-foreground">
-            2D3D Results — Last 10 Days
+          <h1 className="font-display text-[clamp(1.6rem,4vw,2.2rem)] font-bold tracking-tight text-foreground">
+            2D Results
           </h1>
-          <p className="mt-1 mb-6 text-muted-foreground">
-            Final 2D results from 2D3D Myanmar Live data sources
+          <p className="mt-1 mb-5 text-sm text-muted-foreground">
+            Last 10 days of final 2D results
           </p>
         </motion.div>
 

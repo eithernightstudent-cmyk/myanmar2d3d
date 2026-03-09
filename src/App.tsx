@@ -42,9 +42,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AnimatedRoutes />
-        <BrowserRouter>
-          {/* BottomNav needs to be inside BrowserRouter but outside AnimatedRoutes */}
-        </BrowserRouter>
+        <BottomNav />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
