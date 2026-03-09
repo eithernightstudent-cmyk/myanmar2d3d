@@ -1,10 +1,11 @@
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { formatNumber } from "@/lib/market-utils";
 import { tap } from "@/lib/haptic";
 import { RollingNumber } from "./RollingNumber";
 import { ChevronRight, Dice3, CalendarDays, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { TwoDHistoryOverlay } from "./TwoDHistoryOverlay";
 
 interface CurrentDayResult {
   set: string;
@@ -71,6 +72,7 @@ export const TodayResults = memo(function TodayResults({
   onOpen3D,
 }: TodayResultsProps) {
   const navigate = useNavigate();
+  const [historyOverlay, setHistoryOverlay] = useState<{ id: string; time: string } | null>(null);
   const displayResults = currentDayResults.length > 0 ? currentDayResults : fallbackResults;
   const isFallback = currentDayResults.length === 0 && fallbackResults.length > 0;
   const fallbackDate = isFallback && fallbackResults[0]?.stock_date ? fallbackResults[0].stock_date : null;
@@ -165,43 +167,36 @@ export const TodayResults = memo(function TodayResults({
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-center gap-1">
+                  <div
+                    className={`flex items-center justify-center gap-1 ${has && result!.history_id ? "cursor-pointer" : ""}`}
+                    onClick={() => {
+                      if (has && result!.history_id) {
+                        tap();
+                        setHistoryOverlay({ id: result!.history_id, time: slot.display });
+                      }
+                    }}
+                  >
                     <div>
                       <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
                         2D
                       </p>
                       {has ? (
-                        <a
-                          href={result!.history_id ? `https://www.thaistock2d.com/twodHistory_ByResult?history_id=${result!.history_id}` : undefined}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => { if (!result!.history_id) e.preventDefault(); tap(); }}
-                          className={result!.history_id ? "cursor-pointer" : "cursor-default"}
-                        >
-                          <RollingNumber
-                            value={result!.twod}
-                            className="font-display text-xl font-extrabold"
-                            digitStyle={{
-                              background: "linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%)",
-                              WebkitBackgroundClip: "text",
-                              WebkitTextFillColor: "transparent",
-                              backgroundClip: "text",
-                            }}
-                          />
-                        </a>
+                        <RollingNumber
+                          value={result!.twod}
+                          className="font-display text-xl font-extrabold"
+                          digitStyle={{
+                            background: "linear-gradient(135deg, #fff6cc 0%, #ffd866 30%, #ffb81f 62%, #fff2ba 100%)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            backgroundClip: "text",
+                          }}
+                        />
                       ) : (
                         <p className="font-display text-xl font-extrabold text-muted-foreground">—</p>
                       )}
                     </div>
                     {has && result!.history_id && (
-                      <a
-                        href={`https://www.thaistock2d.com/twodHistory_ByResult?history_id=${result!.history_id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => tap()}
-                      >
-                        <ChevronRight className="h-4 w-4 text-primary/60 mt-3" />
-                      </a>
+                      <ChevronRight className="h-4 w-4 text-primary/60 mt-3" />
                     )}
                   </div>
                 </div>
@@ -210,6 +205,13 @@ export const TodayResults = memo(function TodayResults({
           })}
         </div>
       </article>
+
+      <TwoDHistoryOverlay
+        open={!!historyOverlay}
+        onClose={() => setHistoryOverlay(null)}
+        historyId={historyOverlay?.id || null}
+        sessionTime={historyOverlay?.time}
+      />
     </section>
   );
 });
