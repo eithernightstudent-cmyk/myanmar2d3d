@@ -1,5 +1,5 @@
 // Service Worker for Myanmar 2D Live PWA
-const CACHE_NAME = "myanmar-2d3d-v1";
+const CACHE_NAME = "myanmar-2d3d-v2";
 const STATIC_ASSETS = [
   "/",
   "/favicon.png",
@@ -24,12 +24,29 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch: network-first for API, cache-first for static
+// Fetch strategy:
+// - Navigation requests: network-first (prevents stale HTML after publish)
+// - Other same-origin static requests: cache-first with network fallback
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // Skip non-GET and supabase API calls (always network)
+  // Skip non-GET and backend API calls (always network)
   if (event.request.method !== "GET" || url.hostname.includes("supabase")) {
+    return;
+  }
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/")))
+    );
     return;
   }
 
@@ -37,7 +54,6 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then((cached) => {
       const networkFetch = fetch(event.request)
         .then((response) => {
-          // Cache successful responses for static assets
           if (response.ok && url.origin === self.location.origin) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
