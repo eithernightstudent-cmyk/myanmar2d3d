@@ -11,28 +11,31 @@ interface HistoryEntry {
   isResult: boolean;
 }
 
-// Session closing times to identify which session a row belongs to
-const SESSION_TIMES = [
-  { close: "11:00", label: "11:00 AM" },
-  { close: "12:01", label: "12:01 PM" },
-  { close: "15:00", label: "03:00 PM" },
-  { close: "16:30", label: "04:30 PM" },
-];
-
-function getSessionForTime(timeStr: string): string | null {
+function getSessionForTime(timeStr: string, sessionKey: string): boolean {
   const [h, m] = timeStr.split(":").map(Number);
   const mins = h * 60 + m;
 
-  // 09:30 - 11:05 → 11:00
-  if (mins >= 570 && mins <= 665) return "11:00";
-  // 11:05 - 12:06 → 12:01
-  if (mins > 665 && mins <= 726) return "12:01";
-  // 12:06 - 15:05 → 15:00
-  if (mins > 726 && mins <= 905) return "15:00";
-  // 15:05 - 16:35 → 16:30
-  if (mins > 905 && mins <= 995) return "16:30";
+  switch (sessionKey) {
+    case "11:00": return mins >= 570 && mins <= 665; // 09:30 - 11:05
+    case "12:01": return mins > 665 && mins <= 726;  // 11:05 - 12:06
+    case "15:00": return mins > 726 && mins <= 905;  // 12:06 - 15:05
+    case "16:30": return mins > 905 && mins <= 995;  // 15:05 - 16:35
+    default: return false;
+  }
+}
 
-  return null;
+async function fetchHistoryPage(date: string, page: number, signal: AbortSignal) {
+  const apiUrl = `https://api.thaistock2d.com/history?date=${encodeURIComponent(date)}&page=${page}`;
+  const response = await fetch(apiUrl, {
+    signal,
+    headers: {
+      "accept": "application/json",
+      "user-agent": "KKTech-Dashboard/1.0",
+    },
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const rawData = await response.json();
+  return rawData?.[0]?.child || [];
 }
 
 Deno.serve(async (req) => {
@@ -60,35 +63,44 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Normalize open_time to HH:MM
     const sessionKey = openTime.slice(0, 5);
-
     console.log("Fetching 2D history for date:", date, "session:", sessionKey);
 
-    const apiUrl = `https://api.thaistock2d.com/history?date=${encodeURIComponent(date)}`;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-    const response = await fetch(apiUrl, {
-      signal: controller.signal,
-      headers: {
-        "accept": "application/json",
-        "user-agent": "KKTech-Dashboard/1.0",
-      },
-    });
-    clearTimeout(timeoutId);
+    // Fetch up to 5 pages to find the session's data
+    let allEntries: { time: string; set: string; value: string; twod: string }[] = [];
+    let foundSession = false;
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+    for (let page = 1; page <= 5; page++) {
+      try {
+        const entries = await fetchHistoryPage(date, page, controller.signal);
+        if (entries.length === 0) break;
+        allEntries = allEntries.concat(entries);
+
+        // Check if any entry belongs to our target session
+        const hasTarget = entries.some((e: any) => getSessionForTime(e.time, sessionKey));
+        if (hasTarget) {
+          foundSession = true;
+          break;
+        }
+
+        // If entries are older than our session, stop
+        const oldestTime = entries[entries.length - 1]?.time || "";
+        const [oh, om] = oldestTime.split(":").map(Number);
+        const oldestMins = oh * 60 + om;
+        const sessionMins = sessionKey === "11:00" ? 570 : sessionKey === "12:01" ? 665 : sessionKey === "15:00" ? 726 : 905;
+        if (oldestMins < sessionMins) {
+          foundSession = true; // We've passed through the session range
+          break;
+        }
+      } catch (err) {
+        console.error(`Page ${page} fetch failed:`, err);
+        break;
+      }
     }
-
-    const rawData = await response.json();
-    console.log("Raw API response type:", typeof rawData, "isArray:", Array.isArray(rawData), "length:", rawData?.length, "first:", JSON.stringify(rawData?.[0])?.substring(0, 300));
-
-    // rawData is an array with one element: { date, child: [...] }
-    const allEntries: { time: string; set: string; value: string; twod: string }[] =
-      rawData?.[0]?.child || [];
-    console.log("All entries count:", allEntries.length, "first entry:", JSON.stringify(allEntries[0]));
+    clearTimeout(timeoutId);
 
     // Filter entries belonging to this session
     const sessionEntries: HistoryEntry[] = [];
@@ -96,8 +108,7 @@ Deno.serve(async (req) => {
     let resultTime = "";
 
     for (const entry of allEntries) {
-      const entrySession = getSessionForTime(entry.time);
-      if (entrySession === sessionKey) {
+      if (getSessionForTime(entry.time, sessionKey)) {
         sessionEntries.push({
           time: entry.time,
           set: entry.set,
@@ -108,16 +119,12 @@ Deno.serve(async (req) => {
       }
     }
 
-    // The first entry (latest time) closest to the session close is the result
-    // Find the entry at the exact session close time (or the latest one)
-    if (sessionEntries.length > 0) {
-      // Sort by time descending (they should already be)
-      sessionEntries.sort((a, b) => b.time.localeCompare(a.time));
+    // Sort descending by time
+    sessionEntries.sort((a, b) => b.time.localeCompare(a.time));
 
-      // Mark the first entry (closest to close time) as the result
-      // Actually, the result is the entry at exactly the session close time
-      // The entries from the API at close time (e.g. 11:00:03) are the result
-      const closeMinute = sessionKey; // "11:00", "12:01", etc.
+    // Mark result entry (at/after session close time)
+    if (sessionEntries.length > 0) {
+      const closeMinute = sessionKey;
       let foundResult = false;
       for (const entry of sessionEntries) {
         if (entry.time.startsWith(closeMinute)) {
@@ -129,11 +136,10 @@ Deno.serve(async (req) => {
           }
         }
       }
-
-      // If no entry at exact close time, use the latest one
-      if (!foundResult && sessionEntries.length > 0) {
+      if (!foundResult) {
         sessionEntries[0].isResult = true;
         result2d = sessionEntries[0].twod;
+        resultTime = sessionEntries[0].time;
       }
     }
 
@@ -143,7 +149,7 @@ Deno.serve(async (req) => {
       JSON.stringify({
         data: {
           result2d,
-          updatedAt: resultTime || (sessionEntries.length > 0 ? sessionEntries[0].time : ""),
+          updatedAt: resultTime,
           entries: sessionEntries,
         },
       }),
