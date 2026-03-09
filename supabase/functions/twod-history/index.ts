@@ -107,6 +107,7 @@ Deno.serve(async (req) => {
     }
 
     const html = await response.text();
+    console.log("HTML length:", html.length, "First 1000 chars:", html.substring(0, 1000));
     const parsed = parseHistoryHtml(html);
 
     console.log(`Parsed ${parsed.entries.length} entries, result: ${parsed.result2d}`);
