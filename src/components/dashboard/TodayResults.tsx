@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { formatNumber } from "@/lib/market-utils";
 import { tap } from "@/lib/haptic";
 import { RollingNumber } from "./RollingNumber";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Dice3, CalendarDays, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface CurrentDayResult {
   set: string;
@@ -18,6 +19,8 @@ interface TodayResultsProps {
   currentDayResults: CurrentDayResult[];
   currentDate: string;
   fallbackResults?: CurrentDayResult[];
+  onOpenHistory?: () => void;
+  onOpen3D?: () => void;
 }
 
 const ALL_SLOTS = [
@@ -27,7 +30,6 @@ const ALL_SLOTS = [
   { time: "16:30", display: "04:30 PM", label: "Closing" },
 ];
 
-/** Card gradient tones — adapts to dark theme using primary hues */
 const CARD_GRADIENTS = [
   "linear-gradient(135deg, hsl(var(--primary) / 0.25), hsl(var(--primary) / 0.12))",
   "linear-gradient(135deg, hsl(var(--primary) / 0.35), hsl(var(--primary) / 0.18))",
@@ -39,11 +41,35 @@ function hasValidTwoD(value: string | undefined) {
   return /^\d{2}$/.test(String(value ?? "").trim());
 }
 
+const NAV_ICONS = [
+  {
+    key: "3d",
+    icon: Dice3,
+    label: "3D Results",
+    gradient: "from-emerald-400 to-teal-500",
+  },
+  {
+    key: "history",
+    icon: CalendarDays,
+    label: "Previous Results",
+    gradient: "from-amber-400 to-orange-500",
+  },
+  {
+    key: "results",
+    icon: Clock,
+    label: "2D Results",
+    gradient: "from-blue-400 to-indigo-500",
+  },
+];
+
 export const TodayResults = memo(function TodayResults({
   currentDayResults,
   currentDate,
   fallbackResults = [],
+  onOpenHistory,
+  onOpen3D,
 }: TodayResultsProps) {
+  const navigate = useNavigate();
   const displayResults = currentDayResults.length > 0 ? currentDayResults : fallbackResults;
   const isFallback = currentDayResults.length === 0 && fallbackResults.length > 0;
   const fallbackDate = isFallback && fallbackResults[0]?.stock_date ? fallbackResults[0].stock_date : null;
@@ -57,10 +83,17 @@ export const TodayResults = memo(function TodayResults({
     return map;
   }, [displayResults]);
 
+  const handleNavClick = (key: string) => {
+    tap();
+    if (key === "3d") onOpen3D?.();
+    else if (key === "history") onOpenHistory?.();
+    else if (key === "results") navigate("/results");
+  };
+
   return (
     <section>
       <article className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 sm:p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg">
-        {/* Header */}
+        {/* Header with nav icons */}
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="font-display text-base font-bold tracking-wide text-foreground">
@@ -70,9 +103,21 @@ export const TodayResults = memo(function TodayResults({
               {displayDate || "\u00A0"}
             </p>
           </div>
-          <span className="rounded-full border border-primary/20 bg-primary/8 px-2.5 py-1 font-display text-[0.6rem] font-bold uppercase tracking-wider text-primary">
-            Daily 2D
-          </span>
+
+          {/* Icon navigation cluster */}
+          <div className="flex items-center gap-2">
+            {NAV_ICONS.map(({ key, icon: Icon, label, gradient }) => (
+              <button
+                key={key}
+                onClick={() => handleNavClick(key)}
+                aria-label={label}
+                title={label}
+                className={`group relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-md transition-all duration-200 active:scale-90 hover:scale-110 hover:shadow-lg`}
+              >
+                <Icon className="h-4.5 w-4.5 drop-shadow-sm" strokeWidth={2.2} />
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Session Cards — stacked vertically */}
@@ -101,7 +146,6 @@ export const TodayResults = memo(function TodayResults({
 
                 {/* Data row: Set / Value / 2D */}
                 <div className="grid grid-cols-3 items-end gap-2 text-center">
-                  {/* SET */}
                   <div>
                     <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
                       Set
@@ -111,7 +155,6 @@ export const TodayResults = memo(function TodayResults({
                     </p>
                   </div>
 
-                  {/* Value */}
                   <div>
                     <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
                       Value
@@ -121,7 +164,6 @@ export const TodayResults = memo(function TodayResults({
                     </p>
                   </div>
 
-                  {/* 2D */}
                   <div className="flex items-center justify-center gap-1">
                     <div>
                       <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
