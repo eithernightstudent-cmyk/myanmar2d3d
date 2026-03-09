@@ -161,7 +161,7 @@ export function LiveCard({
                 className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-amber-400/35 bg-amber-500/10 px-3 py-1"
               >
                 <CircleAlert className="h-3.5 w-3.5 text-amber-500" />
-                <span className="font-display text-[0.62rem] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                <span className="font-display text-[0.62rem] font-bold uppercase tracking-wider text-amber-700">
                   Preliminary {resultConfirmSecondsLeft > 0 ? `• ${resultConfirmSecondsLeft}s` : ""}
                 </span>
               </motion.div>
