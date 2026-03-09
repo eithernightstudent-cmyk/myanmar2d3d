@@ -83,10 +83,12 @@ Deno.serve(async (req) => {
     }
 
     const rawData = await response.json();
+    console.log("Raw API response type:", typeof rawData, "isArray:", Array.isArray(rawData), "length:", rawData?.length, "first:", JSON.stringify(rawData?.[0])?.substring(0, 300));
 
     // rawData is an array with one element: { date, child: [...] }
     const allEntries: { time: string; set: string; value: string; twod: string }[] =
       rawData?.[0]?.child || [];
+    console.log("All entries count:", allEntries.length, "first entry:", JSON.stringify(allEntries[0]));
 
     // Filter entries belonging to this session
     const sessionEntries: HistoryEntry[] = [];
