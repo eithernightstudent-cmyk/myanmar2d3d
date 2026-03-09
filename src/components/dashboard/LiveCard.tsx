@@ -99,7 +99,7 @@ export function LiveCard({
                 className="flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5"
               >
                 <Zap className="h-3 w-3 text-amber-500" fill="currentColor" />
-                <span className="font-display text-[0.55rem] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Fast</span>
+                <span className="font-display text-[0.55rem] font-bold uppercase tracking-wider text-amber-600">Fast</span>
               </motion.div>
             )}
           </div>
@@ -111,7 +111,7 @@ export function LiveCard({
         {/* Market Closed Banner */}
         {marketClosed && (
           <div className="mt-3 text-center">
-            <p className="inline-flex items-center rounded-full border border-amber-400/30 bg-amber-500/10 px-2.5 py-1 font-display text-xs font-semibold uppercase tracking-[0.2em] text-amber-300 status-badge-glow-closed">
+            <p className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-50 px-2.5 py-1 font-display text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 status-badge-glow-closed">
               Market Closed
             </p>
             {cleanHolidayName && (
@@ -161,7 +161,7 @@ export function LiveCard({
                 className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-amber-400/35 bg-amber-500/10 px-3 py-1"
               >
                 <CircleAlert className="h-3.5 w-3.5 text-amber-500" />
-                <span className="font-display text-[0.62rem] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                <span className="font-display text-[0.62rem] font-bold uppercase tracking-wider text-amber-700">
                   Preliminary {resultConfirmSecondsLeft > 0 ? `• ${resultConfirmSecondsLeft}s` : ""}
                 </span>
               </motion.div>
@@ -172,10 +172,10 @@ export function LiveCard({
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
-                className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-950/80 px-4 py-1.5 backdrop-blur-sm"
+                className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-50 px-4 py-1.5 backdrop-blur-sm"
               >
-                <ShieldCheck className="h-4 w-4 text-emerald-400" strokeWidth={2.2} />
-                <span className="font-display text-[0.7rem] font-bold uppercase tracking-wider text-emerald-400">Verified</span>
+                <ShieldCheck className="h-4 w-4 text-emerald-600" strokeWidth={2.2} />
+                <span className="font-display text-[0.7rem] font-bold uppercase tracking-wider text-emerald-700">Verified</span>
               </motion.div>
             )}
           </AnimatePresence>

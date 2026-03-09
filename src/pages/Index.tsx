@@ -23,28 +23,21 @@ const Index = () => {
     <PullToRefresh onRefresh={dashboard.refreshData}>
     <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden">
       {/* Background scene */}
+      {/* Soft light-mode gradient background */}
       <div
-        className="pointer-events-none fixed inset-0 -z-10 transition-all duration-500"
+        className="pointer-events-none fixed inset-0 -z-10"
         aria-hidden="true"
         style={{
           background:
-            "radial-gradient(ellipse 70% 50% at 15% 10%, hsl(38 92% 50% / 0.12), transparent 50%), radial-gradient(ellipse 60% 40% at 85% 8%, hsl(152 65% 42% / 0.08), transparent 45%), radial-gradient(ellipse 80% 50% at 50% 100%, hsl(38 92% 50% / 0.06), transparent 50%), linear-gradient(160deg, hsl(var(--background)), hsl(var(--background)))",
+            "radial-gradient(ellipse 70% 50% at 15% 10%, hsl(333 71% 50% / 0.06), transparent 50%), radial-gradient(ellipse 60% 40% at 85% 8%, hsl(152 65% 42% / 0.05), transparent 45%), radial-gradient(ellipse 80% 50% at 50% 100%, hsl(333 71% 50% / 0.04), transparent 50%), linear-gradient(160deg, hsl(var(--background)), hsl(0 0% 100%))",
         }}
       />
       <div
-        className="pointer-events-none fixed inset-0 -z-10 opacity-0 transition-opacity duration-700 dark:opacity-100"
-        aria-hidden="true"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 50% at 20% 10%, hsl(38 95% 58% / 0.06), transparent), radial-gradient(ellipse 60% 40% at 80% 15%, hsl(200 80% 50% / 0.04), transparent), radial-gradient(ellipse 90% 60% at 50% 100%, hsl(260 60% 50% / 0.04), transparent), linear-gradient(180deg, hsl(var(--background)), hsl(222 28% 5%))",
-        }}
-      />
-      <div
-        className="pointer-events-none fixed inset-0 -z-10 opacity-30 transition-opacity duration-500 dark:opacity-[0.04]"
+        className="pointer-events-none fixed inset-0 -z-10 opacity-[0.08]"
         aria-hidden="true"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(15, 118, 110, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 118, 110, 0.04) 1px, transparent 1px)",
+            "linear-gradient(hsl(220 13% 88% / 0.5) 1px, transparent 1px), linear-gradient(90deg, hsl(220 13% 88% / 0.5) 1px, transparent 1px)",
           backgroundSize: "34px 34px",
         }}
       />

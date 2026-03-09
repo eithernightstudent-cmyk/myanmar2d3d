@@ -21,8 +21,8 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
   const [soundOn, setSoundOn] = useState(isClickSoundEnabled);
 
   useEffect(() => {
-    document.documentElement.classList.add("dark");
-    localStorage.setItem("kktech-theme", "dark");
+    document.documentElement.classList.remove("dark");
+    localStorage.setItem("kktech-theme", "light");
   }, []);
 
   useEffect(() => {
