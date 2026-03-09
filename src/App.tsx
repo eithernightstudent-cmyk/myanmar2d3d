@@ -26,12 +26,14 @@ function AnimatedRoutes() {
         exit={{ opacity: 0, y: -12 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
       >
-        <Routes location={location}>
-          <Route path="/" element={<Index />} />
-          <Route path="/results" element={<Results />} />
-          <Route path="/history" element={<History />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={null}>
+          <Routes location={location}>
+            <Route path="/" element={<Index />} />
+            <Route path="/results" element={<Results />} />
+            <Route path="/history" element={<History />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </motion.div>
     </AnimatePresence>
   );
