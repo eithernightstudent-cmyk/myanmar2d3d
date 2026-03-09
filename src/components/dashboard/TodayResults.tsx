@@ -13,6 +13,7 @@ interface CurrentDayResult {
   twod: string;
   stock_date?: string;
   stock_datetime?: string;
+  history_id?: string;
 }
 
 interface TodayResultsProps {
