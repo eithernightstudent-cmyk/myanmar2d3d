@@ -386,8 +386,20 @@ export function useLiveDashboard() {
       const requestId = ++requestSeqRef.current;
 
       try {
-        const { data: payload, error } = await supabase.functions.invoke("set-live");
-        if (error) throw new Error(error.message || "Edge function error");
+        let payload: any;
+
+        // Use prefetched data from inline script on first load
+        const prefetched = (window as any).__prefetchedLive;
+        if (prefetched) {
+          (window as any).__prefetchedLive = null; // consume once
+          payload = await prefetched;
+        }
+
+        if (!payload) {
+          const resp = await supabase.functions.invoke("set-live");
+          if (resp.error) throw new Error(resp.error.message || "Edge function error");
+          payload = resp.data;
+        }
 
         const data = payload?.data as LiveData | undefined;
         if (!data) throw new Error("No data in response");
