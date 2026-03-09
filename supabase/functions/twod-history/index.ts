@@ -11,37 +11,52 @@ interface HistoryEntry {
   isResult: boolean;
 }
 
+function extractSpanDigits(html: string): string {
+  return (html.match(/<span>([^<]*)<\/span>/g) || [])
+    .map((s: string) => s.replace(/<\/?span>/g, "").trim())
+    .join("");
+}
+
 function parseHistoryHtml(html: string): { result2d: string; updatedAt: string; entries: HistoryEntry[] } {
   // Extract the main 2D result
   const resultMatch = html.match(/<h2 class="static"><span>(\d{2})<\/span><\/h2>/);
   const result2d = resultMatch?.[1] || "--";
 
   // Extract updated timestamp
-  const updatedMatch = html.match(/Updated:(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/);
+  const updatedMatch = html.match(/Updated:<\/span>\s*<span>([^<]+)<\/span>/);
   const updatedAt = updatedMatch?.[1]?.trim() || "";
 
-  // Extract rows
+  // Extract rows - match each row div
   const entries: HistoryEntry[] = [];
-  const rowRegex = /<div class="row el-row(?: active_bgNumber)?"[^>]*>.*?<h4>(\d{2}:\d{2}:\d{2})<\/h4>.*?<div class="set_data[^"]*">(.*?)<\/div>\s*<div class="value_data[^"]*">(.*?)<\/div>\s*<div class="el-col[^"]*">.*?>([\s\S]*?)<\/span>/g;
+  const rowRegex = /<div class="row el-row(?: active_bgNumber)?"[^>]*>([\s\S]*?)<\/div><\/div><\/div>/g;
 
   let match;
   while ((match = rowRegex.exec(html)) !== null) {
-    const time = match[1];
-    const setSpans = match[2];
-    const valueSpans = match[3];
-    const twod = match[4].trim();
+    const rowHtml = match[0];
+    const isResult = rowHtml.includes("active_bgNumber");
 
-    // Extract digits from spans
-    const setVal = (setSpans.match(/<span>([^<]+)<\/span>/g) || [])
-      .map((s: string) => s.replace(/<\/?span>/g, ""))
-      .join("");
-    const valueVal = (valueSpans.match(/<span>([^<]+)<\/span>/g) || [])
-      .map((s: string) => s.replace(/<\/?span>/g, ""))
-      .join("");
+    // Extract time
+    const timeMatch = rowHtml.match(/<h4>(\d{2}:\d{2}:\d{2})<\/h4>/);
+    if (!timeMatch) continue;
+    const time = timeMatch[1];
 
-    const isResult = match[0].includes("active_bgNumber");
+    // Extract set_data
+    const setMatch = rowHtml.match(/<div class="set_data[^"]*">([\s\S]*?)<\/div>/);
+    const setVal = setMatch ? extractSpanDigits(setMatch[1]) : "";
 
-    entries.push({ time, set: setVal, value: valueVal, twod, isResult });
+    // Extract value_data
+    const valueMatch = rowHtml.match(/<div class="value_data[^"]*">([\s\S]*?)<\/div>/);
+    const valueVal = valueMatch ? extractSpanDigits(valueMatch[1]) : "";
+
+    // Extract 2D number - last el-col span with the bold style
+    const twodMatch = rowHtml.match(/<div class="el-col el-col-6"><span[^>]*>[\s\S]*?(\d{2})[\s\S]*?<\/span><\/div>/);
+    // Fallback: just get the last bold number
+    const twodFallback = rowHtml.match(/font-weight:\s*bold[^>]*>\s*(\d{2})\s*<\/span>/);
+    const twod = (twodMatch?.[1] || twodFallback?.[1] || "").trim();
+
+    if (time && twod) {
+      entries.push({ time, set: setVal, value: valueVal, twod, isResult });
+    }
   }
 
   return { result2d, updatedAt, entries };
