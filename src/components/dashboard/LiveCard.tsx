@@ -99,7 +99,7 @@ export function LiveCard({
                 className="flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5"
               >
                 <Zap className="h-3 w-3 text-amber-500" fill="currentColor" />
-                <span className="font-display text-[0.55rem] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Fast</span>
+                <span className="font-display text-[0.55rem] font-bold uppercase tracking-wider text-amber-600">Fast</span>
               </motion.div>
             )}
           </div>
