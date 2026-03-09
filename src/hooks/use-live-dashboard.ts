@@ -513,7 +513,16 @@ export function useLiveDashboard() {
 
   const clock = formatPartsClock(parts);
   const dateStr = formatPartsDate(parts);
-  const twod = liveData?.calculated2d || "--";
+  // When market is closed, prefer the official session result over the calculated value
+  const twod = (() => {
+    if (!liveData) return "--";
+    const isMarketLive = isWithinMarketHours(parts);
+    if (isMarketLive) return liveData.calculated2d || "--";
+    // Market closed: use latest session result's twod if available
+    const sessionResult = getLatestSessionResult(liveData);
+    if (sessionResult && hasValidTwoD(sessionResult.twod)) return sessionResult.twod;
+    return liveData.calculated2d || "--";
+  })();
   const rawConnectionStatus = liveData?.connectionStatus || "Closed";
   const isHoliday = isHolidayActive(liveData?.holiday || null);
   const isTradingDay = useMemo(
