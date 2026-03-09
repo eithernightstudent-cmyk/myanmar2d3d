@@ -1,9 +1,10 @@
 import { lazy, Suspense, useState } from "react";
-import { Topbar } from "@/components/dashboard/Topbar";
-import { LiveCard } from "@/components/dashboard/LiveCard";
-import { FullScreenOverlay } from "@/components/dashboard/FullScreenOverlay";
 import { LazyFooter } from "@/components/dashboard/LazyFooter";
-import { PullToRefresh } from "@/components/dashboard/PullToRefresh";
+
+const Topbar = lazy(() => import("@/components/dashboard/Topbar").then(m => ({ default: m.Topbar })));
+const LiveCard = lazy(() => import("@/components/dashboard/LiveCard").then(m => ({ default: m.LiveCard })));
+const FullScreenOverlay = lazy(() => import("@/components/dashboard/FullScreenOverlay").then(m => ({ default: m.FullScreenOverlay })));
+const PullToRefresh = lazy(() => import("@/components/dashboard/PullToRefresh").then(m => ({ default: m.PullToRefresh })));
 import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 
 const ModernClock = lazy(() => import("@/components/dashboard/ModernClock").then(m => ({ default: m.ModernClock })));
@@ -18,6 +19,7 @@ const Index = () => {
   const [show3D, setShow3D] = useState(false);
 
   return (
+    <Suspense fallback={null}>
     <PullToRefresh onRefresh={dashboard.refreshData}>
     <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden">
       {/* Background scene */}
@@ -137,6 +139,7 @@ const Index = () => {
       </FullScreenOverlay>
     </div>
     </PullToRefresh>
+    </Suspense>
   );
 };
 
