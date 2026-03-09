@@ -76,7 +76,7 @@ export const TodayResults = memo(function TodayResults({
         </div>
 
         {/* Session Cards — stacked vertically */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5 sm:gap-3">
           {ALL_SLOTS.map((slot, i) => {
             const result = resultByTime.get(slot.time) || null;
             const has = !!result && hasValidTwoD(result.twod);
