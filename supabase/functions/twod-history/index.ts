@@ -11,93 +11,76 @@ interface HistoryEntry {
   isResult: boolean;
 }
 
-function parseHistoryHtml(html: string): { result2d: string; updatedAt: string; entries: HistoryEntry[] } {
-  // Extract the main 2D result
-  const resultMatch = html.match(/<h2 class="static"><span>(\d{2})<\/span><\/h2>/);
-  const result2d = resultMatch?.[1] || "--";
-
-  // Extract updated timestamp
-  const updatedMatch = html.match(/Updated:(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/);
-  const updatedAt = updatedMatch?.[1]?.trim() || "";
-
-  // Extract rows
-  const entries: HistoryEntry[] = [];
-  const rowRegex = /<div class="row el-row(?: active_bgNumber)?"[^>]*>.*?<h4>(\d{2}:\d{2}:\d{2})<\/h4>.*?<div class="set_data[^"]*">(.*?)<\/div>\s*<div class="value_data[^"]*">(.*?)<\/div>\s*<div class="el-col[^"]*">.*?>([\s\S]*?)<\/span>/g;
-
-  let match;
-  while ((match = rowRegex.exec(html)) !== null) {
-    const time = match[1];
-    const setSpans = match[2];
-    const valueSpans = match[3];
-    const twod = match[4].trim();
-
-    // Extract digits from spans
-    const setVal = (setSpans.match(/<span>([^<]+)<\/span>/g) || [])
-      .map((s: string) => s.replace(/<\/?span>/g, ""))
-      .join("");
-    const valueVal = (valueSpans.match(/<span>([^<]+)<\/span>/g) || [])
-      .map((s: string) => s.replace(/<\/?span>/g, ""))
-      .join("");
-
-    const isResult = match[0].includes("active_bgNumber");
-
-    entries.push({ time, set: setVal, value: valueVal, twod, isResult });
-  }
-
-  return { result2d, updatedAt, entries };
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    let historyId = "";
-
     const url = new URL(req.url);
-    historyId = url.searchParams.get("history_id") || "";
+    let date = url.searchParams.get("date") || "";
+    let openTime = url.searchParams.get("open_time") || "";
 
     if (req.method === "POST") {
       try {
         const body = await req.json();
-        historyId = body.history_id || historyId;
+        date = body.date || date;
+        openTime = body.open_time || openTime;
       } catch { /* no body */ }
     }
 
-    if (!historyId) {
+    if (!date) {
       return new Response(
-        JSON.stringify({ error: "history_id is required" }),
+        JSON.stringify({ error: "date is required" }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log("Fetching 2D history for:", historyId);
+    console.log("Fetching 2D history for date:", date);
 
-    const pageUrl = `https://www.thaistock2d.com/twodHistory_ByResult?history_id=${encodeURIComponent(historyId)}`;
+    const apiUrl = `https://api.thaistock2d.com/history?date=${encodeURIComponent(date)}`;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-    const response = await fetch(pageUrl, {
+    const response = await fetch(apiUrl, {
       signal: controller.signal,
       headers: {
-        "user-agent": "Mozilla/5.0 (compatible; KKTech-Dashboard/1.0)",
-        "accept": "text/html",
+        "accept": "application/json",
+        "user-agent": "KKTech-Dashboard/1.0",
       },
     });
     clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    const html = await response.text();
-    const parsed = parseHistoryHtml(html);
+    const rawData = await response.json();
+    const allRaw: { time: string; set: string; value: string; twod: string }[] =
+      rawData?.[0]?.child || [];
 
-    console.log(`Parsed ${parsed.entries.length} entries, result: ${parsed.result2d}`);
+    // Convert to HistoryEntry, mark session close times as results
+    const sessionCloses = ["11:00", "12:01", "15:00", "16:30"];
+    const markedSessions = new Set<string>();
+
+    const entries: HistoryEntry[] = allRaw.map(e => {
+      const minuteKey = e.time.slice(0, 5);
+      let isResult = false;
+      if (sessionCloses.includes(minuteKey) && !markedSessions.has(minuteKey)) {
+        isResult = true;
+        markedSessions.add(minuteKey);
+      }
+      return { time: e.time, set: e.set, value: e.value, twod: e.twod, isResult };
+    });
+
+    // Find the result for the requested session
+    const sessionKey = openTime?.slice(0, 5) || "";
+    const resultEntry = entries.find(e => e.isResult && e.time.startsWith(sessionKey));
+    const result2d = resultEntry?.twod || (entries.length > 0 ? entries[0].twod : "--");
+    const updatedAt = resultEntry?.time || (entries.length > 0 ? entries[0].time : "");
+
+    console.log(`Returned ${entries.length} entries, result2d: ${result2d}`);
 
     return new Response(
-      JSON.stringify({ data: parsed }),
+      JSON.stringify({ data: { result2d, updatedAt, entries } }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

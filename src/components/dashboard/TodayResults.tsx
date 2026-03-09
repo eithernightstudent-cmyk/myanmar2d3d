@@ -72,7 +72,7 @@ export const TodayResults = memo(function TodayResults({
   onOpen3D,
 }: TodayResultsProps) {
   const navigate = useNavigate();
-  const [historyOverlay, setHistoryOverlay] = useState<{ id: string; time: string } | null>(null);
+  const [historyOverlay, setHistoryOverlay] = useState<{ date: string; openTime: string; time: string } | null>(null);
   const displayResults = currentDayResults.length > 0 ? currentDayResults : fallbackResults;
   const isFallback = currentDayResults.length === 0 && fallbackResults.length > 0;
   const fallbackDate = isFallback && fallbackResults[0]?.stock_date ? fallbackResults[0].stock_date : null;
@@ -168,11 +168,11 @@ export const TodayResults = memo(function TodayResults({
                   </div>
 
                   <div
-                    className={`flex items-center justify-center gap-1 ${has && result!.history_id ? "cursor-pointer" : ""}`}
+                    className={`flex items-center justify-center gap-1 ${has && result!.stock_date ? "cursor-pointer" : ""}`}
                     onClick={() => {
-                      if (has && result!.history_id) {
+                      if (has && result!.stock_date) {
                         tap();
-                        setHistoryOverlay({ id: result!.history_id, time: slot.display });
+                        setHistoryOverlay({ date: result!.stock_date!, openTime: String(result!.open_time).trim(), time: slot.display });
                       }
                     }}
                   >
@@ -195,7 +195,7 @@ export const TodayResults = memo(function TodayResults({
                         <p className="font-display text-xl font-extrabold text-muted-foreground">—</p>
                       )}
                     </div>
-                    {has && result!.history_id && (
+                    {has && result!.stock_date && (
                       <ChevronRight className="h-4 w-4 text-primary/60 mt-3" />
                     )}
                   </div>
@@ -209,7 +209,8 @@ export const TodayResults = memo(function TodayResults({
       <TwoDHistoryOverlay
         open={!!historyOverlay}
         onClose={() => setHistoryOverlay(null)}
-        historyId={historyOverlay?.id || null}
+        date={historyOverlay?.date || null}
+        openTime={historyOverlay?.openTime || null}
         sessionTime={historyOverlay?.time}
       />
     </section>
