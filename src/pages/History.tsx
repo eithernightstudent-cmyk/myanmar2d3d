@@ -4,7 +4,7 @@ import { HistoryTable } from "@/components/dashboard/HistoryTable";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
-const logoImg = "/logo-24.webp";
+const logoImg = "/logo-icon.webp";
 const Footer = lazy(() => import("@/components/dashboard/Footer").then(m => ({ default: m.Footer })));
 
 const History = () => {
