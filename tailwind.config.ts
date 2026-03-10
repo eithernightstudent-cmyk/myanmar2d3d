@@ -21,7 +21,8 @@ export default {
   				'var(--font-body)'
   			],
   			sans: [
-  				'Lato',
+  				'Inter',
+  				'Plus Jakarta Sans',
   				'ui-sans-serif',
   				'system-ui',
   				'-apple-system',
@@ -34,7 +35,6 @@ export default {
   				'sans-serif'
   			],
   			serif: [
-  				'EB Garamond',
   				'ui-serif',
   				'Georgia',
   				'Cambria',
@@ -43,7 +43,6 @@ export default {
   				'serif'
   			],
   			mono: [
-  				'Fira Code',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
