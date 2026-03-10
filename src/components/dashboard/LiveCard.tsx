@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { StatusPill } from "./StatusPill";
-import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, Zap, CircleAlert } from "lucide-react";
+import { Loader2, CheckCircle2, ShieldCheck, Lock, CalendarDays, Zap, CircleAlert, Clock } from "lucide-react";
 import { tap } from "@/lib/haptic";
 import { RollingNumber } from "./RollingNumber";
 
