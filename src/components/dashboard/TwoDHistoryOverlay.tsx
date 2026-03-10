@@ -124,7 +124,7 @@ export function TwoDHistoryOverlay({ open, onClose, date, openTime, sessionTime 
               {data.entries.map((entry, i) => (
                 <div
                   key={i}
-                  className={`grid grid-cols-4 gap-2 px-3 py-2 text-sm border-b border-border/50 last:border-0 transition-colors ${
+                  className={`grid grid-cols-[1.2fr_1fr_1.2fr_0.6fr] px-4 py-2 text-sm border-b border-border/50 last:border-0 transition-colors ${
                     entry.isResult
                       ? "bg-primary/15 border-primary/20"
                       : ""
