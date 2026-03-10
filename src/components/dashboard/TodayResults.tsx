@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { formatNumber } from "@/lib/market-utils";
 import { tap } from "@/lib/haptic";
