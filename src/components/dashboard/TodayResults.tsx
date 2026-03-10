@@ -32,11 +32,18 @@ const ALL_SLOTS = [
   { time: "16:30", display: "04:30 PM", label: "Closing" },
 ];
 
-const CARD_GRADIENTS = [
+const CARD_GRADIENTS_LIGHT = [
   "linear-gradient(135deg, hsl(210 40% 97%), hsl(220 30% 95%))",
   "linear-gradient(135deg, hsl(200 35% 96%), hsl(210 28% 94%))",
   "linear-gradient(135deg, hsl(180 30% 96%), hsl(195 25% 94%))",
   "linear-gradient(135deg, hsl(38 50% 97%), hsl(38 40% 94%))",
+];
+
+const CARD_GRADIENTS_DARK = [
+  "linear-gradient(135deg, hsl(220 20% 16%), hsl(225 18% 14%))",
+  "linear-gradient(135deg, hsl(210 18% 15%), hsl(215 16% 13%))",
+  "linear-gradient(135deg, hsl(195 15% 15%), hsl(200 14% 13%))",
+  "linear-gradient(135deg, hsl(38 15% 16%), hsl(35 12% 14%))",
 ];
 
 function hasValidTwoD(value: string | undefined) {
