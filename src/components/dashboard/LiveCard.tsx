@@ -198,27 +198,27 @@ export function LiveCard({
               <motion.div className="relative" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 300, damping: 15 }}>
                 <CheckCircle className="h-3.5 w-3.5 text-success" />
                 {/* Mini confetti particles */}
-                {[...Array(8)].map((_, i) => {
-                  const angle = (i / 8) * 360;
+                {[...Array(12)].map((_, i) => {
+                  const angle = (i / 12) * 360;
                   const rad = (angle * Math.PI) / 180;
-                  const colors = ["hsl(var(--success))", "hsl(var(--primary))", "#f59e0b", "#ec4899"];
+                  const colors = ["hsl(var(--success))", "hsl(var(--primary))", "#f59e0b", "#ec4899", "#8b5cf6", "#06b6d4"];
                   return (
                     <motion.span
                       key={i}
                       className="absolute left-1/2 top-1/2 block rounded-full"
                       style={{
-                        width: i % 2 === 0 ? 3 : 2,
-                        height: i % 2 === 0 ? 3 : 2,
+                        width: i % 3 === 0 ? 4 : 3,
+                        height: i % 3 === 0 ? 4 : 3,
                         backgroundColor: colors[i % colors.length],
                       }}
-                      initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                      initial={{ x: 0, y: 0, opacity: 1, scale: 1.2 }}
                       animate={{
-                        x: Math.cos(rad) * 14,
-                        y: Math.sin(rad) * 14,
+                        x: Math.cos(rad) * 20,
+                        y: Math.sin(rad) * 20,
                         opacity: 0,
                         scale: 0,
                       }}
-                      transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+                      transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
                     />
                   );
                 })}
