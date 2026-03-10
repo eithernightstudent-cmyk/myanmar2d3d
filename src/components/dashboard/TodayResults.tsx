@@ -79,6 +79,15 @@ export const TodayResults = memo(function TodayResults({
   onOpen3D,
 }: TodayResultsProps) {
   const navigate = useNavigate();
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+  const CARD_GRADIENTS = isDark ? CARD_GRADIENTS_DARK : CARD_GRADIENTS_LIGHT;
   const [historyOverlay, setHistoryOverlay] = useState<{ date: string; openTime: string; time: string } | null>(null);
   const displayResults = currentDayResults.length > 0 ? currentDayResults : fallbackResults;
   const isFallback = currentDayResults.length === 0 && fallbackResults.length > 0;
