@@ -25,7 +25,7 @@ export function HistoryTable() {
           const raw = response.data.data;
           // Handle both array format and calendar format
           if (Array.isArray(raw)) {
-            setResults(normalizeSessionDays(raw, 7) as DayResult[]);
+            setResults(normalizeSessionDays(raw, 7));
           } else if (raw?.data && Array.isArray(raw.data)) {
             setResults(normalizeSessionDays(raw.data, 7) as DayResult[]);
           }
