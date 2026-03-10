@@ -101,11 +101,11 @@ export function LiveCard({
                 value={twod}
                 className="font-display text-[clamp(5rem,20vw,7.5rem)] font-extrabold leading-none tracking-tight"
                 digitStyle={{
-                  background: "linear-gradient(180deg, hsl(220 15% 15%) 0%, hsl(220 12% 35%) 50%, hsl(220 10% 55%) 100%)",
+                  background: "linear-gradient(180deg, hsl(var(--foreground)) 0%, hsl(var(--foreground) / 0.6) 60%, hsl(var(--foreground) / 0.35) 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
-                  filter: "drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))",
+                  filter: "drop-shadow(0 4px 12px hsl(var(--foreground) / 0.1))",
                 }}
               />
               {isResultLocked && (
