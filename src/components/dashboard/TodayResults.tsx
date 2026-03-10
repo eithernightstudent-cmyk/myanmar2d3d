@@ -53,7 +53,7 @@ export const TodayResults = memo(function TodayResults({
   currentDate,
   fallbackResults = [],
 }: TodayResultsProps) {
-  const navigate = useNavigate();
+  
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   useEffect(() => {
     const observer = new MutationObserver(() => {
