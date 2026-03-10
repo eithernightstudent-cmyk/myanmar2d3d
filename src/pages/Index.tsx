@@ -25,11 +25,15 @@ const Index = () => {
       {/* Background scene */}
       {/* Soft light-mode gradient background */}
       <div
-        className="pointer-events-none fixed inset-0 -z-10"
+        className="pointer-events-none fixed inset-0 -z-10 bg-background transition-colors duration-500"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none fixed inset-0 -z-10 dark:opacity-30"
         aria-hidden="true"
         style={{
           background:
-            "radial-gradient(ellipse 70% 50% at 15% 10%, hsl(333 71% 50% / 0.06), transparent 50%), radial-gradient(ellipse 60% 40% at 85% 8%, hsl(152 65% 42% / 0.05), transparent 45%), radial-gradient(ellipse 80% 50% at 50% 100%, hsl(333 71% 50% / 0.04), transparent 50%), linear-gradient(160deg, hsl(var(--background)), hsl(0 0% 100%))",
+            "radial-gradient(ellipse 70% 50% at 15% 10%, hsl(333 71% 50% / 0.06), transparent 50%), radial-gradient(ellipse 60% 40% at 85% 8%, hsl(152 65% 42% / 0.05), transparent 45%), radial-gradient(ellipse 80% 50% at 50% 100%, hsl(333 71% 50% / 0.04), transparent 50%)",
         }}
       />
       <div
