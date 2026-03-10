@@ -195,12 +195,33 @@ export function LiveCard({
             {isLive && !isResultLocked ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
             ) : (
-              <motion.div
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-              >
+              <motion.div className="relative" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 300, damping: 15 }}>
                 <CheckCircle className="h-3.5 w-3.5 text-success" />
+                {/* Mini confetti particles */}
+                {[...Array(8)].map((_, i) => {
+                  const angle = (i / 8) * 360;
+                  const rad = (angle * Math.PI) / 180;
+                  const colors = ["hsl(var(--success))", "hsl(var(--primary))", "#f59e0b", "#ec4899"];
+                  return (
+                    <motion.span
+                      key={i}
+                      className="absolute left-1/2 top-1/2 block rounded-full"
+                      style={{
+                        width: i % 2 === 0 ? 3 : 2,
+                        height: i % 2 === 0 ? 3 : 2,
+                        backgroundColor: colors[i % colors.length],
+                      }}
+                      initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                      animate={{
+                        x: Math.cos(rad) * 14,
+                        y: Math.sin(rad) * 14,
+                        opacity: 0,
+                        scale: 0,
+                      }}
+                      transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+                    />
+                  );
+                })}
               </motion.div>
             )}
             <span className="font-display text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
