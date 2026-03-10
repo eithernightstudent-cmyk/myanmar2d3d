@@ -123,8 +123,8 @@ export function LiveCard({
             {hasTwoD ? (
               <motion.div
                 initial={{ opacity: 0.95 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
+                animate={isLive ? { opacity: [1, 0.45, 1] } : { opacity: 1 }}
+                transition={isLive ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
                 className={`font-digital text-[clamp(3.5rem,14vw,5rem)] font-extrabold leading-none ${isLive ? "digital-glow digital-glow-pulse" : "digital-glow"}`}
               >
                 <RollingNumber value={twod} digitClassName="gold-metal-text" />
