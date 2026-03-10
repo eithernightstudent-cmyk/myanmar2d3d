@@ -53,8 +53,6 @@ export const TodayResults = memo(function TodayResults({
   currentDayResults,
   currentDate,
   fallbackResults = [],
-  onOpenHistory,
-  onOpen3D,
 }: TodayResultsProps) {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
