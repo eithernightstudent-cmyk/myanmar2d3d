@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, BellOff, BellRing, Volume2, VolumeX, Zap, Lock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Bell, BellOff, BellRing, Volume2, VolumeX, Zap, Lock, Sun, Moon } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "@/hooks/use-notifications";
 import { tapMedium, tap, isClickSoundEnabled, setClickSoundEnabled } from "@/lib/haptic";
@@ -15,14 +15,31 @@ interface TopbarProps {
 export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode }: TopbarProps) {
   const BRAND_NAME = "2D3D";
 
-
   const { supported, permission, enabled, toggleNotifications } = useNotifications();
   const [justEnabled, setJustEnabled] = useState(false);
   const [soundOn, setSoundOn] = useState(isClickSoundEnabled);
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem("kktech-theme");
+    return saved === "dark";
+  });
 
   useEffect(() => {
-    document.documentElement.classList.remove("dark");
-    localStorage.setItem("kktech-theme", "light");
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("kktech-theme", isDark ? "dark" : "light");
+  }, [isDark]);
+
+  const toggleTheme = useCallback(() => {
+    const toggle = () => setIsDark(prev => !prev);
+    if (document.startViewTransition) {
+      document.startViewTransition(toggle);
+    } else {
+      toggle();
+    }
+    tap();
   }, []);
 
   useEffect(() => {
@@ -76,6 +93,24 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
         </span>
       </Link>
 
+      {/* Theme toggle — top right */}
+      <button
+        onClick={toggleTheme}
+        aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        className="pointer-events-auto grid h-8 w-8 place-items-center rounded-xl border border-border/40 bg-[hsl(var(--card-glass))] text-muted-foreground shadow-lg backdrop-blur-xl transition-all duration-300 hover:text-foreground hover:border-primary/30 active:scale-90"
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          {isDark ? (
+            <motion.div key="sun" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
+              <Sun className="h-4 w-4" />
+            </motion.div>
+          ) : (
+            <motion.div key="moon" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}>
+              <Moon className="h-4 w-4" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </button>
     </header>
   );
 }
