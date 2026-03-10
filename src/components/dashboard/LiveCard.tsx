@@ -78,15 +78,23 @@ export function LiveCard({
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-3">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 font-display text-[0.6rem] font-bold uppercase tracking-[0.18em] text-primary status-badge-glow-live">
-              {isLive && (
-                <span className="relative flex h-2 w-2">
+            {isLive ? (
+              <motion.span
+                animate={{ boxShadow: ["0 0 0px hsl(var(--primary)/0.3)", "0 0 12px hsl(var(--primary)/0.6)", "0 0 0px hsl(var(--primary)/0.3)"] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary bg-primary/20 px-2.5 py-0.5 font-display text-[0.65rem] font-bold uppercase tracking-[0.18em] text-primary"
+              >
+                <span className="relative flex h-2.5 w-2.5">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
                 </span>
-              )}
-              Live 2D
-            </span>
+                🔴 Live 2D
+              </motion.span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-2 py-0.5 font-display text-[0.6rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                Live 2D
+              </span>
+            )}
             {isLive && <StatusPill isLive={isLive} connectionStatus={connectionStatus} />}
             {isFinalOnlyMode && (
               <div className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-1.5 py-0.5">
