@@ -96,10 +96,11 @@ function isBurstWindow(parts: ThailandParts): boolean {
 
 function getPollIntervalMs(parts: ThailandParts, hidden: boolean): number {
   if (hidden) return POLL_BACKGROUND_MS;
+  const marketOpen = isWithinMarketHours(parts);
+  if (!marketOpen) return POLL_OFF_MARKET_MS;
   if (isBurstWindow(parts)) return POLL_BURST_MS;
   if (isHotMinute(parts)) return POLL_HOT_MS;
-  if (isWithinMarketHours(parts)) return POLL_NORMAL_MS;
-  return POLL_OFF_MARKET_MS;
+  return POLL_NORMAL_MS;
 }
 
 function parseStockTime(raw: string): { h: number; m: number; s: number } | null {
