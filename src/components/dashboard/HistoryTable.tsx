@@ -110,3 +110,5 @@ export function HistoryTable() {
     </motion.article>
   );
 }
+
+export default HistoryTable;

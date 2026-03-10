@@ -10,7 +10,7 @@ import { useLiveDashboard } from "@/hooks/use-live-dashboard";
 const ModernClock = lazy(() => import("@/components/dashboard/ModernClock").then(m => ({ default: m.ModernClock })));
 const TodayResults = lazy(() => import("@/components/dashboard/TodayResults").then(m => ({ default: m.TodayResults })));
 const SessionPanel = lazy(() => import("@/components/dashboard/SessionPanel").then(m => ({ default: m.SessionPanel })));
-const HistoryTable = lazy(() => import("@/components/dashboard/HistoryTable").then(m => ({ default: m.HistoryTable })));
+const HistoryTable = lazy(() => import("@/components/dashboard/HistoryTable"));
 const ThreeDSection = lazy(() => import("@/components/dashboard/ThreeDSection").then(m => ({ default: m.ThreeDSection })));
 
 const Index = () => {
