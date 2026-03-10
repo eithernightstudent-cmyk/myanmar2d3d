@@ -82,31 +82,13 @@ export const TodayResults = memo(function TodayResults({
   return (
     <section>
       <article className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 sm:p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg">
-        {/* Header with nav icons */}
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h2 className="font-display text-base font-bold tracking-wide text-foreground">
-              {isFallback ? "Latest Results" : "Today's Results"}
-            </h2>
-            <p className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground mt-0.5">
-              {displayDate || "\u00A0"}
-            </p>
-          </div>
-
-          {/* Icon navigation cluster */}
-          <div className="flex items-center gap-2">
-            {NAV_ICONS.map(({ key, icon: Icon, label, gradient }) => (
-              <button
-                key={key}
-                onClick={() => handleNavClick(key)}
-                aria-label={label}
-                title={label}
-                className={`group relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-md transition-all duration-200 active:scale-90 hover:scale-110 hover:shadow-lg`}
-              >
-                <Icon className="h-4.5 w-4.5 drop-shadow-sm" strokeWidth={2.2} />
-              </button>
-            ))}
-          </div>
+        <div className="mb-4">
+          <h2 className="font-display text-base font-bold tracking-wide text-foreground">
+            {isFallback ? "Latest Results" : "Today's Results"}
+          </h2>
+          <p className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground mt-0.5">
+            {displayDate || "\u00A0"}
+          </p>
         </div>
 
         {/* Session Cards — stacked vertically */}
