@@ -3,8 +3,7 @@ import { motion } from "framer-motion";
 import { formatNumber } from "@/lib/market-utils";
 import { tap } from "@/lib/haptic";
 import { RollingNumber } from "./RollingNumber";
-import { ChevronRight, Dice3, CalendarDays, Clock } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import { TwoDHistoryOverlay } from "./TwoDHistoryOverlay";
 
 interface CurrentDayResult {
@@ -21,8 +20,6 @@ interface TodayResultsProps {
   currentDayResults: CurrentDayResult[];
   currentDate: string;
   fallbackResults?: CurrentDayResult[];
-  onOpenHistory?: () => void;
-  onOpen3D?: () => void;
 }
 
 const ALL_SLOTS = [
@@ -50,35 +47,13 @@ function hasValidTwoD(value: string | undefined) {
   return /^\d{2}$/.test(String(value ?? "").trim());
 }
 
-const NAV_ICONS = [
-  {
-    key: "3d",
-    icon: Dice3,
-    label: "3D Results",
-    gradient: "from-emerald-400 to-teal-500",
-  },
-  {
-    key: "history",
-    icon: CalendarDays,
-    label: "Previous Results",
-    gradient: "from-amber-400 to-orange-500",
-  },
-  {
-    key: "results",
-    icon: Clock,
-    label: "2D Results",
-    gradient: "from-blue-400 to-indigo-500",
-  },
-];
 
 export const TodayResults = memo(function TodayResults({
   currentDayResults,
   currentDate,
   fallbackResults = [],
-  onOpenHistory,
-  onOpen3D,
 }: TodayResultsProps) {
-  const navigate = useNavigate();
+  
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -102,41 +77,17 @@ export const TodayResults = memo(function TodayResults({
     return map;
   }, [displayResults]);
 
-  const handleNavClick = (key: string) => {
-    tap();
-    if (key === "3d") onOpen3D?.();
-    else if (key === "history") onOpenHistory?.();
-    else if (key === "results") navigate("/results");
-  };
 
   return (
     <section>
       <article className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 sm:p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg">
-        {/* Header with nav icons */}
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h2 className="font-display text-base font-bold tracking-wide text-foreground">
-              {isFallback ? "Latest Results" : "Today's Results"}
-            </h2>
-            <p className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground mt-0.5">
-              {displayDate || "\u00A0"}
-            </p>
-          </div>
-
-          {/* Icon navigation cluster */}
-          <div className="flex items-center gap-2">
-            {NAV_ICONS.map(({ key, icon: Icon, label, gradient }) => (
-              <button
-                key={key}
-                onClick={() => handleNavClick(key)}
-                aria-label={label}
-                title={label}
-                className={`group relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-md transition-all duration-200 active:scale-90 hover:scale-110 hover:shadow-lg`}
-              >
-                <Icon className="h-4.5 w-4.5 drop-shadow-sm" strokeWidth={2.2} />
-              </button>
-            ))}
-          </div>
+        <div className="mb-4">
+          <h2 className="font-display text-base font-bold tracking-wide text-foreground">
+            {isFallback ? "Latest Results" : "Today's Results"}
+          </h2>
+          <p className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground mt-0.5">
+            {displayDate || "\u00A0"}
+          </p>
         </div>
 
         {/* Session Cards — stacked vertically */}
