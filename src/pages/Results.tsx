@@ -1,65 +1,15 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { BottomNav } from "@/components/dashboard/BottomNav";
-import { Calendar, Loader2, Info } from "lucide-react";
-import { formatNumber } from "@/lib/market-utils";
+import { Topbar } from "@/components/dashboard/Topbar";
+import { Footer } from "@/components/dashboard/Footer";
+import { ArrowLeft, Calendar, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { tap } from "@/lib/haptic";
-
-const logoImg = "/logo-icon.webp";
-const Footer = lazy(() => import("@/components/dashboard/Footer").then(m => ({ default: m.Footer })));
-
-const SESSION_MAP: Record<string, string> = {
-  "11:00": "11:00 AM",
-  "12:01": "12:01 PM",
-  "15:00": "3:00 PM",
-  "16:30": "4:30 PM",
-};
-
-const SESSION_ORDER = ["11:00", "12:01", "15:00", "16:30"];
-
-interface SessionResult {
-  time: string;
-  set: string;
-  value: string;
-  twod: string;
-}
-
-interface DayResult {
-  date?: string;
-  child: SessionResult[];
-}
-
-function normalizeTime(t: string): string {
-  return String(t ?? "").trim().slice(0, 5);
-}
-
-function isValidTwoD(val: string): boolean {
-  return /^\d{2}$/.test(String(val ?? "").trim());
-}
-
-function formatDateDisplay(dateStr: string): string {
-  if (!dateStr) return "Unknown Date";
-  try {
-    const parts = dateStr.split("-");
-    if (parts.length === 3) {
-      const d = new Date(`${parts[0]}-${parts[1]}-${parts[2]}`);
-      if (!isNaN(d.getTime())) {
-        return d.toLocaleDateString("en-GB", {
-          weekday: "short",
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        });
-      }
-    }
-  } catch {}
-  return dateStr;
-}
+import { normalizeSessionDays } from "@/lib/result-sessions";
+import type { SessionDay } from "@/lib/result-sessions";
 
 const Results = () => {
-  const [results, setResults] = useState<DayResult[]>([]);
+  const [results, setResults] = useState<SessionDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const ownerName = localStorage.getItem("kktech-live-owner-name") || "2D3D";
@@ -67,31 +17,11 @@ const Results = () => {
   useEffect(() => {
     async function fetchResults() {
       try {
-        // Fetch from thaistock2d /2d_result via edge function
         const response = await supabase.functions.invoke("set-live", {
           body: { endpoint: "2d_result" },
         });
         if (response.error) throw new Error(response.error.message);
-
-        const raw = response.data?.data;
-        let days: DayResult[] = [];
-
-        if (Array.isArray(raw)) {
-          days = raw;
-        } else if (raw?.data && Array.isArray(raw.data)) {
-          days = raw.data;
-        }
-
-        // Normalize session times and filter valid entries
-        const normalized = days.map((day) => ({
-          ...day,
-          child: (day.child || []).map((s) => ({
-            ...s,
-            time: normalizeTime(s.time),
-          })),
-        }));
-
-        setResults(normalized.slice(0, 10));
+        setResults(normalizeSessionDays(response.data?.data, 10));
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load results");
       } finally {
@@ -102,43 +32,37 @@ const Results = () => {
   }, []);
 
   return (
-    <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden bg-background">
-      {/* Fixed header - logo left */}
-      <header
-        className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-3 sm:px-5"
-        style={{ paddingTop: "max(env(safe-area-inset-top, 0px), 0.5rem)" }}
-      >
-        <Link
-          to="/"
-          className="pointer-events-auto inline-flex items-center gap-2 rounded-2xl border border-border/40 bg-[hsl(var(--card-glass))] px-2.5 py-1.5 text-inherit no-underline shadow-lg backdrop-blur-xl transition-all active:scale-95"
-        >
-          <img
-            src={logoImg}
-            alt="2D3D logo"
-            width={24}
-            height={24}
-            className="h-6 w-6 rounded-full object-cover ring-1 ring-primary/20"
-          />
-          <span className="font-display text-[0.78rem] font-extrabold tracking-wide text-foreground">
-            2D3D
-          </span>
-        </Link>
-      </header>
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden">
+      <div
+        className="pointer-events-none fixed inset-0 -z-10"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(circle at 15% 20%, hsl(214 95% 93% / 0.95), transparent 32%), radial-gradient(circle at 90% 12%, hsl(30 100% 92% / 0.95), transparent 38%), hsl(var(--background))",
+        }}
+      />
 
-      <main
-        className="mx-auto w-[min(100%-0.75rem,72rem)] pb-24 sm:w-[min(100%-2rem,72rem)]"
-        style={{ paddingTop: "max(calc(env(safe-area-inset-top, 0px) + 4rem), 4.5rem)" }}
-      >
+      <Topbar ownerName={ownerName} />
+
+      <main className="mx-auto w-[min(100%-2rem,72rem)] py-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="font-display text-[clamp(1.5rem,4vw,2rem)] font-bold tracking-tight text-foreground">
-            2D Results
+          <Link
+            to="/"
+            className="mb-4 inline-flex items-center gap-1.5 font-display text-sm text-muted-foreground no-underline transition-colors hover:text-foreground"
+          >
+            <ArrowLeft size={14} />
+            Back to Dashboard
+          </Link>
+
+          <h1 className="font-display text-[clamp(1.8rem,4vw,2.4rem)] font-bold tracking-tight text-foreground">
+            2D3D Results — Last 10 Days
           </h1>
-          <p className="mt-1 mb-5 text-sm text-muted-foreground">
-            Last 10 days of official 2D session results
+          <p className="mt-1 mb-6 text-muted-foreground">
+            Final 2D results from 2D3D Myanmar Live data sources
           </p>
         </motion.div>
 
@@ -149,85 +73,53 @@ const Results = () => {
         )}
 
         {error && (
-          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-center text-sm text-destructive">
+          <div className="rounded-xl border border-fail-border bg-fail-light p-4 text-fail">
             {error}
           </div>
         )}
 
-        {!loading && !error && results.length === 0 && (
-          <div className="rounded-xl border border-border bg-card p-8 text-center">
-            <Info className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-            <p className="font-display text-sm text-muted-foreground">No results available</p>
-          </div>
-        )}
-
-        {!loading && !error && results.length > 0 && (
+        {!loading && !error && (
           <div className="grid gap-4">
-            {results.map((day, i) => {
-              const sessionMap = new Map<string, SessionResult>();
-              for (const s of day.child || []) {
-                const key = normalizeTime(s.time);
-                if (!sessionMap.has(key)) sessionMap.set(key, s);
-              }
+            {results.map((day, i) => (
+              <motion.article
+                key={day.date || i}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05, duration: 0.4 }}
+                className="rounded-2xl border border-border bg-card/90 p-5 shadow-[0_12px_20px_-14px_hsl(var(--foreground)/0.12)] backdrop-blur-md"
+              >
+                <div className="mb-3 flex items-center gap-2">
+                  <Calendar size={14} className="text-primary" />
+                  <h2 className="font-display text-sm font-bold text-foreground">
+                    {day.date || "Unknown Date"}
+                  </h2>
+                </div>
 
-              return (
-                <motion.article
-                  key={day.date || i}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04, duration: 0.4 }}
-                  className="rounded-2xl border border-border bg-card p-4 shadow-sm"
-                >
-                  <div className="mb-3 flex items-center gap-2">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary/80 to-primary shadow-sm">
-                      <Calendar size={13} className="text-white" strokeWidth={2.5} />
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {day.child?.map((session, j) => (
+                    <div
+                      key={j}
+                      className="flex flex-col items-center gap-1 rounded-lg border border-border bg-secondary p-3"
+                    >
+                      <span className="font-display text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                        {session.time?.slice(0, 5) || "--"}
+                      </span>
+                      <span className="font-display text-2xl font-bold text-primary">
+                        {session.twod}
+                      </span>
+                      <span className="font-display text-[0.62rem] text-muted-foreground">
+                        SET {session.set}
+                      </span>
                     </div>
-                    <h2 className="font-display text-sm font-bold text-foreground">
-                      {formatDateDisplay(day.date || "")}
-                    </h2>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {SESSION_ORDER.map((time) => {
-                      const session = sessionMap.get(time);
-                      const has = session && isValidTwoD(session.twod);
-
-                      return (
-                        <div
-                          key={time}
-                          onTouchStart={() => tap()}
-                          className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-secondary/50 p-3 transition-transform duration-150 active:scale-95"
-                        >
-                          <span className="font-display text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                            {SESSION_MAP[time] || time}
-                          </span>
-                          {has ? (
-                            <>
-                              <span className="font-display text-2xl font-bold text-primary">
-                                {session!.twod}
-                              </span>
-                              <span className="font-display text-[0.58rem] text-muted-foreground">
-                                SET {formatNumber(session!.set)}
-                              </span>
-                            </>
-                          ) : (
-                            <span className="font-display text-xs text-muted-foreground/60 py-2">
-                              No Data
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </motion.article>
-              );
-            })}
+                  ))}
+                </div>
+              </motion.article>
+            ))}
           </div>
         )}
       </main>
 
-      <Suspense fallback={null}><Footer ownerName={ownerName} /></Suspense>
-      <BottomNav />
+      <Footer ownerName={ownerName} />
     </div>
   );
 };

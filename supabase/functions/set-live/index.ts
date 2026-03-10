@@ -11,6 +11,8 @@ const noCacheHeaders = {
 const THAISTOCK_BASE = "https://api.thaistock2d.com";
 const RAPIDAPI_BASE = "https://thai-lotto-new-api.p.rapidapi.com/api/v1";
 const RAPIDAPI_HOST = "thai-lotto-new-api.p.rapidapi.com";
+const FINAL_SESSION_TIMES = ["11:00", "12:01", "15:00", "16:30"] as const;
+const FINAL_SESSION_TIME_SET = new Set(FINAL_SESSION_TIMES);
 
 function parseNumeric(raw: unknown): number | null {
   const value = Number(String(raw ?? "").replace(/,/g, "").trim());
@@ -27,18 +29,6 @@ function calculateTwoD(setIndex: unknown, value: unknown): string {
   const valueDigit = getLastDigit(value);
   if (!setDigit || !valueDigit) return "--";
   return `${setDigit}${valueDigit}`;
-}
-
-function isHolidayActive(holiday: any): boolean {
-  if (!holiday || typeof holiday !== "object") return false;
-  const status = String(holiday.status ?? "").trim().toLowerCase();
-  if (status === "1" || status === "true" || status === "yes" || status === "holiday" || status === "closed") {
-    return true;
-  }
-  if (status === "0" || status === "false" || status === "no" || status === "") {
-    return false;
-  }
-  return !!String(holiday.name ?? "").trim();
 }
 
 function extractDateString(raw: unknown): string {
@@ -60,6 +50,84 @@ function getRapidHeaders(): Record<string, string> {
     "x-rapidapi-host": RAPIDAPI_HOST,
     "accept": "application/json",
   };
+}
+
+function toSessionKey(raw: unknown): string {
+  const text = String(raw ?? "").trim();
+  const match = text.match(/(\d{1,2}):(\d{2})/);
+  if (!match) return "";
+  return `${match[1].padStart(2, "0")}:${match[2]}`;
+}
+
+function toSessionTime(raw: unknown): string {
+  const key = toSessionKey(raw);
+  return key ? `${key}:00` : String(raw ?? "").trim();
+}
+
+function normalizeResultEntry(entry: any) {
+  if (!entry || typeof entry !== "object") return null;
+  const normalizedTime = toSessionTime(entry.time ?? entry.open_time);
+  return {
+    ...entry,
+    time: normalizedTime,
+    open_time: normalizedTime,
+    set: String(entry.set ?? "").trim(),
+    value: String(entry.value ?? "").trim(),
+    twod: String(entry.twod ?? "").trim(),
+  };
+}
+
+function normalizeSessionChild(rawEntries: any): any[] {
+  const entries = Array.isArray(rawEntries) ? rawEntries : [];
+  const byTime = new Map<string, any>();
+
+  for (const entry of entries) {
+    const key = toSessionKey(entry?.time ?? entry?.open_time);
+    if (!FINAL_SESSION_TIME_SET.has(key as (typeof FINAL_SESSION_TIMES)[number])) continue;
+    const normalized = normalizeResultEntry(entry);
+    if (normalized) byTime.set(key, normalized);
+  }
+
+  return FINAL_SESSION_TIMES
+    .map((time) => byTime.get(time))
+    .filter(Boolean);
+}
+
+function normalize2DResultDays(payload: any): any[] {
+  const root = payload?.data ?? payload;
+  const sourceDays = (() => {
+    if (Array.isArray(root)) return root;
+    if (Array.isArray(root?.data)) return root.data;
+    if (root && typeof root === "object" && Array.isArray(root?.child)) return [root];
+    if (root?.data && typeof root.data === "object" && Array.isArray(root.data?.child)) return [root.data];
+    return [];
+  })();
+
+  const normalized = sourceDays
+    .map((day: any) => {
+      const child = normalizeSessionChild(day?.child ?? day?.result ?? []);
+      const date = extractDateString(day?.date || day?.stock_date || child?.[0]?.stock_date || "");
+      if (!date || child.length === 0) return null;
+      return { ...day, date, child };
+    })
+    .filter(Boolean);
+
+  normalized.sort((a: any, b: any) => String(b?.date || "").localeCompare(String(a?.date || "")));
+  return normalized;
+}
+
+function parsePositiveInteger(raw: string, fallbackValue: number): number {
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) return fallbackValue;
+  const value = Math.floor(parsed);
+  return value > 0 ? value : fallbackValue;
+}
+
+function paginateDays(days: any[], pageRaw: string, limitRaw: string): any[] {
+  const pageValue = parsePositiveInteger(pageRaw, 1);
+  const limitValue = parsePositiveInteger(limitRaw, 7);
+  const start = (pageValue - 1) * limitValue;
+  return days.slice(start, start + limitValue);
 }
 
 function normalizeThaistock(payload: any, source: string = "thaistock2d") {
@@ -89,14 +157,12 @@ function normalizeThaistock(payload: any, source: string = "thaistock2d") {
   const calculated2d = /^\d{2}$/.test(liveTwoD) ? liveTwoD : calculateTwoD(setIndex, value);
 
   const isLiveFeed = liveSetNumeric !== null && liveValueNumeric !== null && live?.set !== "--" && live?.value !== "--";
-  const isHoliday = isHolidayActive(holiday);
+  const isHoliday = holiday && String(holiday.status || "") !== "0";
   const connectionStatus = isLiveFeed && !isHoliday ? "Live" : "Closed";
 
   let holidayName: string | null = null;
-  const rawHolidayName = String(holiday?.name ?? "").trim();
-  const isValidHolidayName = rawHolidayName && rawHolidayName !== "NULL" && rawHolidayName !== "null" && rawHolidayName !== "undefined";
-  if (isHoliday && isValidHolidayName) {
-    holidayName = rawHolidayName;
+  if (isHoliday && holiday?.name) {
+    holidayName = holiday.name;
   } else if (!isLiveFeed) {
     const now = new Date(serverTime || Date.now());
     const dayOfWeek = now.getDay();
@@ -254,8 +320,24 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ===== Calendar/History endpoint =====
-    if (endpoint === "2d_result" || endpoint === "calendar") {
+    // ===== 2D final-result endpoint (official source) =====
+    if (endpoint === "2d_result") {
+      const apiUrl = date
+        ? `${THAISTOCK_BASE}/2d_result?date=${encodeURIComponent(date)}`
+        : `${THAISTOCK_BASE}/2d_result`;
+      console.log(`Fetching official 2d_result: ${apiUrl}`);
+      const rawData = await fetchWithTimeout(apiUrl, {
+        "accept": "application/json",
+        "user-agent": "KKTech-Live-Dashboard/1.0",
+      });
+      const normalizedDays = normalize2DResultDays(rawData);
+      return new Response(JSON.stringify({ data: normalizedDays }), {
+        headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // ===== Calendar endpoint =====
+    if (endpoint === "calendar") {
       if (hasRapidKey) {
         try {
           console.log(`Fetching RapidAPI: /calendar?page=${page}&limit=${limit}`);
@@ -264,10 +346,10 @@ Deno.serve(async (req) => {
             rapidHeaders,
             20000
           );
-          
-          const calendarData = rawData?.data || rawData;
-          if (Array.isArray(calendarData) && calendarData.length > 0) {
-            return new Response(JSON.stringify({ data: calendarData }), {
+
+          const calendarData = normalize2DResultDays(rawData);
+          if (calendarData.length > 0) {
+            return new Response(JSON.stringify({ data: paginateDays(calendarData, page, limit) }), {
               headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
             });
           }
@@ -281,11 +363,12 @@ Deno.serve(async (req) => {
         ? `${THAISTOCK_BASE}/2d_result?date=${encodeURIComponent(date)}`
         : `${THAISTOCK_BASE}/2d_result`;
       console.log(`Fetching fallback: ${apiUrl}`);
-      const data = await fetchWithTimeout(apiUrl, {
+      const rawData = await fetchWithTimeout(apiUrl, {
         "accept": "application/json",
         "user-agent": "KKTech-Live-Dashboard/1.0",
       });
-      return new Response(JSON.stringify({ data }), {
+      const normalizedDays = normalize2DResultDays(rawData);
+      return new Response(JSON.stringify({ data: paginateDays(normalizedDays, page, limit) }), {
         headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
       });
     }
