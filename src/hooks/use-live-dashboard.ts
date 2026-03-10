@@ -634,7 +634,6 @@ export function useLiveDashboard() {
 
     // Within the buffer after a session close — keep verification status
     if (!isCurrentTwodSessionResult) return "live";
-    console.log("[DEBUG] Keeping verified:", { nowSeconds, isLive, isCurrentTwodSessionResult, resultVerificationStatus });
     return resultVerificationStatus;
   }, [isLive, isCurrentTwodSessionResult, resultVerificationStatus, parts]);
 
