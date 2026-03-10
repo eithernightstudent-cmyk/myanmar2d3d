@@ -191,7 +191,7 @@ Deno.serve(async (req) => {
         const data = await fetchWithTimeout(`${THAISTOCK_BASE}/live`, {
           "accept": "application/json",
           "user-agent": "KKTech-Live-Dashboard/1.0",
-        }, 8000);
+        }, 5000);
         const normalized = normalizeThaistock(data);
         console.log("PRIMARY OK — status:", normalized.connectionStatus, "2D:", normalized.calculated2d);
         return new Response(JSON.stringify({ data: normalized }), {
