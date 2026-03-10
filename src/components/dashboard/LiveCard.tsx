@@ -191,13 +191,13 @@ export function LiveCard({
 
         {/* Updated timestamp */}
         {hasStockDatetime && (
-          <div className="flex items-center justify-center gap-1.5 pb-2">
+          <div className="flex items-center justify-center gap-2 pb-2">
             {isLive && !isResultLocked ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
             ) : (
-              <motion.div className="relative" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 300, damping: 15 }}>
-                <CheckCircle className="h-3.5 w-3.5 text-success" />
-                {/* Mini confetti particles */}
+              <motion.div className="relative" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 12 }}>
+                <CheckCircle className="h-5 w-5 text-success" strokeWidth={2.5} />
+                {/* Star confetti particles */}
                 {[...Array(12)].map((_, i) => {
                   const angle = (i / 12) * 360;
                   const rad = (angle * Math.PI) / 180;
@@ -212,8 +212,8 @@ export function LiveCard({
                       fill={colors[i % colors.length]}
                       initial={{ x: 0, y: 0, opacity: 1, scale: 1.2, rotate: 0 }}
                       animate={{
-                        x: Math.cos(rad) * 20,
-                        y: Math.sin(rad) * 20,
+                        x: Math.cos(rad) * 22,
+                        y: Math.sin(rad) * 22,
                         opacity: 0,
                         scale: 0,
                         rotate: i % 2 === 0 ? 180 : -180,
@@ -226,7 +226,7 @@ export function LiveCard({
                 })}
               </motion.div>
             )}
-            <span className="font-display text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
+            <span className="font-display text-[0.8rem]" style={{ color: "hsl(var(--text-secondary))" }}>
               Updated:{" "}
               <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>
                 {stockDatetime}
