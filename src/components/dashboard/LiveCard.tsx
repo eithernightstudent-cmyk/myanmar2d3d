@@ -107,18 +107,13 @@ export function LiveCard({
           </span>
         </div>
 
-        {/* Market Closed Banner */}
-        {marketClosed && (
+        {/* Holiday Name (without Market Closed banner) */}
+        {marketClosed && cleanHolidayName && (
           <div className="mt-2 text-center">
-            <p className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-50 px-2 py-0.5 font-display text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-amber-700 status-badge-glow-closed">
-              Market Closed
-            </p>
-            {cleanHolidayName && (
-              <div className="mt-1 flex items-center justify-center gap-1">
-                <CalendarDays className="h-3 w-3 text-primary" />
-                <p className="font-display text-xs font-bold text-primary/80">{cleanHolidayName}</p>
-              </div>
-            )}
+            <div className="flex items-center justify-center gap-1">
+              <CalendarDays className="h-3 w-3 text-primary" />
+              <p className="font-display text-xs font-bold text-primary/80">{cleanHolidayName}</p>
+            </div>
           </div>
         )}
 
