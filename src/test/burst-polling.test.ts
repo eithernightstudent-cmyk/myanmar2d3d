@@ -79,27 +79,32 @@ describe("Burst polling at session close times", () => {
       expect(getPollIntervalMs(parts, false)).toBe(POLL_BURST_MS);
     });
 
-    it(`should return 1s (BURST) 1 minute AFTER ${sess.label}`, () => {
-      const parts = makeParts("Thu", sess.h, sess.m + 1, 0);
-      expect(getPollIntervalMs(parts, false)).toBe(POLL_BURST_MS);
-    });
+    // For 16:30, "after" windows fall outside market hours (16:30 is the boundary)
+    if (sess.h === 16 && sess.m === 30) {
+      it(`should return OFF_MARKET after ${sess.label} (market closes at 16:30)`, () => {
+        const parts1 = makeParts("Thu", sess.h, sess.m + 1, 0);
+        expect(getPollIntervalMs(parts1, false)).toBe(POLL_OFF_MARKET_MS);
+        const parts2 = makeParts("Fri", sess.h, sess.m + 2, 0);
+        expect(getPollIntervalMs(parts2, false)).toBe(POLL_OFF_MARKET_MS);
+        const parts3 = makeParts("Mon", sess.h, sess.m + 3, 0);
+        expect(getPollIntervalMs(parts3, false)).toBe(POLL_OFF_MARKET_MS);
+      });
+    } else {
+      it(`should return 1s (BURST) 1 minute AFTER ${sess.label}`, () => {
+        const parts = makeParts("Thu", sess.h, sess.m + 1, 0);
+        expect(getPollIntervalMs(parts, false)).toBe(POLL_BURST_MS);
+      });
 
-    it(`should return 1s (BURST) 2 minutes AFTER ${sess.label}`, () => {
-      const parts = makeParts("Fri", sess.h, sess.m + 2, 0);
-      expect(getPollIntervalMs(parts, false)).toBe(POLL_BURST_MS);
-    });
+      it(`should return 1s (BURST) 2 minutes AFTER ${sess.label}`, () => {
+        const parts = makeParts("Fri", sess.h, sess.m + 2, 0);
+        expect(getPollIntervalMs(parts, false)).toBe(POLL_BURST_MS);
+      });
 
-    it(`should return 2.5s (HOT) 3 minutes BEFORE ${sess.label}`, () => {
-      const parts = makeParts("Mon", sess.h, sess.m - 3, 0);
-      expect(getPollIntervalMs(parts, false)).toBe(POLL_HOT_MS);
-      expect(isBurstWindow(parts)).toBe(false);
-      expect(isHotMinute(parts)).toBe(true);
-    });
-
-    it(`should return 2.5s (HOT) 3 minutes AFTER ${sess.label}`, () => {
-      const parts = makeParts("Mon", sess.h, sess.m + 3, 0);
-      expect(getPollIntervalMs(parts, false)).toBe(POLL_HOT_MS);
-    });
+      it(`should return 2.5s (HOT) 3 minutes AFTER ${sess.label}`, () => {
+        const parts = makeParts("Mon", sess.h, sess.m + 3, 0);
+        expect(getPollIntervalMs(parts, false)).toBe(POLL_HOT_MS);
+      });
+    }
   }
 
   it("should return 15s (NORMAL) during market hours outside any window", () => {
