@@ -106,25 +106,32 @@ export function ModernClock() {
         </div>
       )}
 
-      {/* Schedule */}
+      {/* Schedule — prominent session times */}
       <div className="mt-3 grid grid-cols-4 gap-1.5">
         {RESULT_TIMES.map((rt) => {
           const status = getStatus(rt.h, rt.m);
           return (
             <div
               key={rt.label}
-              className={`flex flex-col items-center rounded-xl border p-2 transition-colors ${
+              className={`relative flex flex-col items-center rounded-2xl border-2 p-2.5 transition-all duration-300 ${
                 status === "done"
-                  ? "border-primary/30 bg-primary/8"
+                  ? "border-primary/40 bg-primary/10 shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
                   : status === "soon"
-                  ? "border-[hsl(var(--warm))]/40 bg-[hsl(var(--warm-soft))] animate-pulse"
-                  : "border-border bg-[hsl(var(--card-strong))]"
+                  ? "border-[hsl(var(--warm))]/50 bg-[hsl(var(--warm-soft))] shadow-[0_0_16px_hsl(var(--warm)/0.2)] animate-pulse"
+                  : "border-border/60 bg-[hsl(var(--card-strong))]"
               }`}
             >
-              <span className="font-display text-[0.55rem] font-semibold uppercase tracking-wider text-muted-foreground">
+              {status === "done" && (
+                <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary shadow-sm">
+                  <CheckCircle2 className="h-2.5 w-2.5 text-primary-foreground" />
+                </div>
+              )}
+              <span className="font-display text-[0.55rem] font-bold uppercase tracking-[0.16em] text-muted-foreground">
                 {rt.label}
               </span>
-              <span className={`font-display text-sm font-bold ${status === "done" ? "text-accent-foreground" : "text-foreground"}`}>
+              <span className={`font-digital text-base font-extrabold tracking-wider ${
+                status === "done" ? "text-primary" : status === "soon" ? "text-accent-foreground" : "text-foreground"
+              }`}>
                 {padTwo(rt.h)}:{padTwo(rt.m)}
               </span>
             </div>
