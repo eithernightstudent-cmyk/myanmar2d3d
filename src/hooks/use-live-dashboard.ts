@@ -602,10 +602,36 @@ export function useLiveDashboard() {
   }, [parts, verificationStockDatetime, isLive]);
 
   const uiVerificationStatus: VerificationState = useMemo(() => {
-    // When live-calculated 2D differs from the last finalized session result, keep it as "live".
-    if (isLive && !isCurrentTwodSessionResult) return "live";
+    if (!isLive) return resultVerificationStatus;
+
+    const nowSeconds = getSecondsOfDay(parts);
+    const RESET_BUFFER_SECONDS = 120; // 2 min after close → reset to "live" for next session
+
+    // Find the next upcoming session close
+    const nextSessionIdx = SESSION_CLOSE_SECONDS.findIndex((s) => nowSeconds < s);
+    // Find the last session close that already passed
+    const lastPassedIdx =
+      nextSessionIdx > 0
+        ? nextSessionIdx - 1
+        : nextSessionIdx === -1
+          ? SESSION_CLOSE_SECONDS.length - 1
+          : -1;
+
+    // Before any session has closed today
+    if (lastPassedIdx < 0) return "live";
+
+    // If past last close + buffer AND there's a next session → new live window
+    if (nextSessionIdx >= 0) {
+      const lastClose = SESSION_CLOSE_SECONDS[lastPassedIdx];
+      if (nowSeconds > lastClose + RESET_BUFFER_SECONDS) {
+        return "live";
+      }
+    }
+
+    // Within the buffer after a session close — keep verification status
+    if (!isCurrentTwodSessionResult) return "live";
     return resultVerificationStatus;
-  }, [isLive, isCurrentTwodSessionResult, resultVerificationStatus]);
+  }, [isLive, isCurrentTwodSessionResult, resultVerificationStatus, parts]);
 
   const resultConfirmSecondsLeft =
     isLive && uiVerificationStatus === "verifying" && firstSeenAtRef.current
