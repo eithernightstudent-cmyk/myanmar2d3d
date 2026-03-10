@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { StatusPill } from "./StatusPill";
 import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, Zap, CircleAlert } from "lucide-react";
 import { tap } from "@/lib/haptic";
@@ -70,82 +70,91 @@ export function LiveCard({
   return (
     <section aria-live="polite">
       <article
-        className={`relative overflow-hidden rounded-3xl border border-border bg-[hsl(var(--card-glass))] shadow-[var(--shadow-panel)] backdrop-blur-lg transition-all ${
-          flash ? "before:opacity-100" : "before:opacity-0"
-        } before:pointer-events-none before:absolute before:inset-[-30%] before:bg-[radial-gradient(circle,hsl(var(--primary)/0.12),transparent_60%)] before:transition-opacity before:duration-200`}
+        className="relative overflow-hidden rounded-3xl bg-card shadow-[0_1px_3px_0_rgba(0,0,0,0.04),0_1px_2px_-1px_rgba(0,0,0,0.03)] transition-shadow hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)]"
+        style={{ border: "1px solid hsl(220 13% 90%)" }}
       >
-        {/* Compact Header Bar */}
-        <div className="flex items-center justify-between px-4 pt-4 sm:px-6 sm:pt-5">
+        {/* Header chips */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] text-primary status-badge-glow-live">
+            <span className="inline-flex items-center rounded-full border border-border px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-foreground"
+              style={{ fontFamily: "Inter, system-ui, sans-serif" }}
+            >
               Live 2D
             </span>
             <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
             {isFinalOnlyMode && (
-              <div className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-2 py-0.5">
-                <Lock className="h-3 w-3 text-success" />
-                <span className="font-display text-[0.55rem] font-bold uppercase tracking-wider text-success">Final</span>
-              </div>
+              <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5">
+                <Lock className="h-3 w-3 text-[hsl(var(--success))]" />
+                <span className="text-[0.6rem] font-semibold uppercase tracking-wider text-[hsl(var(--success))]"
+                  style={{ fontFamily: "Inter, system-ui, sans-serif" }}>Final</span>
+              </span>
             )}
             {isSyncing && isLive && (
-              <div className="flex items-center gap-1.5" style={{ color: "hsl(var(--text-secondary))" }}>
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-              </div>
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
             )}
             {isHotMinute && isLive && (
-              <motion.div
+              <motion.span
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5"
+                className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5"
               >
-                <Zap className="h-3 w-3 text-amber-500" fill="currentColor" />
-                <span className="font-display text-[0.55rem] font-bold uppercase tracking-wider text-amber-600">Fast</span>
-              </motion.div>
+                <Zap className="h-3 w-3 text-[hsl(var(--warm))]" fill="currentColor" />
+                <span className="text-[0.6rem] font-semibold uppercase tracking-wider text-[hsl(var(--warm))]"
+                  style={{ fontFamily: "Inter, system-ui, sans-serif" }}>Fast</span>
+              </motion.span>
             )}
           </div>
-          <span className="rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1.5 font-display text-xs font-bold gold-metal-text">
+          <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground tabular-nums"
+            style={{ fontFamily: "Inter, system-ui, sans-serif" }}
+          >
             {clock}
           </span>
         </div>
 
-        {/* Market Closed Banner */}
+        {/* Market Closed */}
         {marketClosed && (
-          <div className="mt-3 text-center">
-            <p className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-50 px-2.5 py-1 font-display text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 status-badge-glow-closed">
+          <div className="mt-4 text-center">
+            <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-[hsl(var(--warm))]"
+              style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
               Market Closed
-            </p>
+            </span>
             {cleanHolidayName && (
-              <div className="mt-1.5 flex items-center justify-center gap-1.5">
-                <CalendarDays className="h-3.5 w-3.5 text-primary" />
-                <p className="font-display text-sm font-bold text-primary/80">{cleanHolidayName}</p>
+              <div className="mt-2 flex items-center justify-center gap-1.5">
+                <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+                <p className="text-sm font-medium text-foreground" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>{cleanHolidayName}</p>
               </div>
             )}
           </div>
         )}
 
-        {/* Hero 2D Number — large, centered, dominant */}
-        <div className="flex flex-col items-center justify-center py-4 sm:py-8">
+        {/* Hero 2D Number */}
+        <div className="flex flex-col items-center justify-center py-8 sm:py-10">
           <div className="relative">
             {hasTwoD ? (
               <motion.div
                 initial={{ opacity: 0.95 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.2 }}
-                className="font-display text-[clamp(6rem,24vw,9rem)] font-extrabold leading-none"
+                className="text-[clamp(5.5rem,22vw,8.5rem)] font-extrabold leading-none tracking-tight"
+                style={{ fontFamily: "Inter, system-ui, sans-serif", color: "hsl(220 15% 10%)" }}
               >
-                <RollingNumber value={twod} digitClassName="gold-metal-text" />
+                <RollingNumber
+                  value={twod}
+                  digitClassName=""
+                  digitStyle={{ color: "hsl(220, 15%, 10%)" }}
+                />
               </motion.div>
             ) : (
-              <div className="h-[9rem] w-[10rem]" aria-hidden="true" />
+              <div className="h-[8.5rem] w-[10rem]" aria-hidden="true" />
             )}
 
             {isResultLocked && hasTwoD && (
               <motion.div
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="absolute -right-5 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-success/10 border border-success/30"
+                className="absolute -right-4 top-1 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card"
               >
-                <Lock className="h-3.5 w-3.5 text-success" />
+                <Lock className="h-3 w-3 text-[hsl(var(--success))]" />
               </motion.div>
             )}
           </div>
@@ -158,11 +167,12 @@ export function LiveCard({
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
-                className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-amber-400/35 bg-amber-500/10 px-3 py-1"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1"
               >
-                <CircleAlert className="h-3.5 w-3.5 text-amber-500" />
-                <span className="font-display text-[0.62rem] font-bold uppercase tracking-wider text-amber-700">
-                  Preliminary {resultConfirmSecondsLeft > 0 ? `• ${resultConfirmSecondsLeft}s` : ""}
+                <CircleAlert className="h-3.5 w-3.5 text-[hsl(var(--warm))]" />
+                <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-[hsl(var(--warm))]"
+                  style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+                  Preliminary {resultConfirmSecondsLeft > 0 ? `· ${resultConfirmSecondsLeft}s` : ""}
                 </span>
               </motion.div>
             )}
@@ -172,53 +182,58 @@ export function LiveCard({
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
-                className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-50 px-4 py-1.5 backdrop-blur-sm"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1"
               >
-                <ShieldCheck className="h-4 w-4 text-emerald-600" strokeWidth={2.2} />
-                <span className="font-display text-[0.7rem] font-bold uppercase tracking-wider text-emerald-700">Verified</span>
+                <ShieldCheck className="h-3.5 w-3.5 text-[hsl(var(--success))]" strokeWidth={2} />
+                <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-[hsl(var(--success))]"
+                  style={{ fontFamily: "Inter, system-ui, sans-serif" }}>Verified</span>
               </motion.div>
             )}
           </AnimatePresence>
 
           {showAwaitingFinalNotice && (
-            <div className="mt-3 inline-flex items-center rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1">
-              <span className="font-display text-[0.62rem] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="mt-4 inline-flex items-center rounded-full border border-border px-3 py-1">
+              <span className="text-[0.65rem] font-medium uppercase tracking-wider text-muted-foreground"
+                style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
                 Awaiting Verified Result
               </span>
             </div>
           )}
         </div>
 
-        {/* Updated timestamp — clean single line */}
+        {/* Updated timestamp */}
         {hasStockDatetime && (
-          <div className="flex items-center justify-center gap-2 pb-3 sm:pb-5">
+          <div className="flex items-center justify-center gap-2 pb-4">
             <CheckCircle
-              className="h-4 w-4"
+              className="h-3.5 w-3.5"
               style={{ color: isResultLocked ? "hsl(var(--success))" : "hsl(var(--muted-foreground))" }}
             />
-            <span className="font-display text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
-              Updated:{" "}
-              <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>
+            <span className="text-xs text-muted-foreground" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+              Updated{" "}
+              <span className="font-semibold text-foreground">
                 {stockDatetime}
               </span>
             </span>
           </div>
         )}
 
-        {/* SET & Value — bottom bar style */}
-        <div className="grid grid-cols-2 border-t border-border">
+        {/* SET & Value bottom section */}
+        <div className="grid grid-cols-2" style={{ borderTop: "1px solid hsl(220 13% 90%)" }}>
           <motion.div
             key={`set-${setFormatted}`}
             initial={{ opacity: 0.6 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
             onTouchStart={() => tap()}
-            className="border-r border-border px-4 py-4 sm:px-6 active:bg-muted/30 transition-colors duration-150"
+            className="px-5 py-4 active:bg-muted/30 transition-colors"
+            style={{ borderRight: "1px solid hsl(220 13% 90%)" }}
           >
-            <span className="block font-display text-[0.6rem] font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: "hsl(var(--text-secondary))" }}>
+            <span className="block text-[0.6rem] font-medium uppercase tracking-widest text-muted-foreground mb-1"
+              style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
               SET Index
             </span>
-            <span className="font-display text-lg font-bold sm:text-xl" style={{ color: "hsl(var(--text-strong))" }}>
+            <span className="text-lg font-bold text-foreground sm:text-xl"
+              style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
               {hasSetValue ? setFormatted : "\u00A0"}
             </span>
           </motion.div>
@@ -228,22 +243,24 @@ export function LiveCard({
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
             onTouchStart={() => tap()}
-            className="px-4 py-4 sm:px-6 active:bg-muted/30 transition-colors duration-150"
+            className="px-5 py-4 active:bg-muted/30 transition-colors"
           >
-            <span className="block font-display text-[0.6rem] font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: "hsl(var(--text-secondary))" }}>
+            <span className="block text-[0.6rem] font-medium uppercase tracking-widest text-muted-foreground mb-1"
+              style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
               Value
             </span>
-            <span className="font-display text-lg font-bold sm:text-xl" style={{ color: "hsl(var(--text-strong))" }}>
+            <span className="text-lg font-bold text-foreground sm:text-xl"
+              style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
               {hasValueValue ? valueFormatted : "\u00A0"}
             </span>
           </motion.div>
         </div>
 
         {/* Date footer */}
-        <div className="border-t border-border px-4 py-3 sm:px-6">
-          <div className="flex justify-between font-display text-xs">
-            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Date</span>
-            <span style={{ color: "hsl(var(--text-secondary))" }}>{currentDate}</span>
+        <div className="px-5 py-3" style={{ borderTop: "1px solid hsl(220 13% 90%)" }}>
+          <div className="flex justify-between text-xs" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+            <span className="font-semibold text-foreground">Date</span>
+            <span className="text-muted-foreground">{currentDate}</span>
           </div>
         </div>
       </article>
