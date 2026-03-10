@@ -141,13 +141,17 @@ function getLatestSessionResult(data: LiveData | null): CurrentDayResult | null 
 function isHolidayActive(holiday: LiveData["holiday"]): boolean {
   if (!holiday) return false;
   const status = String(holiday.status ?? "").trim().toLowerCase();
+  // status "1" = holiday, "0"/"2" = not holiday
   if (status === "1" || status === "true" || status === "yes" || status === "holiday" || status === "closed") {
     return true;
   }
-  if (status === "0" || status === "false" || status === "no" || status === "") {
+  if (status === "0" || status === "2" || status === "false" || status === "no" || status === "") {
     return false;
   }
-  return !!String(holiday.name ?? "").trim();
+  // Fallback: check name, but treat "NULL"/"null" as empty
+  const name = String(holiday.name ?? "").trim();
+  if (!name || name.toLowerCase() === "null") return false;
+  return true;
 }
 
 function buildDataSignature(data: LiveData): string {
