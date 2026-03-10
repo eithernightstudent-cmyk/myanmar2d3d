@@ -48,26 +48,6 @@ function hasValidTwoD(value: string | undefined) {
   return /^\d{2}$/.test(String(value ?? "").trim());
 }
 
-const NAV_ICONS = [
-  {
-    key: "3d",
-    icon: Dice3,
-    label: "3D Results",
-    gradient: "from-emerald-400 to-teal-500",
-  },
-  {
-    key: "history",
-    icon: CalendarDays,
-    label: "Previous Results",
-    gradient: "from-amber-400 to-orange-500",
-  },
-  {
-    key: "results",
-    icon: Clock,
-    label: "2D Results",
-    gradient: "from-blue-400 to-indigo-500",
-  },
-];
 
 export const TodayResults = memo(function TodayResults({
   currentDayResults,
