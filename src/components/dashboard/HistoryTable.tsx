@@ -6,15 +6,7 @@ import { Loader2, BarChart3 } from "lucide-react";
 import { tap } from "@/lib/haptic";
 import { normalizeSessionDays } from "@/lib/result-sessions";
 
-interface DayResult {
-  date?: string;
-  child: Array<{
-    time: string;
-    set: string;
-    value: string;
-    twod: string;
-  }>;
-}
+import type { SessionDay } from "@/lib/result-sessions";
 
 function get3D(value: string) {
   const digits = String(Math.floor(Math.abs(Number(String(value ?? "").replace(/,/g, ""))))).replace(/\D/g, "");

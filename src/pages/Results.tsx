@@ -6,16 +6,7 @@ import { Footer } from "@/components/dashboard/Footer";
 import { ArrowLeft, Calendar, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { normalizeSessionDays } from "@/lib/result-sessions";
-
-interface DayResult {
-  date?: string;
-  child: Array<{
-    time: string;
-    set: string;
-    value: string;
-    twod: string;
-  }>;
-}
+import type { SessionDay } from "@/lib/result-sessions";
 
 const Results = () => {
   const [results, setResults] = useState<DayResult[]>([]);
