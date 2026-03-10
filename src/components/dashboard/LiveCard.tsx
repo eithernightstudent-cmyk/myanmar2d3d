@@ -1,7 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { StatusPill } from "./StatusPill";
-import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, Zap, CircleAlert } from "lucide-react";
-import { tap } from "@/lib/haptic";
+import { Loader2, ShieldCheck, Lock, CircleAlert } from "lucide-react";
 import { RollingNumber } from "./RollingNumber";
 
 interface LiveCardProps {
@@ -32,12 +30,13 @@ interface LiveCardProps {
   isHotMinute?: boolean;
 }
 
+const FONT = { fontFamily: "Inter, system-ui, sans-serif" } as const;
+
 export function LiveCard({
   clock,
   twod,
   setFormatted,
   valueFormatted,
-  flash,
   isLive,
   isTradingDay = true,
   isSyncing,
@@ -50,7 +49,6 @@ export function LiveCard({
   isResultPreliminary = false,
   resultConfirmSecondsLeft = 0,
   isFinalOnlyMode = false,
-  isHotMinute = false,
 }: LiveCardProps) {
   const marketClosed = !isTradingDay;
   const hasTwoD = /^\d{2}$/.test(String(twod ?? "").trim());
@@ -58,7 +56,6 @@ export function LiveCard({
   const hasSetValue = !!setFormatted && setFormatted !== "--";
   const hasValueValue = !!valueFormatted && valueFormatted !== "--";
   const showPreliminaryNotice = hasTwoD && isResultPreliminary && !isResultLocked;
-  const showAwaitingFinalNotice = isFinalOnlyMode && !hasTwoD && isLive;
 
   const cleanHolidayName = (() => {
     if (holidayName && holidayName !== "null" && holidayName !== "NULL" && holidayName.trim() !== "") {
@@ -67,203 +64,107 @@ export function LiveCard({
     return null;
   })();
 
+  const statusColor = isLive ? "hsl(var(--success))" : "hsl(var(--muted-foreground))";
+
   return (
     <section aria-live="polite">
-      <article
-        className="relative overflow-hidden rounded-3xl bg-card shadow-[0_1px_3px_0_rgba(0,0,0,0.04),0_1px_2px_-1px_rgba(0,0,0,0.03)] transition-shadow hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)]"
-        style={{ border: "1px solid hsl(220 13% 90%)" }}
-      >
-        {/* Header chips */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center rounded-full border border-border px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-foreground"
-              style={{ fontFamily: "Inter, system-ui, sans-serif" }}
-            >
-              Live 2D
-            </span>
-            <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
-            {isFinalOnlyMode && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5">
-                <Lock className="h-3 w-3 text-[hsl(var(--success))]" />
-                <span className="text-[0.6rem] font-semibold uppercase tracking-wider text-[hsl(var(--success))]"
-                  style={{ fontFamily: "Inter, system-ui, sans-serif" }}>Final</span>
+      <div className="rounded-2xl bg-card" style={{ ...FONT, border: "1px solid hsl(220 14% 92%)" }}>
+
+        {/* Row 1: status + clock */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-0">
+          <div className="flex items-center gap-2">
+            {/* Live dot + status text */}
+            <span className="inline-flex items-center gap-1.5 text-[0.7rem] font-medium text-muted-foreground">
+              <span className="relative flex h-2 w-2">
+                {isLive && <span className="absolute inset-0 animate-ping rounded-full opacity-60" style={{ backgroundColor: statusColor }} />}
+                <span className="relative inline-flex h-2 w-2 rounded-full" style={{ backgroundColor: statusColor }} />
               </span>
-            )}
-            {isSyncing && isLive && (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-            )}
-            {isHotMinute && isLive && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5"
-              >
-                <Zap className="h-3 w-3 text-[hsl(var(--warm))]" fill="currentColor" />
-                <span className="text-[0.6rem] font-semibold uppercase tracking-wider text-[hsl(var(--warm))]"
-                  style={{ fontFamily: "Inter, system-ui, sans-serif" }}>Fast</span>
-              </motion.span>
-            )}
+              {connectionStatus}
+            </span>
+            {isSyncing && isLive && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
           </div>
-          <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground tabular-nums"
-            style={{ fontFamily: "Inter, system-ui, sans-serif" }}
-          >
-            {clock}
-          </span>
+          <span className="text-[0.7rem] font-medium tabular-nums text-muted-foreground">{clock}</span>
         </div>
 
-        {/* Market Closed */}
+        {/* Market closed notice */}
         {marketClosed && (
-          <div className="mt-4 text-center">
-            <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-[hsl(var(--warm))]"
-              style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-              Market Closed
-            </span>
-            {cleanHolidayName && (
-              <div className="mt-2 flex items-center justify-center gap-1.5">
-                <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
-                <p className="text-sm font-medium text-foreground" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>{cleanHolidayName}</p>
-              </div>
-            )}
-          </div>
+          <p className="mt-3 text-center text-[0.7rem] font-medium uppercase tracking-wider text-muted-foreground">
+            Market Closed{cleanHolidayName ? ` · ${cleanHolidayName}` : ""}
+          </p>
         )}
 
-        {/* Hero 2D Number */}
-        <div className="flex flex-col items-center justify-center py-8 sm:py-10">
-          <div className="relative">
-            {hasTwoD ? (
-              <motion.div
-                initial={{ opacity: 0.95 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-                className="text-[clamp(5.5rem,22vw,8.5rem)] font-extrabold leading-none tracking-tight"
-                style={{ fontFamily: "Inter, system-ui, sans-serif", color: "hsl(220 15% 10%)" }}
-              >
-                <RollingNumber
-                  value={twod}
-                  digitClassName=""
-                  digitStyle={{ color: "hsl(220, 15%, 10%)" }}
-                />
-              </motion.div>
-            ) : (
-              <div className="h-[8.5rem] w-[10rem]" aria-hidden="true" />
-            )}
+        {/* Hero 2D number */}
+        <div className="flex flex-col items-center py-6 sm:py-8">
+          {hasTwoD ? (
+            <div className="relative">
+              <RollingNumber
+                value={twod}
+                className="text-[clamp(5rem,20vw,7.5rem)] font-extrabold leading-none tracking-tight"
+                digitStyle={{ color: "hsl(220 15% 10%)" }}
+              />
+              {isResultLocked && (
+                <Lock className="absolute -right-3 top-0 h-4 w-4 text-[hsl(var(--success))]" />
+              )}
+            </div>
+          ) : (
+            <div className="h-24 sm:h-28" aria-hidden="true" />
+          )}
 
-            {isResultLocked && hasTwoD && (
-              <motion.div
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="absolute -right-4 top-1 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card"
-              >
-                <Lock className="h-3 w-3 text-[hsl(var(--success))]" />
-              </motion.div>
-            )}
-          </div>
-
-          {/* Verification Badges */}
+          {/* Single-line badge area */}
           <AnimatePresence mode="wait">
             {showPreliminaryNotice && (
-              <motion.div
+              <motion.p
                 key="preliminary"
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="mt-3 text-[0.65rem] font-medium text-muted-foreground"
               >
-                <CircleAlert className="h-3.5 w-3.5 text-[hsl(var(--warm))]" />
-                <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-[hsl(var(--warm))]"
-                  style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-                  Preliminary {resultConfirmSecondsLeft > 0 ? `· ${resultConfirmSecondsLeft}s` : ""}
-                </span>
-              </motion.div>
+                <CircleAlert className="mr-1 inline h-3 w-3 align-[-2px] text-[hsl(var(--warm))]" />
+                Preliminary{resultConfirmSecondsLeft > 0 ? ` · ${resultConfirmSecondsLeft}s` : ""}
+              </motion.p>
             )}
             {resultVerificationStatus === "verified" && hasTwoD && (
-              <motion.div
+              <motion.p
                 key="verified"
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="mt-3 text-[0.65rem] font-medium text-[hsl(var(--success))]"
               >
-                <ShieldCheck className="h-3.5 w-3.5 text-[hsl(var(--success))]" strokeWidth={2} />
-                <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-[hsl(var(--success))]"
-                  style={{ fontFamily: "Inter, system-ui, sans-serif" }}>Verified</span>
-              </motion.div>
+                <ShieldCheck className="mr-1 inline h-3 w-3 align-[-2px]" />
+                Verified
+              </motion.p>
             )}
           </AnimatePresence>
 
-          {showAwaitingFinalNotice && (
-            <div className="mt-4 inline-flex items-center rounded-full border border-border px-3 py-1">
-              <span className="text-[0.65rem] font-medium uppercase tracking-wider text-muted-foreground"
-                style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-                Awaiting Verified Result
-              </span>
-            </div>
+          {isFinalOnlyMode && !hasTwoD && isLive && (
+            <p className="mt-3 text-[0.65rem] text-muted-foreground">Awaiting verified result</p>
           )}
         </div>
 
-        {/* Updated timestamp */}
+        {/* Updated time — plain text */}
         {hasStockDatetime && (
-          <div className="flex items-center justify-center gap-2 pb-4">
-            <CheckCircle
-              className="h-3.5 w-3.5"
-              style={{ color: isResultLocked ? "hsl(var(--success))" : "hsl(var(--muted-foreground))" }}
-            />
-            <span className="text-xs text-muted-foreground" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-              Updated{" "}
-              <span className="font-semibold text-foreground">
-                {stockDatetime}
-              </span>
-            </span>
-          </div>
+          <p className="pb-4 text-center text-[0.7rem] text-muted-foreground">
+            Updated <span className="font-semibold text-foreground">{stockDatetime}</span>
+          </p>
         )}
 
-        {/* SET & Value bottom section */}
-        <div className="grid grid-cols-2" style={{ borderTop: "1px solid hsl(220 13% 90%)" }}>
-          <motion.div
-            key={`set-${setFormatted}`}
-            initial={{ opacity: 0.6 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            onTouchStart={() => tap()}
-            className="px-5 py-4 active:bg-muted/30 transition-colors"
-            style={{ borderRight: "1px solid hsl(220 13% 90%)" }}
-          >
-            <span className="block text-[0.6rem] font-medium uppercase tracking-widest text-muted-foreground mb-1"
-              style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-              SET Index
-            </span>
-            <span className="text-lg font-bold text-foreground sm:text-xl"
-              style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-              {hasSetValue ? setFormatted : "\u00A0"}
-            </span>
-          </motion.div>
-          <motion.div
-            key={`val-${valueFormatted}`}
-            initial={{ opacity: 0.6 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            onTouchStart={() => tap()}
-            className="px-5 py-4 active:bg-muted/30 transition-colors"
-          >
-            <span className="block text-[0.6rem] font-medium uppercase tracking-widest text-muted-foreground mb-1"
-              style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-              Value
-            </span>
-            <span className="text-lg font-bold text-foreground sm:text-xl"
-              style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-              {hasValueValue ? valueFormatted : "\u00A0"}
-            </span>
-          </motion.div>
-        </div>
-
-        {/* Date footer */}
-        <div className="px-5 py-3" style={{ borderTop: "1px solid hsl(220 13% 90%)" }}>
-          <div className="flex justify-between text-xs" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-            <span className="font-semibold text-foreground">Date</span>
-            <span className="text-muted-foreground">{currentDate}</span>
+        {/* SET / Value / Date — single bottom row */}
+        <div className="flex items-center border-t border-border px-5 py-3 text-[0.7rem]">
+          <div className="flex-1">
+            <span className="text-muted-foreground">SET </span>
+            <span className="font-semibold text-foreground">{hasSetValue ? setFormatted : "—"}</span>
           </div>
+          <div className="mx-3 h-3 w-px bg-border" />
+          <div className="flex-1">
+            <span className="text-muted-foreground">Val </span>
+            <span className="font-semibold text-foreground">{hasValueValue ? valueFormatted : "—"}</span>
+          </div>
+          <div className="mx-3 h-3 w-px bg-border" />
+          <span className="text-muted-foreground">{currentDate}</span>
         </div>
-      </article>
+      </div>
     </section>
   );
 }
