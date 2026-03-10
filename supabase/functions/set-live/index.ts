@@ -93,8 +93,10 @@ function normalizeThaistock(payload: any, source: string = "thaistock2d") {
   const connectionStatus = isLiveFeed && !isHoliday ? "Live" : "Closed";
 
   let holidayName: string | null = null;
-  if (isHoliday && holiday?.name) {
-    holidayName = holiday.name;
+  const rawHolidayName = String(holiday?.name ?? "").trim();
+  const isValidHolidayName = rawHolidayName && rawHolidayName !== "NULL" && rawHolidayName !== "null" && rawHolidayName !== "undefined";
+  if (isHoliday && isValidHolidayName) {
+    holidayName = rawHolidayName;
   } else if (!isLiveFeed) {
     const now = new Date(serverTime || Date.now());
     const dayOfWeek = now.getDay();
