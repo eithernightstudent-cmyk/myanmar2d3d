@@ -81,7 +81,7 @@ export function LiveCard({
             <span className="inline-flex items-center rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 font-display text-[0.6rem] font-bold uppercase tracking-[0.18em] text-primary status-badge-glow-live">
               Live 2D
             </span>
-            <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
+            {isLive && <StatusPill isLive={isLive} connectionStatus={connectionStatus} />}
             {isFinalOnlyMode && (
               <div className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-1.5 py-0.5">
                 <Lock className="h-2.5 w-2.5 text-success" />
