@@ -44,7 +44,7 @@ export function HistoryTable() {
           body: { endpoint: "2d_result" },
         });
         if (!response.error && response.data?.data) {
-          setResults(normalizeSessionDays(response.data.data, 7) as DayResult[]);
+          setResults(normalizeSessionDays(response.data.data, 7));
         }
       } catch {
         // silent
