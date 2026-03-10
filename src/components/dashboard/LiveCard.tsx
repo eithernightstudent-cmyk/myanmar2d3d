@@ -192,10 +192,13 @@ export function LiveCard({
         {/* Updated timestamp */}
         {hasStockDatetime && (
           <div className="flex items-center justify-center gap-1.5 pb-2">
-            <CheckCircle
-              className="h-3.5 w-3.5"
-              style={{ color: isResultLocked ? "hsl(var(--success))" : "hsl(var(--muted-foreground))" }}
-            />
+            {isLive && !isResultLocked ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+            ) : (
+              <CheckCircle
+                className="h-3.5 w-3.5 text-success"
+              />
+            )}
             <span className="font-display text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
               Updated:{" "}
               <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>
