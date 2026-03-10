@@ -5,11 +5,20 @@ import { Topbar } from "@/components/dashboard/Topbar";
 import { Footer } from "@/components/dashboard/Footer";
 import { ArrowLeft, Calendar, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { normalizeSessionDays } from "@/lib/result-sessions";
-import type { SessionDay } from "@/lib/result-sessions";
+import { normalizeSessionDays } from "@/lib/market-utils";
+
+interface DayResult {
+  date?: string;
+  child: Array<{
+    time: string;
+    set: string;
+    value: string;
+    twod: string;
+  }>;
+}
 
 const Results = () => {
-  const [results, setResults] = useState<SessionDay[]>([]);
+  const [results, setResults] = useState<DayResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const ownerName = localStorage.getItem("kktech-live-owner-name") || "2D3D";
@@ -21,7 +30,7 @@ const Results = () => {
           body: { endpoint: "2d_result" },
         });
         if (response.error) throw new Error(response.error.message);
-        setResults(normalizeSessionDays(response.data?.data, 10));
+        setResults(normalizeSessionDays(response.data?.data, 10) as DayResult[]);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load results");
       } finally {

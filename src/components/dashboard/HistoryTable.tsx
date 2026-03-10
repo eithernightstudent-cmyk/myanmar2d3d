@@ -1,12 +1,19 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { formatNumber } from "@/lib/market-utils";
+import { formatNumber, normalizeSessionDays } from "@/lib/market-utils";
 import { Loader2, BarChart3 } from "lucide-react";
 import { tap } from "@/lib/haptic";
-import { normalizeSessionDays } from "@/lib/result-sessions";
 
-import type { SessionDay } from "@/lib/result-sessions";
+interface DayResult {
+  date?: string;
+  child: Array<{
+    time: string;
+    set: string;
+    value: string;
+    twod: string;
+  }>;
+}
 
 function get3D(value: string) {
   const digits = String(Math.floor(Math.abs(Number(String(value ?? "").replace(/,/g, ""))))).replace(/\D/g, "");
@@ -14,7 +21,7 @@ function get3D(value: string) {
 }
 
 export function HistoryTable() {
-  const [results, setResults] = useState<SessionDay[]>([]);
+  const [results, setResults] = useState<DayResult[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,9 +35,9 @@ export function HistoryTable() {
           const raw = response.data.data;
           // Handle both array format and calendar format
           if (Array.isArray(raw)) {
-            setResults(normalizeSessionDays(raw, 7));
+            setResults(normalizeSessionDays(raw, 7) as DayResult[]);
           } else if (raw?.data && Array.isArray(raw.data)) {
-            setResults(normalizeSessionDays(raw.data, 7));
+            setResults(normalizeSessionDays(raw.data, 7) as DayResult[]);
           }
           return;
         }
@@ -44,7 +51,7 @@ export function HistoryTable() {
           body: { endpoint: "2d_result" },
         });
         if (!response.error && response.data?.data) {
-          setResults(normalizeSessionDays(response.data.data, 7));
+          setResults(normalizeSessionDays(response.data.data, 7) as DayResult[]);
         }
       } catch {
         // silent
