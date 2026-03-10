@@ -209,7 +209,7 @@ export function normalizeSessionDays(raw: unknown, maxDays?: number): SessionDay
         child,
       };
     })
-    .filter((day): day is SessionDay => !!day);
+    .filter((day): day is NonNullable<typeof day> => !!day) as SessionDay[];
 
   normalized.sort((left, right) => String(right.date || "").localeCompare(String(left.date || "")));
   if (maxDays && maxDays > 0) return normalized.slice(0, maxDays);

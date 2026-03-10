@@ -20,7 +20,7 @@ const Results = () => {
           body: { endpoint: "2d_result" },
         });
         if (response.error) throw new Error(response.error.message);
-        setResults(normalizeSessionDays(response.data?.data, 10) as DayResult[]);
+        setResults(normalizeSessionDays(response.data?.data, 10));
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load results");
       } finally {
