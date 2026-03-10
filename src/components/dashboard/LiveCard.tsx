@@ -149,21 +149,13 @@ export function LiveCard({
           )}
         </div>
 
-        {/* Updated time — prominent pill */}
+        {/* Updated time — prominent style like reference */}
         {hasStockDatetime && (
-          <div className="flex justify-center pb-3">
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.06] px-3.5 py-1.5 dark:bg-primary/[0.12]"
-            >
-              <span className="relative flex h-1.5 w-1.5">
-                {isLive && <span className="absolute inset-0 animate-ping rounded-full bg-primary/60" />}
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-              </span>
-              <span className="font-display text-[0.65rem] font-medium tracking-wide text-muted-foreground">Updated</span>
-              <span className="font-display text-[0.7rem] font-bold tabular-nums text-foreground">{stockDatetime}</span>
-            </motion.div>
+          <div className="flex items-center justify-center gap-2 pb-3">
+            <ShieldCheck className="h-5 w-5 text-[hsl(var(--success))]" />
+            <span className="font-display text-[0.8rem] font-medium tracking-wide text-muted-foreground">
+              Updated: <span className="font-bold tabular-nums text-foreground">{stockDatetime}</span>
+            </span>
           </div>
         )}
 
