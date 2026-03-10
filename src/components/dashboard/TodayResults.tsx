@@ -33,10 +33,10 @@ const ALL_SLOTS = [
 ];
 
 const CARD_GRADIENTS = [
-  "linear-gradient(135deg, hsl(210 40% 97%), hsl(220 30% 95%))",
-  "linear-gradient(135deg, hsl(200 35% 96%), hsl(210 28% 94%))",
-  "linear-gradient(135deg, hsl(180 30% 96%), hsl(195 25% 94%))",
-  "linear-gradient(135deg, hsl(38 50% 97%), hsl(38 40% 94%))",
+  "linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--muted)))",
+  "linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--muted)))",
+  "linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--muted)))",
+  "linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--muted)))",
 ];
 
 function hasValidTwoD(value: string | undefined) {
