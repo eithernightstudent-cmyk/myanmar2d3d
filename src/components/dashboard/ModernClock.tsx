@@ -91,7 +91,7 @@ export function ModernClock() {
               { val: padTwo(next.ss), unit: "s" },
             ].map((t, i) => (
               <div key={i} className="flex items-baseline gap-0.5">
-                <span className="font-display text-2xl font-bold text-primary">{t.val}</span>
+                <span className="font-digital text-2xl font-bold text-primary">{t.val}</span>
                 <span className="font-display text-[0.55rem] font-semibold text-muted-foreground">{t.unit}</span>
               </div>
             ))}
