@@ -5,17 +5,7 @@ import { Topbar } from "@/components/dashboard/Topbar";
 import { Footer } from "@/components/dashboard/Footer";
 import { ArrowLeft, Calendar, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { normalizeSessionDays } from "@/lib/market-utils";
-
-interface DayResult {
-  date?: string;
-  child: Array<{
-    time: string;
-    set: string;
-    value: string;
-    twod: string;
-  }>;
-}
+import { normalizeSessionDays, type SessionDay } from "@/lib/market-utils";
 
 const Results = () => {
   const [results, setResults] = useState<DayResult[]>([]);
