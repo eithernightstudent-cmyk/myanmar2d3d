@@ -29,6 +29,7 @@ const HOT_WINDOW_AFTER_SECONDS = 5 * 60;
 const BURST_WINDOW_BEFORE_SECONDS = 2 * 60;
 const BURST_WINDOW_AFTER_SECONDS = 2 * 60;
 const VERIFICATION_WINDOW_MS = 60000;
+const VERIFIED_HOLD_SECONDS = 2 * 60;
 
 const DEFAULT_OWNER_NAME = "2D3D";
 const OWNER_STORAGE_KEY = "kktech-live-owner-name";
@@ -141,31 +142,23 @@ function getLatestSessionResult(data: LiveData | null): CurrentDayResult | null 
 function isHolidayActive(holiday: LiveData["holiday"]): boolean {
   if (!holiday) return false;
   const status = String(holiday.status ?? "").trim().toLowerCase();
-  // status "1" = holiday, "0"/"2" = not holiday
   if (status === "1" || status === "true" || status === "yes" || status === "holiday" || status === "closed") {
     return true;
   }
-  if (status === "0" || status === "2" || status === "false" || status === "no" || status === "") {
+  if (status === "0" || status === "false" || status === "no" || status === "") {
     return false;
   }
-  // Fallback: check name, but treat "NULL"/"null" as empty
-  const name = String(holiday.name ?? "").trim();
-  if (!name || name.toLowerCase() === "null") return false;
-  return true;
+  return !!String(holiday.name ?? "").trim();
 }
 
 function buildDataSignature(data: LiveData): string {
   const latest = getLatestResult(data);
-  const sessionResult = getLatestSessionResult(data);
-  // When market is closed and we have a finalized session result, use stable values
-  // to avoid signature changes from fluctuating calculated2d/setIndex/value
-  const hasStableSession = sessionResult && hasValidTwoD(sessionResult.twod);
   return [
     data.currentDate || "",
     data.connectionStatus || "",
-    hasStableSession ? sessionResult!.twod : (data.calculated2d || ""),
-    hasStableSession ? "" : String(data.setIndex ?? ""),
-    hasStableSession ? "" : String(data.value ?? ""),
+    data.calculated2d || "",
+    String(data.setIndex ?? ""),
+    String(data.value ?? ""),
     data.live?.time || "",
     latest?.history_id || "",
     latest?.stock_datetime || "",
@@ -213,6 +206,7 @@ function getSessionVerificationStatus(
 ): VerificationState {
   const [closeH, closeM] = sessionCloseTime.split(":").map(Number);
   const closeSeconds = closeH * 3600 + closeM * 60;
+  const nowSeconds = getSecondsOfDay(parts);
 
   if (stockDatetime) {
     const parsed = parseStockTime(stockDatetime);
@@ -220,6 +214,7 @@ function getSessionVerificationStatus(
       const stockSeconds = parsed.h * 3600 + parsed.m * 60 + parsed.s;
       if (stockSeconds >= closeSeconds) {
         if (!isMarketLive) return "verified";
+        if (nowSeconds > closeSeconds + VERIFIED_HOLD_SECONDS) return "live";
         if (firstSeenAt && Date.now() - firstSeenAt < VERIFICATION_WINDOW_MS) {
           return "verifying";
         }
@@ -228,7 +223,6 @@ function getSessionVerificationStatus(
     }
   }
 
-  const nowSeconds = getSecondsOfDay(parts);
   const diff = nowSeconds - closeSeconds;
   if (diff >= 0 && diff <= 10) return "finalizing";
   if (diff > 10 && !stockDatetime) return "closed";
@@ -394,20 +388,8 @@ export function useLiveDashboard() {
       const requestId = ++requestSeqRef.current;
 
       try {
-        let payload: any;
-
-        // Use prefetched data from inline script on first load
-        const prefetched = (window as any).__prefetchedLive;
-        if (prefetched) {
-          (window as any).__prefetchedLive = null; // consume once
-          payload = await prefetched;
-        }
-
-        if (!payload) {
-          const resp = await supabase.functions.invoke("set-live");
-          if (resp.error) throw new Error(resp.error.message || "Edge function error");
-          payload = resp.data;
-        }
+        const { data: payload, error } = await supabase.functions.invoke("set-live");
+        if (error) throw new Error(error.message || "Edge function error");
 
         const data = payload?.data as LiveData | undefined;
         if (!data) throw new Error("No data in response");
@@ -521,16 +503,7 @@ export function useLiveDashboard() {
 
   const clock = formatPartsClock(parts);
   const dateStr = formatPartsDate(parts);
-  // When market is closed, prefer the official session result over the calculated value
-  const twod = (() => {
-    if (!liveData) return "--";
-    const isMarketLive = isWithinMarketHours(parts);
-    if (isMarketLive) return liveData.calculated2d || "--";
-    // Market closed: use latest session result's twod if available
-    const sessionResult = getLatestSessionResult(liveData);
-    if (sessionResult && hasValidTwoD(sessionResult.twod)) return sessionResult.twod;
-    return liveData.calculated2d || "--";
-  })();
+  const twod = liveData?.calculated2d || "--";
   const rawConnectionStatus = liveData?.connectionStatus || "Closed";
   const isHoliday = isHolidayActive(liveData?.holiday || null);
   const isTradingDay = useMemo(
@@ -541,11 +514,9 @@ export function useLiveDashboard() {
   const connectionStatus =
     !isTradingDay
       ? "Closed"
-      : !isLive
-        ? "Closed"
-        : rawConnectionStatus.toLowerCase() === "live"
-          ? "Live"
-          : "Open";
+      : isLive && rawConnectionStatus.toLowerCase() === "live"
+        ? "Live"
+        : "Open";
 
   const getLastDigit = (raw: unknown) => {
     const digits = String(raw ?? "").replace(/\D/g, "");
@@ -606,36 +577,10 @@ export function useLiveDashboard() {
   }, [parts, verificationStockDatetime, isLive]);
 
   const uiVerificationStatus: VerificationState = useMemo(() => {
-    if (!isLive) return resultVerificationStatus;
-
-    const nowSeconds = getSecondsOfDay(parts);
-    const RESET_BUFFER_SECONDS = 120; // 2 min after close → reset to "live" for next session
-
-    // Find the next upcoming session close
-    const nextSessionIdx = SESSION_CLOSE_SECONDS.findIndex((s) => nowSeconds < s);
-    // Find the last session close that already passed
-    const lastPassedIdx =
-      nextSessionIdx > 0
-        ? nextSessionIdx - 1
-        : nextSessionIdx === -1
-          ? SESSION_CLOSE_SECONDS.length - 1
-          : -1;
-
-    // Before any session has closed today
-    if (lastPassedIdx < 0) return "live";
-
-    // If past last close + buffer AND there's a next session → new live window
-    if (nextSessionIdx >= 0) {
-      const lastClose = SESSION_CLOSE_SECONDS[lastPassedIdx];
-      if (nowSeconds > lastClose + RESET_BUFFER_SECONDS) {
-        return "live";
-      }
-    }
-
-    // Within the buffer after a session close — keep verification status
-    if (!isCurrentTwodSessionResult) return "live";
+    // When live-calculated 2D differs from the last finalized session result, keep it as "live".
+    if (isLive && !isCurrentTwodSessionResult) return "live";
     return resultVerificationStatus;
-  }, [isLive, isCurrentTwodSessionResult, resultVerificationStatus, parts]);
+  }, [isLive, isCurrentTwodSessionResult, resultVerificationStatus]);
 
   const resultConfirmSecondsLeft =
     isLive && uiVerificationStatus === "verifying" && firstSeenAtRef.current
