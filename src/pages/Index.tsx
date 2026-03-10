@@ -15,9 +15,13 @@ const Index = () => {
     <Suspense fallback={null}>
     <PullToRefresh onRefresh={dashboard.refreshData}>
     <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden">
-      {/* Warm gradient background matching reference theme */}
+      {/* Background */}
       <div
-        className="pointer-events-none fixed inset-0 -z-10 transition-colors duration-500"
+        className="pointer-events-none fixed inset-0 -z-10 bg-background transition-colors duration-500"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none fixed inset-0 -z-10 dark:opacity-0"
         aria-hidden="true"
         style={{
           background: "linear-gradient(135deg, hsl(30 50% 97%) 0%, hsl(25 40% 95%) 40%, hsl(35 35% 93%) 100%)",
