@@ -195,9 +195,13 @@ export function LiveCard({
             {isLive && !isResultLocked ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
             ) : (
-              <CheckCircle
-                className="h-3.5 w-3.5 text-success"
-              />
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              >
+                <CheckCircle className="h-3.5 w-3.5 text-success" />
+              </motion.div>
             )}
             <span className="font-display text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
               Updated:{" "}
