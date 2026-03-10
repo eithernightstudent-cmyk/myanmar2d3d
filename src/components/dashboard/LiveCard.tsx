@@ -108,7 +108,6 @@ export function LiveCard({
                   filter: "drop-shadow(0 4px 12px hsl(var(--foreground) / 0.1))",
                 }}
               />
-              />
               {isResultLocked && (
                 <Lock className="absolute -right-3 top-0 h-4 w-4 text-[hsl(var(--success))]" />
               )}
