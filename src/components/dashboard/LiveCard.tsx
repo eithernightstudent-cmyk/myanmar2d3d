@@ -130,7 +130,7 @@ export function LiveCard({
                 initial={{ opacity: 0.95 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.2 }}
-                className="font-display text-[clamp(3.5rem,14vw,5rem)] font-extrabold leading-none"
+                className={`font-digital text-[clamp(3.5rem,14vw,5rem)] font-extrabold leading-none ${isLive ? "digital-glow digital-glow-pulse" : "digital-glow"}`}
               >
                 <RollingNumber value={twod} digitClassName="gold-metal-text" />
               </motion.div>
