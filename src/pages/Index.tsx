@@ -85,18 +85,18 @@ const Index = () => {
             />
 
             <Suspense fallback={null}>
-              <ModernClock />
+              <TodayResults
+                currentDayResults={dashboard.currentDayResults}
+                currentDate={dashboard.currentDate}
+                fallbackResults={dashboard.allResults}
+                onOpenHistory={() => setShowHistory(true)}
+                onOpen3D={() => setShow3D(true)}
+              />
             </Suspense>
           </div>
 
           <Suspense fallback={null}>
-            <TodayResults
-              currentDayResults={dashboard.currentDayResults}
-              currentDate={dashboard.currentDate}
-              fallbackResults={dashboard.allResults}
-              onOpenHistory={() => setShowHistory(true)}
-              onOpen3D={() => setShow3D(true)}
-            />
+            <ModernClock />
           </Suspense>
         </div>
 
