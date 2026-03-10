@@ -89,6 +89,12 @@ export function getNextCheckText(parts: ThailandParts, lastFetchAtMs: number, po
     const msLeft = Math.max(0, pollIntervalMs - (Date.now() - lastFetchAtMs));
     return `in ${Math.ceil(msLeft / 1000)}s`;
   }
+  if (lastFetchAtMs) {
+    const msLeft = Math.max(0, pollIntervalMs - (Date.now() - lastFetchAtMs));
+    if (msLeft > 0 && msLeft < pollIntervalMs) {
+      return `in ${Math.ceil(msLeft / 1000)}s`;
+    }
+  }
   if (!isWeekday(parts)) return "Next weekday 09:30 (TH)";
   const nowMinutes = minutesOfDay(parts);
   if (nowMinutes < MARKET_WINDOW.start) return "Today 09:30 (TH)";
@@ -132,6 +138,82 @@ export function formatTimestamp(value: unknown) {
   const parsed = new Date(normalized);
   if (!Number.isFinite(parsed.getTime())) return "--";
   return TH_TIMESTAMP_FORMATTER.format(parsed).replace(",", "");
+}
+
+const FINAL_SESSION_TIMES = ["11:00", "12:01", "15:00", "16:30"] as const;
+const FINAL_SESSION_TIME_SET = new Set(FINAL_SESSION_TIMES);
+
+function toSessionKey(raw: unknown): string {
+  const text = String(raw ?? "").trim();
+  const match = text.match(/(\d{1,2}):(\d{2})/);
+  if (!match) return "";
+  return `${match[1].padStart(2, "0")}:${match[2]}`;
+}
+
+function normalizeSessionTime(raw: unknown): string {
+  const key = toSessionKey(raw);
+  return key ? `${key}:00` : String(raw ?? "").trim();
+}
+
+function normalizeDate(raw: unknown): string {
+  const text = String(raw ?? "").trim();
+  const matched = text.match(/\d{4}-\d{2}-\d{2}/);
+  return matched ? matched[0] : text;
+}
+
+export interface SessionDay {
+  date?: string;
+  child?: Array<Record<string, string>>;
+  [key: string]: unknown;
+}
+
+export function normalizeSessionDays(raw: unknown, maxDays?: number): SessionDay[] {
+  const input = (() => {
+    if (Array.isArray(raw)) return raw;
+    if (raw && typeof raw === "object" && Array.isArray((raw as SessionDay).child)) return [raw];
+    return [];
+  })();
+
+  const normalized = input
+    .map((day) => {
+      const data = day as SessionDay;
+      const entries = Array.isArray(data.child) ? data.child : [];
+      const byTime = new Map<string, Record<string, string>>();
+
+      for (const entry of entries) {
+        const key = toSessionKey(entry?.time ?? entry?.open_time);
+        if (!FINAL_SESSION_TIME_SET.has(key as (typeof FINAL_SESSION_TIMES)[number])) continue;
+
+        const record = entry as Record<string, unknown>;
+        byTime.set(key, {
+          ...Object.fromEntries(
+            Object.entries(record).map(([entryKey, entryValue]) => [entryKey, String(entryValue ?? "")]),
+          ),
+          time: normalizeSessionTime(record?.time ?? record?.open_time),
+          open_time: normalizeSessionTime(record?.open_time ?? record?.time),
+          twod: String(record?.twod ?? "").trim(),
+          set: String(record?.set ?? "").trim(),
+          value: String(record?.value ?? "").trim(),
+        });
+      }
+
+      const child = FINAL_SESSION_TIMES
+        .map((time) => byTime.get(time))
+        .filter((entry): entry is Record<string, string> => !!entry);
+      const date = normalizeDate(data.date);
+
+      if (!date || child.length === 0) return null;
+      return {
+        ...data,
+        date,
+        child,
+      };
+    })
+    .filter((day): day is NonNullable<typeof day> => !!day) as SessionDay[];
+
+  normalized.sort((left, right) => String(right.date || "").localeCompare(String(left.date || "")));
+  if (maxDays && maxDays > 0) return normalized.slice(0, maxDays);
+  return normalized;
 }
 
 export { MARKET_WINDOW };

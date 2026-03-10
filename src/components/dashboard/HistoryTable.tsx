@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { formatNumber } from "@/lib/market-utils";
+import { formatNumber, normalizeSessionDays, type SessionDay } from "@/lib/market-utils";
 import { Loader2, BarChart3 } from "lucide-react";
 import { tap } from "@/lib/haptic";
-import { normalizeSessionDays } from "@/lib/result-sessions";
-
-import type { SessionDay } from "@/lib/result-sessions";
 
 function get3D(value: string) {
   const digits = String(Math.floor(Math.abs(Number(String(value ?? "").replace(/,/g, ""))))).replace(/\D/g, "");
