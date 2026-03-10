@@ -3,6 +3,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap");
 
 /* Self-hosted variable fonts only — no external Google Fonts for performance */
 
@@ -214,6 +215,10 @@
     font-family: var(--font-body);
     letter-spacing: 0.01em;
   }
+  .font-digital {
+    font-family: 'Orbitron', monospace;
+    letter-spacing: 0.08em;
+  }
   .gold-metal-text {
     background: linear-gradient(135deg, #e8a020 0%, #f5c542 25%, #d4920a 50%, #f0b840 75%, #c88510 100%);
     -webkit-background-clip: text;
@@ -227,6 +232,12 @@
     color: #1d1302;
     border-color: rgba(255, 214, 102, 0.55);
     box-shadow: 0 4px 16px -8px rgba(255, 181, 31, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+  .digital-glow {
+    text-shadow: 0 0 12px rgba(232, 160, 32, 0.4), 0 0 24px rgba(232, 160, 32, 0.2);
+  }
+  .digital-glow-pulse {
+    animation: digital-pulse 2s ease-in-out infinite;
   }
   .status-badge-glow-live {
     box-shadow: 0 0 0 1px hsl(var(--primary) / 0.2), 0 0 12px hsl(var(--primary) / 0.15);
@@ -245,6 +256,11 @@
     background: linear-gradient(120deg, transparent 40%, rgba(255, 255, 255, 0.8) 50%, transparent 60%);
     animation: live-shimmer 1.8s linear infinite;
   }
+}
+
+@keyframes digital-pulse {
+  0%, 100% { text-shadow: 0 0 8px rgba(232, 160, 32, 0.3), 0 0 20px rgba(232, 160, 32, 0.15); }
+  50% { text-shadow: 0 0 16px rgba(232, 160, 32, 0.6), 0 0 36px rgba(232, 160, 32, 0.3), 0 0 48px rgba(232, 160, 32, 0.1); }
 }
 
 /* Light mode card styling */
