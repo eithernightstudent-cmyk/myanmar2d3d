@@ -203,23 +203,25 @@ export function LiveCard({
                   const rad = (angle * Math.PI) / 180;
                   const colors = ["hsl(var(--success))", "hsl(var(--primary))", "#f59e0b", "#ec4899", "#8b5cf6", "#06b6d4"];
                   return (
-                    <motion.span
+                    <motion.svg
                       key={i}
-                      className="absolute left-1/2 top-1/2 block rounded-full"
-                      style={{
-                        width: i % 3 === 0 ? 4 : 3,
-                        height: i % 3 === 0 ? 4 : 3,
-                        backgroundColor: colors[i % colors.length],
-                      }}
-                      initial={{ x: 0, y: 0, opacity: 1, scale: 1.2 }}
+                      className="absolute left-1/2 top-1/2"
+                      width={i % 3 === 0 ? 8 : 6}
+                      height={i % 3 === 0 ? 8 : 6}
+                      viewBox="0 0 24 24"
+                      fill={colors[i % colors.length]}
+                      initial={{ x: 0, y: 0, opacity: 1, scale: 1.2, rotate: 0 }}
                       animate={{
                         x: Math.cos(rad) * 20,
                         y: Math.sin(rad) * 20,
                         opacity: 0,
                         scale: 0,
+                        rotate: i % 2 === 0 ? 180 : -180,
                       }}
                       transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
-                    />
+                    >
+                      <path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 7.1-1.01L12 2z" />
+                    </motion.svg>
                   );
                 })}
               </motion.div>
