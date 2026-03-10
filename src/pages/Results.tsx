@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { normalizeSessionDays, type SessionDay } from "@/lib/market-utils";
 
 const Results = () => {
-  const [results, setResults] = useState<DayResult[]>([]);
+  const [results, setResults] = useState<SessionDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const ownerName = localStorage.getItem("kktech-live-owner-name") || "2D3D";
