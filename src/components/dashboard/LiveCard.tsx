@@ -200,10 +200,15 @@ export function LiveCard({
         {hasStockDatetime && (
           <div className="flex items-center justify-center gap-2 pb-2">
             {isLive ? (
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              >
+                <Clock className="h-5 w-5 text-primary" strokeWidth={2} />
+              </motion.div>
             ) : (
               <motion.div className="relative" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 12 }}>
-                <CheckCircle className="h-5 w-5 text-success" strokeWidth={2.5} />
+                <CheckCircle2 className="h-6 w-6 text-success" strokeWidth={3} />
                 {/* Star confetti particles */}
                 {[...Array(12)].map((_, i) => {
                   const angle = (i / 12) * 360;
