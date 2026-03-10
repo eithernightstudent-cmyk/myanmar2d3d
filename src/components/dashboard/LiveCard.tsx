@@ -99,14 +99,9 @@ export function LiveCard({
             <div className="relative">
               <RollingNumber
                 value={twod}
-                className="font-display text-[clamp(5rem,20vw,7.5rem)] font-extrabold leading-none tracking-tight"
-                digitStyle={{
-                  background: "linear-gradient(180deg, hsl(220 15% 15%) 0%, hsl(220 12% 35%) 50%, hsl(220 10% 55%) 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  filter: "drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))",
-                }}
+                className="font-display text-[clamp(5rem,20vw,7.5rem)] font-extrabold leading-none tracking-tight [&>span]:bg-gradient-to-b [&>span]:from-foreground [&>span]:via-foreground/70 [&>span]:to-foreground/40 [&>span]:bg-clip-text [&>span]:text-transparent [&>span]:drop-shadow-[0_4px_12px_rgba(0,0,0,0.12)]"
+                digitStyle={{}}
+              />
               />
               {isResultLocked && (
                 <Lock className="absolute -right-3 top-0 h-4 w-4 text-[hsl(var(--success))]" />
