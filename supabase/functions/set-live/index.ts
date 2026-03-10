@@ -183,7 +183,7 @@ function normalizeThaistock(payload: any, source: string = "thaistock2d") {
     live,
     result: sortedAllResults,
     currentDayResults,
-    holiday: isHoliday ? holiday : (holidayName ? { status: "1", date: currentDate, name: holidayName } : null),
+    holiday: isHolidayActive ? holiday : (holidayName ? { status: "1", date: currentDate, name: holidayName } : null),
     holidayName,
     source,
     fetchedAt: new Date().toISOString(),
