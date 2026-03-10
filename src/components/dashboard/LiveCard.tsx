@@ -67,8 +67,6 @@ export function LiveCard({
     return null;
   })();
 
-  console.log("[DEBUG LiveCard]", { resultVerificationStatus, isResultLocked, isLive, hasTwoD, twod });
-
   return (
     <section aria-live="polite">
       <article

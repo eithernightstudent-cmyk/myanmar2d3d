@@ -538,7 +538,6 @@ export function useLiveDashboard() {
     [parts.weekday, isHoliday],
   );
   const isLive = useMemo(() => isWithinMarketHours(parts) && isTradingDay, [parts, isTradingDay]);
-  console.log("[DEBUG isLive]", { isLive, isTradingDay, isHoliday, weekday: parts.weekday, hour: parts.hour, minute: parts.minute, withinMarket: isWithinMarketHours(parts), holiday: liveData?.holiday });
   const connectionStatus =
     !isTradingDay
       ? "Closed"
