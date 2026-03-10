@@ -199,7 +199,7 @@ export function LiveCard({
         {/* Updated timestamp */}
         {hasStockDatetime && (
           <div className="flex items-center justify-center gap-2 pb-2">
-            {isLive ? (
+            {hasTwoD && !isResultLocked ? (
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
