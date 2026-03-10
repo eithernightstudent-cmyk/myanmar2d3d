@@ -26,7 +26,7 @@ const App = () => (
           <LazySonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<Suspense fallback={null}><Index /></Suspense>} />
               <Route path="/results" element={<Suspense fallback={null}><Results /></Suspense>} />
               <Route path="/history" element={<Suspense fallback={null}><History /></Suspense>} />
               <Route path="*" element={<Suspense fallback={null}><NotFound /></Suspense>} />
