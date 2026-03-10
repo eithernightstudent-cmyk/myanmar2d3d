@@ -70,10 +70,9 @@ export function LiveCard({
   return (
     <section aria-live="polite">
       <article
-        className={`relative overflow-hidden rounded-2xl border border-border/60 shadow-sm backdrop-blur-lg transition-all ${
+        className={`relative overflow-hidden rounded-2xl border border-border/60 shadow-sm backdrop-blur-lg bg-card transition-all ${
           flash ? "before:opacity-100" : "before:opacity-0"
         } before:pointer-events-none before:absolute before:inset-[-30%] before:bg-[radial-gradient(circle,hsl(var(--primary)/0.12),transparent_60%)] before:transition-opacity before:duration-200`}
-        className="bg-card"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-3">
