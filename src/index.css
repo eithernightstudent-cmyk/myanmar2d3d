@@ -162,7 +162,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
-    font-weight: 700;
+    font-weight: 900;
     line-height: 1.55;
     text-rendering: geometricPrecision;
     -webkit-font-smoothing: antialiased;
