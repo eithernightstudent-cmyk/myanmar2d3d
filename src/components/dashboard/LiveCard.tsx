@@ -204,7 +204,7 @@ export function LiveCard({
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
               >
-                <Clock className="h-5 w-5 text-primary" strokeWidth={2} />
+                <Clock className="h-5 w-5 text-foreground" strokeWidth={2.2} />
               </motion.div>
             ) : (
               <motion.div className="relative" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 12 }}>
