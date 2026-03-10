@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, BellOff, BellRing, Sun, Moon } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { Bell, BellOff, BellRing, Volume2, VolumeX, Zap, Lock } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "@/hooks/use-notifications";
-import { tap } from "@/lib/haptic";
+import { tapMedium, tap, isClickSoundEnabled, setClickSoundEnabled } from "@/lib/haptic";
 const logoImg = "/logo-icon.webp";
 
 interface TopbarProps {
@@ -12,43 +12,18 @@ interface TopbarProps {
   onToggleResultDisplayMode?: () => void;
 }
 
-function getInitialTheme(): "light" | "dark" {
-  if (typeof window === "undefined") return "light";
-  const stored = localStorage.getItem("kktech-theme");
-  if (stored === "dark" || stored === "light") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode }: TopbarProps) {
   const BRAND_NAME = "2D3D";
+
+
   const { supported, permission, enabled, toggleNotifications } = useNotifications();
   const [justEnabled, setJustEnabled] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">(getInitialTheme);
+  const [soundOn, setSoundOn] = useState(isClickSoundEnabled);
 
-  // Apply theme on mount & change
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    localStorage.setItem("kktech-theme", theme);
-  }, [theme]);
-
-  const toggleTheme = useCallback(() => {
-    tap();
-    const next = theme === "light" ? "dark" : "light";
-
-    // Use View Transition API if available
-    if (document.startViewTransition) {
-      document.startViewTransition(() => {
-        setTheme(next);
-      });
-    } else {
-      setTheme(next);
-    }
-  }, [theme]);
+    document.documentElement.classList.remove("dark");
+    localStorage.setItem("kktech-theme", "light");
+  }, []);
 
   useEffect(() => {
     if (enabled) {
@@ -58,6 +33,14 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
     }
   }, [enabled]);
 
+  const bellLabel = !supported
+    ? "Notifications not supported"
+    : permission === "denied"
+      ? "Notifications blocked by browser"
+      : enabled
+        ? "Notifications on — click to turn off"
+        : "Get notifications for 2D results";
+
   const BellIcon = !supported || permission === "denied"
     ? BellOff
     : enabled
@@ -66,6 +49,7 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
 
   const iconBtn = "grid h-8 w-8 place-items-center rounded-xl border transition-all duration-300";
   const iconBtnDefault = `${iconBtn} border-border/40 bg-[hsl(var(--card-glass))] text-muted-foreground hover:text-foreground hover:border-primary/30`;
+  const iconBtnActive = `${iconBtn} border-primary/40 bg-primary/15 text-primary`;
 
   return (
     <header
@@ -92,25 +76,6 @@ export function Topbar({ ownerName, resultDisplayMode, onToggleResultDisplayMode
         </span>
       </Link>
 
-      {/* Theme toggle — top right */}
-      <button
-        onClick={toggleTheme}
-        aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-        className={`pointer-events-auto ${iconBtnDefault} shadow-lg backdrop-blur-xl`}
-      >
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span
-            key={theme}
-            initial={{ scale: 0, rotate: -90, opacity: 0 }}
-            animate={{ scale: 1, rotate: 0, opacity: 1 }}
-            exit={{ scale: 0, rotate: 90, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="flex items-center justify-center"
-          >
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </motion.span>
-        </AnimatePresence>
-      </button>
     </header>
   );
 }

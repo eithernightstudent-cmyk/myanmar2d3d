@@ -1,5 +1,7 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, ShieldCheck, Lock, CircleAlert } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { StatusPill } from "./StatusPill";
+import { Loader2, CheckCircle, ShieldCheck, Lock, CalendarDays, Zap, CircleAlert } from "lucide-react";
+import { tap } from "@/lib/haptic";
 import { RollingNumber } from "./RollingNumber";
 
 interface LiveCardProps {
@@ -35,6 +37,7 @@ export function LiveCard({
   twod,
   setFormatted,
   valueFormatted,
+  flash,
   isLive,
   isTradingDay = true,
   isSyncing,
@@ -47,6 +50,7 @@ export function LiveCard({
   isResultPreliminary = false,
   resultConfirmSecondsLeft = 0,
   isFinalOnlyMode = false,
+  isHotMinute = false,
 }: LiveCardProps) {
   const marketClosed = !isTradingDay;
   const hasTwoD = /^\d{2}$/.test(String(twod ?? "").trim());
@@ -54,6 +58,7 @@ export function LiveCard({
   const hasSetValue = !!setFormatted && setFormatted !== "--";
   const hasValueValue = !!valueFormatted && valueFormatted !== "--";
   const showPreliminaryNotice = hasTwoD && isResultPreliminary && !isResultLocked;
+  const showAwaitingFinalNotice = isFinalOnlyMode && !hasTwoD && isLive;
 
   const cleanHolidayName = (() => {
     if (holidayName && holidayName !== "null" && holidayName !== "NULL" && holidayName.trim() !== "") {
@@ -62,119 +67,183 @@ export function LiveCard({
     return null;
   })();
 
-  const statusColor = isLive ? "hsl(var(--success))" : "hsl(var(--muted-foreground))";
-
   return (
     <section aria-live="polite">
-      <article className="rounded-3xl border border-border bg-[hsl(var(--card-glass))] p-4 sm:p-5 shadow-[var(--shadow-panel)] backdrop-blur-lg">
-
-        {/* Header: status + clock */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 font-display text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              <span className="relative flex h-2 w-2">
-                {isLive && <span className="absolute inset-0 animate-ping rounded-full opacity-60" style={{ backgroundColor: statusColor }} />}
-                <span className="relative inline-flex h-2 w-2 rounded-full" style={{ backgroundColor: statusColor }} />
-              </span>
-              {connectionStatus}
+      <article
+        className={`relative overflow-hidden rounded-3xl border border-border bg-[hsl(var(--card-glass))] shadow-[var(--shadow-panel)] backdrop-blur-lg transition-all ${
+          flash ? "before:opacity-100" : "before:opacity-0"
+        } before:pointer-events-none before:absolute before:inset-[-30%] before:bg-[radial-gradient(circle,hsl(var(--primary)/0.12),transparent_60%)] before:transition-opacity before:duration-200`}
+      >
+        {/* Compact Header Bar */}
+        <div className="flex items-center justify-between px-4 pt-4 sm:px-6 sm:pt-5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 font-display text-xs font-bold uppercase tracking-[0.18em] text-primary status-badge-glow-live">
+              Live 2D
             </span>
-            {isSyncing && isLive && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+            <StatusPill isLive={isLive} connectionStatus={connectionStatus} />
+            {isFinalOnlyMode && (
+              <div className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-2 py-0.5">
+                <Lock className="h-3 w-3 text-success" />
+                <span className="font-display text-[0.55rem] font-bold uppercase tracking-wider text-success">Final</span>
+              </div>
+            )}
+            {isSyncing && isLive && (
+              <div className="flex items-center gap-1.5" style={{ color: "hsl(var(--text-secondary))" }}>
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+              </div>
+            )}
+            {isHotMinute && isLive && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5"
+              >
+                <Zap className="h-3 w-3 text-amber-500" fill="currentColor" />
+                <span className="font-display text-[0.55rem] font-bold uppercase tracking-wider text-amber-600">Fast</span>
+              </motion.div>
+            )}
           </div>
-          <span className="font-display text-[0.65rem] font-semibold tabular-nums uppercase tracking-[0.12em] text-muted-foreground">{clock}</span>
+          <span className="rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1.5 font-display text-xs font-bold gold-metal-text">
+            {clock}
+          </span>
         </div>
 
-        {/* Market closed notice */}
+        {/* Market Closed Banner */}
         {marketClosed && (
-          <p className="mt-4 text-center font-display text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            Market Closed{cleanHolidayName ? ` · ${cleanHolidayName}` : ""}
-          </p>
+          <div className="mt-3 text-center">
+            <p className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-50 px-2.5 py-1 font-display text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 status-badge-glow-closed">
+              Market Closed
+            </p>
+            {cleanHolidayName && (
+              <div className="mt-1.5 flex items-center justify-center gap-1.5">
+                <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                <p className="font-display text-sm font-bold text-primary/80">{cleanHolidayName}</p>
+              </div>
+            )}
+          </div>
         )}
 
-        {/* Divider */}
-        <div className="my-3 h-px bg-foreground/10" />
+        {/* Hero 2D Number — large, centered, dominant */}
+        <div className="flex flex-col items-center justify-center py-4 sm:py-8">
+          <div className="relative">
+            {hasTwoD ? (
+              <motion.div
+                initial={{ opacity: 0.95 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+                className="font-display text-[clamp(6rem,24vw,9rem)] font-extrabold leading-none"
+              >
+                <RollingNumber value={twod} digitClassName="gold-metal-text" />
+              </motion.div>
+            ) : (
+              <div className="h-[9rem] w-[10rem]" aria-hidden="true" />
+            )}
 
-        {/* Hero 2D number */}
-        <div className="flex flex-col items-center py-6 sm:py-8">
-          {hasTwoD ? (
-            <div className="relative">
-              <RollingNumber
-                value={twod}
-                className="font-display text-[clamp(5rem,20vw,7.5rem)] font-extrabold leading-none tracking-tight"
-                digitStyle={{
-                  background: "linear-gradient(180deg, #f5b731 0%, #e8a020 40%, #c88510 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  filter: "drop-shadow(0 4px 16px rgba(232, 160, 32, 0.35))",
-                }}
-              />
-              {isResultLocked && (
-                <Lock className="absolute -right-3 top-0 h-4 w-4 text-[hsl(var(--success))]" />
-              )}
-            </div>
-          ) : (
-            <div className="h-24 sm:h-28" aria-hidden="true" />
-          )}
+            {isResultLocked && hasTwoD && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="absolute -right-5 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-success/10 border border-success/30"
+              >
+                <Lock className="h-3.5 w-3.5 text-success" />
+              </motion.div>
+            )}
+          </div>
 
-          {/* Badge area */}
+          {/* Verification Badges */}
           <AnimatePresence mode="wait">
             {showPreliminaryNotice && (
-              <motion.p
+              <motion.div
                 key="preliminary"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="mt-3 font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-amber-400/35 bg-amber-500/10 px-3 py-1"
               >
-                <CircleAlert className="mr-1 inline h-3 w-3 align-[-2px] text-[hsl(var(--warm))]" />
-                Preliminary{resultConfirmSecondsLeft > 0 ? ` · ${resultConfirmSecondsLeft}s` : ""}
-              </motion.p>
+                <CircleAlert className="h-3.5 w-3.5 text-amber-500" />
+                <span className="font-display text-[0.62rem] font-bold uppercase tracking-wider text-amber-700">
+                  Preliminary {resultConfirmSecondsLeft > 0 ? `• ${resultConfirmSecondsLeft}s` : ""}
+                </span>
+              </motion.div>
             )}
             {resultVerificationStatus === "verified" && hasTwoD && (
-              <motion.p
+              <motion.div
                 key="verified"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="mt-3 font-display text-[0.6rem] font-semibold uppercase tracking-wider text-[hsl(var(--success))]"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-50 px-4 py-1.5 backdrop-blur-sm"
               >
-                <ShieldCheck className="mr-1 inline h-3 w-3 align-[-2px]" />
-                Verified
-              </motion.p>
+                <ShieldCheck className="h-4 w-4 text-emerald-600" strokeWidth={2.2} />
+                <span className="font-display text-[0.7rem] font-bold uppercase tracking-wider text-emerald-700">Verified</span>
+              </motion.div>
             )}
           </AnimatePresence>
 
-          {isFinalOnlyMode && !hasTwoD && isLive && (
-            <p className="mt-3 font-display text-[0.6rem] font-semibold text-muted-foreground">Awaiting verified result</p>
+          {showAwaitingFinalNotice && (
+            <div className="mt-3 inline-flex items-center rounded-full border border-border bg-[hsl(var(--card-strong))] px-3 py-1">
+              <span className="font-display text-[0.62rem] font-semibold uppercase tracking-wider text-muted-foreground">
+                Awaiting Verified Result
+              </span>
+            </div>
           )}
         </div>
 
-        {/* Updated time — prominent style like reference */}
+        {/* Updated timestamp — clean single line */}
         {hasStockDatetime && (
-          <div className="flex items-center justify-center gap-2 pb-3">
-            <ShieldCheck className="h-5 w-5 text-[hsl(var(--success))]" />
-            <span className="font-display text-[0.8rem] font-medium tracking-wide text-muted-foreground">
-              Updated: <span className="font-bold tabular-nums text-foreground">{stockDatetime}</span>
+          <div className="flex items-center justify-center gap-2 pb-3 sm:pb-5">
+            <CheckCircle
+              className="h-4 w-4"
+              style={{ color: isResultLocked ? "hsl(var(--success))" : "hsl(var(--muted-foreground))" }}
+            />
+            <span className="font-display text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+              Updated:{" "}
+              <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>
+                {stockDatetime}
+              </span>
             </span>
           </div>
         )}
 
-        {/* Divider */}
-        <div className="h-px bg-foreground/10" />
+        {/* SET & Value — bottom bar style */}
+        <div className="grid grid-cols-2 border-t border-border">
+          <motion.div
+            key={`set-${setFormatted}`}
+            initial={{ opacity: 0.6 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            onTouchStart={() => tap()}
+            className="border-r border-border px-4 py-4 sm:px-6 active:bg-muted/30 transition-colors duration-150"
+          >
+            <span className="block font-display text-[0.6rem] font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: "hsl(var(--text-secondary))" }}>
+              SET Index
+            </span>
+            <span className="font-display text-lg font-bold sm:text-xl" style={{ color: "hsl(var(--text-strong))" }}>
+              {hasSetValue ? setFormatted : "\u00A0"}
+            </span>
+          </motion.div>
+          <motion.div
+            key={`val-${valueFormatted}`}
+            initial={{ opacity: 0.6 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            onTouchStart={() => tap()}
+            className="px-4 py-4 sm:px-6 active:bg-muted/30 transition-colors duration-150"
+          >
+            <span className="block font-display text-[0.6rem] font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: "hsl(var(--text-secondary))" }}>
+              Value
+            </span>
+            <span className="font-display text-lg font-bold sm:text-xl" style={{ color: "hsl(var(--text-strong))" }}>
+              {hasValueValue ? valueFormatted : "\u00A0"}
+            </span>
+          </motion.div>
+        </div>
 
-        {/* SET / Value / Date — bottom row */}
-        <div className="grid grid-cols-3 items-center gap-2 pt-3 text-center">
-          <div>
-            <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Set</p>
-            <p className="font-display text-sm font-bold text-foreground">{hasSetValue ? setFormatted : "—"}</p>
-          </div>
-          <div>
-            <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Value</p>
-            <p className="font-display text-sm font-bold text-foreground">{hasValueValue ? valueFormatted : "—"}</p>
-          </div>
-          <div>
-            <p className="font-display text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Date</p>
-            <p className="font-display text-sm font-bold text-foreground">{currentDate || "—"}</p>
+        {/* Date footer */}
+        <div className="border-t border-border px-4 py-3 sm:px-6">
+          <div className="flex justify-between font-display text-xs">
+            <span className="font-bold" style={{ color: "hsl(var(--text-strong))" }}>Date</span>
+            <span style={{ color: "hsl(var(--text-secondary))" }}>{currentDate}</span>
           </div>
         </div>
       </article>

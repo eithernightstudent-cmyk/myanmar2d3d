@@ -191,7 +191,7 @@ Deno.serve(async (req) => {
         const data = await fetchWithTimeout(`${THAISTOCK_BASE}/live`, {
           "accept": "application/json",
           "user-agent": "KKTech-Live-Dashboard/1.0",
-        }, 5000);
+        }, 8000);
         const normalized = normalizeThaistock(data);
         console.log("PRIMARY OK — status:", normalized.connectionStatus, "2D:", normalized.calculated2d);
         return new Response(JSON.stringify({ data: normalized }), {
@@ -254,56 +254,38 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ===== 2D Result / Calendar endpoint =====
-    // PRIMARY: thaistock2d /2d_result (reliable, correct session data)
-    // FALLBACK: RapidAPI /calendar
+    // ===== Calendar/History endpoint =====
     if (endpoint === "2d_result" || endpoint === "calendar") {
-      // Try PRIMARY: thaistock2d
-      try {
-        const apiUrl = date
-          ? `${THAISTOCK_BASE}/2d_result?date=${encodeURIComponent(date)}`
-          : `${THAISTOCK_BASE}/2d_result`;
-        console.log(`Fetching PRIMARY 2d_result: ${apiUrl}`);
-        const data = await fetchWithTimeout(apiUrl, {
-          "accept": "application/json",
-          "user-agent": "KKTech-Live-Dashboard/1.0",
-        }, 8000);
-
-        const resultArray = Array.isArray(data) ? data : (data?.data && Array.isArray(data.data) ? data.data : null);
-        if (resultArray && resultArray.length > 0) {
-          console.log(`PRIMARY 2d_result OK — ${resultArray.length} days`);
-          return new Response(JSON.stringify({ data: resultArray }), {
-            headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
-          });
-        }
-        console.log("PRIMARY 2d_result returned empty data");
-      } catch (err) {
-        console.error("PRIMARY (thaistock2d) 2d_result failed:", err);
-      }
-
-      // Try FALLBACK: RapidAPI /calendar
       if (hasRapidKey) {
         try {
-          console.log(`Fetching FALLBACK RapidAPI: /calendar?page=${page}&limit=${limit}`);
+          console.log(`Fetching RapidAPI: /calendar?page=${page}&limit=${limit}`);
           const rawData = await fetchWithTimeout(
             `${RAPIDAPI_BASE}/calendar?page=${page}&limit=${limit}`,
             rapidHeaders,
-            15000
+            20000
           );
+          
           const calendarData = rawData?.data || rawData;
           if (Array.isArray(calendarData) && calendarData.length > 0) {
-            console.log(`FALLBACK calendar OK — ${calendarData.length} days`);
             return new Response(JSON.stringify({ data: calendarData }), {
               headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
             });
           }
-          console.log("FALLBACK /calendar returned empty data");
+          console.log("RapidAPI /calendar returned empty data");
         } catch (err) {
-          console.error("FALLBACK (RapidAPI) /calendar failed:", err);
+          console.error("RapidAPI /calendar failed:", err);
         }
       }
 
-      return new Response(JSON.stringify({ data: [] }), {
+      const apiUrl = date
+        ? `${THAISTOCK_BASE}/2d_result?date=${encodeURIComponent(date)}`
+        : `${THAISTOCK_BASE}/2d_result`;
+      console.log(`Fetching fallback: ${apiUrl}`);
+      const data = await fetchWithTimeout(apiUrl, {
+        "accept": "application/json",
+        "user-agent": "KKTech-Live-Dashboard/1.0",
+      });
+      return new Response(JSON.stringify({ data }), {
         headers: { ...corsHeaders, ...noCacheHeaders, 'Content-Type': 'application/json' },
       });
     }

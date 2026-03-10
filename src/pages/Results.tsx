@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { BottomNav } from "@/components/dashboard/BottomNav";
 import { Calendar, Loader2, Info } from "lucide-react";
 import { formatNumber } from "@/lib/market-utils";
+import { Link } from "react-router-dom";
 import { tap } from "@/lib/haptic";
 
+const logoImg = "/logo-icon.webp";
 const Footer = lazy(() => import("@/components/dashboard/Footer").then(m => ({ default: m.Footer })));
 
 const SESSION_MAP: Record<string, string> = {
@@ -65,6 +67,7 @@ const Results = () => {
   useEffect(() => {
     async function fetchResults() {
       try {
+        // Fetch from thaistock2d /2d_result via edge function
         const response = await supabase.functions.invoke("set-live", {
           body: { endpoint: "2d_result" },
         });
@@ -79,16 +82,13 @@ const Results = () => {
           days = raw.data;
         }
 
-        // Normalize session times, filter valid entries, strip NULL values
+        // Normalize session times and filter valid entries
         const normalized = days.map((day) => ({
           ...day,
-          child: (day.child || [])
-            .map((s) => ({
-              ...s,
-              time: normalizeTime(s.time),
-              twod: isValidTwoD(s.twod) ? s.twod : "",
-            }))
-            .filter((s) => SESSION_ORDER.includes(s.time)),
+          child: (day.child || []).map((s) => ({
+            ...s,
+            time: normalizeTime(s.time),
+          })),
         }));
 
         setResults(normalized.slice(0, 10));
@@ -103,10 +103,31 @@ const Results = () => {
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden bg-background">
-      {/* Page content — no fixed header on this page, BottomNav handles navigation */}
+      {/* Fixed header - logo left */}
+      <header
+        className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-3 sm:px-5"
+        style={{ paddingTop: "max(env(safe-area-inset-top, 0px), 0.5rem)" }}
+      >
+        <Link
+          to="/"
+          className="pointer-events-auto inline-flex items-center gap-2 rounded-2xl border border-border/40 bg-[hsl(var(--card-glass))] px-2.5 py-1.5 text-inherit no-underline shadow-lg backdrop-blur-xl transition-all active:scale-95"
+        >
+          <img
+            src={logoImg}
+            alt="2D3D logo"
+            width={24}
+            height={24}
+            className="h-6 w-6 rounded-full object-cover ring-1 ring-primary/20"
+          />
+          <span className="font-display text-[0.78rem] font-extrabold tracking-wide text-foreground">
+            2D3D
+          </span>
+        </Link>
+      </header>
+
       <main
         className="mx-auto w-[min(100%-0.75rem,72rem)] pb-24 sm:w-[min(100%-2rem,72rem)]"
-        style={{ paddingTop: "max(calc(env(safe-area-inset-top, 0px) + 1.25rem), 1.75rem)" }}
+        style={{ paddingTop: "max(calc(env(safe-area-inset-top, 0px) + 4rem), 4.5rem)" }}
       >
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -190,7 +211,7 @@ const Results = () => {
                               </span>
                             </>
                           ) : (
-                            <span className="font-display text-[0.65rem] text-muted-foreground/50 py-3">
+                            <span className="font-display text-xs text-muted-foreground/60 py-2">
                               No Data
                             </span>
                           )}
