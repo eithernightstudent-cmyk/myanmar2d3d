@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import { LazyMotion } from "framer-motion";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+const Index = lazy(() => import("./pages/Index"));
 
 const Results = lazy(() => import("./pages/Results"));
 const History = lazy(() => import("./pages/History"));
@@ -26,7 +26,7 @@ const App = () => (
           <LazySonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<Suspense fallback={null}><Index /></Suspense>} />
               <Route path="/results" element={<Suspense fallback={null}><Results /></Suspense>} />
               <Route path="/history" element={<Suspense fallback={null}><History /></Suspense>} />
               <Route path="*" element={<Suspense fallback={null}><NotFound /></Suspense>} />
