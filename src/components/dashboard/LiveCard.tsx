@@ -100,7 +100,13 @@ export function LiveCard({
               <RollingNumber
                 value={twod}
                 className="font-display text-[clamp(5rem,20vw,7.5rem)] font-extrabold leading-none tracking-tight"
-                digitStyle={{ color: "hsl(var(--foreground))" }}
+                digitStyle={{
+                  background: "linear-gradient(180deg, hsl(220 15% 15%) 0%, hsl(220 12% 35%) 50%, hsl(220 10% 55%) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  filter: "drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))",
+                }}
               />
               {isResultLocked && (
                 <Lock className="absolute -right-3 top-0 h-4 w-4 text-[hsl(var(--success))]" />
