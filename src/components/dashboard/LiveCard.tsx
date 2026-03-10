@@ -207,9 +207,9 @@ export function LiveCard({
                 <Clock className="h-5 w-5 text-foreground" strokeWidth={2.2} />
               </motion.div>
             ) : (
-              <motion.div className="relative" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 12 }}>
+              <motion.div className="relative" key={`locked-${twod}`} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 12 }}>
                 <CheckCircle2 className="h-6 w-6 text-success" strokeWidth={3} />
-                {/* Star confetti particles */}
+                {/* Star confetti particles — animate once per locked value */}
                 {[...Array(12)].map((_, i) => {
                   const angle = (i / 12) * 360;
                   const rad = (angle * Math.PI) / 180;

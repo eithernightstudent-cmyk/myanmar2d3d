@@ -152,12 +152,16 @@ function isHolidayActive(holiday: LiveData["holiday"]): boolean {
 
 function buildDataSignature(data: LiveData): string {
   const latest = getLatestResult(data);
+  const sessionResult = getLatestSessionResult(data);
+  // When market is closed and we have a finalized session result, use stable values
+  // to avoid signature changes from fluctuating calculated2d/setIndex/value
+  const hasStableSession = sessionResult && hasValidTwoD(sessionResult.twod);
   return [
     data.currentDate || "",
     data.connectionStatus || "",
-    data.calculated2d || "",
-    String(data.setIndex ?? ""),
-    String(data.value ?? ""),
+    hasStableSession ? sessionResult!.twod : (data.calculated2d || ""),
+    hasStableSession ? "" : String(data.setIndex ?? ""),
+    hasStableSession ? "" : String(data.value ?? ""),
     data.live?.time || "",
     latest?.history_id || "",
     latest?.stock_datetime || "",
