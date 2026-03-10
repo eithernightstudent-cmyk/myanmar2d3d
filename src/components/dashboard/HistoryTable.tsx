@@ -14,7 +14,7 @@ function get3D(value: string) {
 }
 
 export function HistoryTable() {
-  const [results, setResults] = useState<DayResult[]>([]);
+  const [results, setResults] = useState<SessionDay[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
