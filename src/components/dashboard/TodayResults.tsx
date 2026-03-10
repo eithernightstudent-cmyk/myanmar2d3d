@@ -78,12 +78,6 @@ export const TodayResults = memo(function TodayResults({
     return map;
   }, [displayResults]);
 
-  const handleNavClick = (key: string) => {
-    tap();
-    if (key === "3d") onOpen3D?.();
-    else if (key === "history") onOpenHistory?.();
-    else if (key === "results") navigate("/results");
-  };
 
   return (
     <section>
