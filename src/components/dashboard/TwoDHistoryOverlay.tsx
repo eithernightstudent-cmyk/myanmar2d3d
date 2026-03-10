@@ -112,7 +112,7 @@ export function TwoDHistoryOverlay({ open, onClose, date, openTime, sessionTime 
           {/* Timeline table */}
           <div className="rounded-2xl border border-border bg-[hsl(var(--card-glass))] overflow-hidden">
             {/* Header */}
-            <div className="grid grid-cols-4 gap-2 border-b border-border bg-muted/30 px-3 py-2 text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="grid grid-cols-[1.2fr_1fr_1.2fr_0.6fr] border-b border-border bg-muted/30 px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground">
               <span>Time</span>
               <span className="text-right">Set</span>
               <span className="text-right">Value</span>
