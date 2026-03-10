@@ -206,19 +206,19 @@ export function LiveCard({
                     <motion.svg
                       key={i}
                       className="absolute left-1/2 top-1/2"
-                      width={i % 3 === 0 ? 8 : 6}
-                      height={i % 3 === 0 ? 8 : 6}
+                      width={i % 3 === 0 ? 12 : 9}
+                      height={i % 3 === 0 ? 12 : 9}
                       viewBox="0 0 24 24"
                       fill={colors[i % colors.length]}
-                      initial={{ x: 0, y: 0, opacity: 1, scale: 1.2, rotate: 0 }}
+                      initial={{ x: 0, y: 0, opacity: 1, scale: 1.5, rotate: 0 }}
                       animate={{
-                        x: Math.cos(rad) * 22,
-                        y: Math.sin(rad) * 22,
+                        x: Math.cos(rad) * 35,
+                        y: Math.sin(rad) * 35,
                         opacity: 0,
                         scale: 0,
-                        rotate: i % 2 === 0 ? 180 : -180,
+                        rotate: i % 2 === 0 ? 220 : -220,
                       }}
-                      transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
+                      transition={{ duration: 0.85, delay: 0.1, ease: "easeOut" }}
                     >
                       <path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 7.1-1.01L12 2z" />
                     </motion.svg>
