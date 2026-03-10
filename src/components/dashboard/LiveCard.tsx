@@ -192,7 +192,7 @@ export function LiveCard({
         {/* Updated timestamp */}
         {hasStockDatetime && (
           <div className="flex items-center justify-center gap-2 pb-2">
-            {isLive && !isResultLocked ? (
+            {isLive ? (
               <Loader2 className="h-5 w-5 animate-spin text-primary" />
             ) : (
               <motion.div className="relative" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 12 }}>
