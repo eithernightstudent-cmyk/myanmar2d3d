@@ -9,7 +9,7 @@ import { normalizeSessionDays } from "@/lib/result-sessions";
 import type { SessionDay } from "@/lib/result-sessions";
 
 const Results = () => {
-  const [results, setResults] = useState<DayResult[]>([]);
+  const [results, setResults] = useState<SessionDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const ownerName = localStorage.getItem("kktech-live-owner-name") || "2D3D";
