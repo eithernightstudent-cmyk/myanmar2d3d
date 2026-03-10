@@ -4,15 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatNumber } from "@/lib/market-utils";
 import { Loader2, BarChart3 } from "lucide-react";
 import { tap } from "@/lib/haptic";
-
-const SESSION_MAP: Record<string, string> = {
-  "11:00": "11:00 AM",
-  "12:01": "12:01 PM",
-  "15:00": "3:00 PM",
-  "16:30": "4:30 PM",
-};
-
-const SESSION_ORDER = ["11:00", "12:01", "15:00", "16:30"];
+import { normalizeSessionDays } from "@/lib/result-sessions";
 
 interface DayResult {
   date?: string;
@@ -22,14 +14,6 @@ interface DayResult {
     value: string;
     twod: string;
   }>;
-}
-
-function normalizeTime(t: string): string {
-  return String(t ?? "").trim().slice(0, 5);
-}
-
-function isValidTwoD(val: string): boolean {
-  return /^\d{2}$/.test(String(val ?? "").trim());
 }
 
 function get3D(value: string) {
@@ -44,27 +28,31 @@ export function HistoryTable() {
   useEffect(() => {
     async function fetchResults() {
       try {
-        // Use thaistock2d /2d_result endpoint via edge function
+        // Use calendar endpoint (RapidAPI primary via edge function)
+        const response = await supabase.functions.invoke("set-live", {
+          body: { endpoint: "calendar", page: "1", limit: "7" },
+        });
+        if (!response.error && response.data?.data) {
+          const raw = response.data.data;
+          // Handle both array format and calendar format
+          if (Array.isArray(raw)) {
+            setResults(normalizeSessionDays(raw, 7) as DayResult[]);
+          } else if (raw?.data && Array.isArray(raw.data)) {
+            setResults(normalizeSessionDays(raw.data, 7) as DayResult[]);
+          }
+          return;
+        }
+      } catch {
+        // silent
+      }
+
+      // Fallback: try old 2d_result endpoint
+      try {
         const response = await supabase.functions.invoke("set-live", {
           body: { endpoint: "2d_result" },
         });
         if (!response.error && response.data?.data) {
-          const raw = response.data.data;
-          let days: DayResult[] = [];
-          if (Array.isArray(raw)) {
-            days = raw;
-          } else if (raw?.data && Array.isArray(raw.data)) {
-            days = raw.data;
-          }
-          // Normalize times
-          const normalized = days.map((day) => ({
-            ...day,
-            child: (day.child || []).map((s) => ({
-              ...s,
-              time: normalizeTime(s.time),
-            })),
-          }));
-          setResults(normalized.slice(0, 7));
+          setResults(normalizeSessionDays(response.data.data, 7) as DayResult[]);
         }
       } catch {
         // silent
@@ -72,7 +60,7 @@ export function HistoryTable() {
         setLoading(false);
       }
     }
-    fetchResults();
+    fetchResults().finally(() => setLoading(false));
   }, []);
 
   return (
@@ -97,58 +85,37 @@ export function HistoryTable() {
         </p>
       ) : (
         <div className="space-y-3">
-          {results.map((day, i) => {
-            const sessionMap = new Map<string, typeof day.child[0]>();
-            for (const s of day.child || []) {
-              const key = normalizeTime(s.time);
-              if (!sessionMap.has(key)) sessionMap.set(key, s);
-            }
-
-            return (
-              <div key={day.date || i} className="rounded-xl border border-border bg-secondary/50 p-3">
-                <p className="mb-2 font-display text-[0.7rem] font-bold text-muted-foreground">
-                  📅 {day.date || "Unknown"}
-                </p>
-                <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-                  {SESSION_ORDER.map((time) => {
-                    const session = sessionMap.get(time);
-                    const has = session && isValidTwoD(session.twod);
-
-                    return (
-                      <div
-                        key={time}
-                        onTouchStart={() => tap()}
-                        className="flex flex-col items-center gap-0.5 rounded-lg border border-border bg-card p-2 active:scale-95 transition-transform duration-150"
-                      >
-                        <span className="font-display text-[0.6rem] font-semibold uppercase tracking-widest text-muted-foreground">
-                          {SESSION_MAP[time] || time}
-                        </span>
-                        {has ? (
-                          <>
-                            <div className="flex items-baseline gap-1.5">
-                              <span className="font-display text-lg font-bold text-primary">
-                                {session!.twod}
-                              </span>
-                              <span className="font-display text-sm font-bold text-accent-foreground">
-                                {get3D(session!.value)}
-                              </span>
-                            </div>
-                            <span className="font-display text-[0.55rem] text-muted-foreground">
-                              SET {formatNumber(session!.set)}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="font-display text-xs text-muted-foreground/60 py-1">
-                            —
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+          {results.map((day, i) => (
+            <div key={day.date || i} className="rounded-xl border border-border bg-secondary/50 p-3">
+              <p className="mb-2 font-display text-[0.7rem] font-bold text-muted-foreground">
+                📅 {day.date || "Unknown"}
+              </p>
+              <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                {day.child?.map((session, j) => (
+                  <div
+                    key={j}
+                    onTouchStart={() => tap()}
+                    className="flex flex-col items-center gap-0.5 rounded-lg border border-border bg-card p-2 active:scale-95 transition-transform duration-150"
+                  >
+                    <span className="font-display text-[0.6rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                      {session.time?.slice(0, 5) || "--"}
+                    </span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="font-display text-lg font-bold text-primary">
+                        {session.twod}
+                      </span>
+                      <span className="font-display text-sm font-bold text-accent-foreground">
+                        {get3D(session.value)}
+                      </span>
+                    </div>
+                    <span className="font-display text-[0.55rem] text-muted-foreground">
+                      SET {formatNumber(session.set)}
+                    </span>
+                  </div>
+                ))}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       )}
     </motion.article>
