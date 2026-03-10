@@ -39,6 +39,25 @@ function isValidTwoD(val: string): boolean {
   return /^\d{2}$/.test(String(val ?? "").trim());
 }
 
+function formatDateDisplay(dateStr: string): string {
+  if (!dateStr) return "Unknown Date";
+  try {
+    const parts = dateStr.split("-");
+    if (parts.length === 3) {
+      const d = new Date(`${parts[0]}-${parts[1]}-${parts[2]}`);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString("en-GB", {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+      }
+    }
+  } catch {}
+  return dateStr;
+}
+
 const Results = () => {
   const [results, setResults] = useState<DayResult[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +67,7 @@ const Results = () => {
   useEffect(() => {
     async function fetchResults() {
       try {
-        // Primary: use edge function which calls thaistock2d /2d_result
+        // Fetch from thaistock2d /2d_result via edge function
         const response = await supabase.functions.invoke("set-live", {
           body: { endpoint: "2d_result" },
         });
@@ -84,7 +103,7 @@ const Results = () => {
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden bg-background">
-      {/* Fixed header */}
+      {/* Fixed header - logo left */}
       <header
         className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-3 sm:px-5"
         style={{ paddingTop: "max(env(safe-area-inset-top, 0px), 0.5rem)" }}
@@ -108,7 +127,7 @@ const Results = () => {
 
       <main
         className="mx-auto w-[min(100%-0.75rem,72rem)] pb-24 sm:w-[min(100%-2rem,72rem)]"
-        style={{ paddingTop: "max(calc(env(safe-area-inset-top, 0px) + 3.5rem), 4rem)" }}
+        style={{ paddingTop: "max(calc(env(safe-area-inset-top, 0px) + 4rem), 4.5rem)" }}
       >
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -130,7 +149,7 @@ const Results = () => {
         )}
 
         {error && (
-          <div className="rounded-xl border border-fail-border bg-fail-light p-4 text-center text-sm text-fail">
+          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-center text-sm text-destructive">
             {error}
           </div>
         )}
@@ -164,7 +183,7 @@ const Results = () => {
                       <Calendar size={13} className="text-white" strokeWidth={2.5} />
                     </div>
                     <h2 className="font-display text-sm font-bold text-foreground">
-                      {day.date || "Unknown Date"}
+                      {formatDateDisplay(day.date || "")}
                     </h2>
                   </div>
 
@@ -192,8 +211,8 @@ const Results = () => {
                               </span>
                             </>
                           ) : (
-                            <span className="font-display text-sm text-muted-foreground/60 py-1">
-                              —
+                            <span className="font-display text-xs text-muted-foreground/60 py-2">
+                              No Data
                             </span>
                           )}
                         </div>
