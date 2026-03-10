@@ -3,8 +3,7 @@ import { motion } from "framer-motion";
 import { formatNumber } from "@/lib/market-utils";
 import { tap } from "@/lib/haptic";
 import { RollingNumber } from "./RollingNumber";
-import { ChevronRight, Dice3, CalendarDays, Clock } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import { TwoDHistoryOverlay } from "./TwoDHistoryOverlay";
 
 interface CurrentDayResult {
