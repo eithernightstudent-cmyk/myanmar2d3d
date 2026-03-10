@@ -157,11 +157,14 @@ function normalizeThaistock(payload: any, source: string = "thaistock2d") {
   const calculated2d = /^\d{2}$/.test(liveTwoD) ? liveTwoD : calculateTwoD(setIndex, value);
 
   const isLiveFeed = liveSetNumeric !== null && liveValueNumeric !== null && live?.set !== "--" && live?.value !== "--";
-  const isHoliday = holiday && String(holiday.status || "") !== "0";
-  const connectionStatus = isLiveFeed && !isHoliday ? "Live" : "Closed";
+  const isHolidayActive = holiday
+    && String(holiday.status || "") === "1"
+    && !!holiday.name
+    && String(holiday.name).toUpperCase() !== "NULL";
+  const connectionStatus = isLiveFeed && !isHolidayActive ? "Live" : "Closed";
 
   let holidayName: string | null = null;
-  if (isHoliday && holiday?.name) {
+  if (isHolidayActive && holiday?.name) {
     holidayName = holiday.name;
   } else if (!isLiveFeed) {
     const now = new Date(serverTime || Date.now());
@@ -180,7 +183,7 @@ function normalizeThaistock(payload: any, source: string = "thaistock2d") {
     live,
     result: sortedAllResults,
     currentDayResults,
-    holiday: isHoliday ? holiday : (holidayName ? { status: "1", date: currentDate, name: holidayName } : null),
+    holiday: isHolidayActive ? holiday : (holidayName ? { status: "1", date: currentDate, name: holidayName } : null),
     holidayName,
     source,
     fetchedAt: new Date().toISOString(),
