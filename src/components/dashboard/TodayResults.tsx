@@ -21,8 +21,6 @@ interface TodayResultsProps {
   currentDayResults: CurrentDayResult[];
   currentDate: string;
   fallbackResults?: CurrentDayResult[];
-  onOpenHistory?: () => void;
-  onOpen3D?: () => void;
 }
 
 const ALL_SLOTS = [
